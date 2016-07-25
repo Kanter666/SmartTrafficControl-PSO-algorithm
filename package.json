@@ -1,0 +1,26 @@
+{
+  "name": "smart-traffic-control-interceptor-game",
+  "version": "1.0.0",
+  "description": "A game to simulate an attack on a smart traffic control system",
+  "engines": {
+    "node": "4.4.7"
+  },
+  "main": "smarttrafficgame.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "smart",
+    "traffic",
+    "control",
+    "game",
+    "simulation",
+    "cyber",
+    "security"
+  ],
+  "author": "Matthew Cook",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "^6.0.3"
+  }
+}
