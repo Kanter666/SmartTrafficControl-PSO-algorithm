@@ -5,9 +5,18 @@
   "engines": {
     "node": "4.4.7"
   },
-  "main": "smarttrafficgame.html",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "pg": "4.x",
+    "ejs": "2.4.1",
+    "express": "4.13.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/node-js-getting-started"
   },
   "keywords": [
     "smart",
@@ -19,8 +28,5 @@
     "security"
   ],
   "author": "Matthew Cook",
-  "license": "ISC",
-  "dependencies": {
-    "pg": "^6.0.3"
-  }
+  "license": "ISC"
 }
