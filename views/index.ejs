@@ -14,7 +14,7 @@
     <script type="text/javascript">
     var southampton = new google.maps.LatLng(50.924354,-1.405391);
 	var map;
-	var M = 4;
+	var M;
 	var jams = [];
 	var cars = [];
 	var radius = [];
@@ -104,6 +104,8 @@
 		coText.innerHTML = 'You have infiltrated your way into influencing the data shown from a smart traffic control system <br> This can allow you to cause traffic jams wherever you wish for your own personal gain <br> This game will present you with a number of real traffic jams and M police cars, you will then be given the chance to select M places to be fake traffic jams.';
 		var image = document.createElement('img');
 		image.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png';
+		var MSelect = document.createElement('select');
+		MSelect.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option>';
 		var controlText = document.createElement('button');
 		controlText.style.fontFamily='Arial,sans-serif';
 		controlText.style.cursor = 'pointer';
@@ -114,6 +116,7 @@
 		leaderText.innerHTML = 'Leader Board';
 		controlUI.appendChild(coText);
 		//controlUI.appendChild(image);
+		controlUI.appendChild(MSelect);
 		controlUI.appendChild(controlText);
 		controlUI.appendChild(leaderText);
 
@@ -122,6 +125,7 @@
 		//add the Go button to the map again
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
 			score = 0;
+			M = controlDiv.firstChild.childNodes[1].options[controlDiv.firstChild.childNodes[1].selectedIndex].value;
 			startGame(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 		});
@@ -155,7 +159,7 @@
 			do{
 				var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 			}
-			while(person === null || person === "");
+			while(person !== null && person !== "");
 			window.location.replace("./?name="+person+"&score="+Math.round(score));
 		}
 		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
