@@ -1,6 +1,8 @@
 var pg = require('pg');
 var express = require('express');
 var app = express();
+var router = express.Router();
+
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -15,12 +17,25 @@ app.get('/', function(request, response) {
 	response.render('index');
 });
 
-app.post('/', function(request, response) {
-	if(request.query.score !== undefined){
-		pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
-		});
-		response.render('redirect');}
+router.post('/', function(req, res) {
+    // Get a Postgres client from the connection pool
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Insert Data
+        client.query("INSERT INTO fakescores values(1, 'June', 4, 634)");
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+        });
+
+    });
 });
 
 app.get('/leaderboard', function (request, response) {
