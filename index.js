@@ -14,13 +14,7 @@ app.get('/', function(request, response) {
 	if(request.query.score !== undefined){
 		var data = {text: req.body.text, complete: false};
 		pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]), function(err, result) {
-			done();
-			if (err)
-			{ console.error(err); response.send("Error " + err); }
-			else
-			{ response.render('db', {results: result.rows} ); }
-			});
+			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
 		});
 	}else{
 		response.render('index');
