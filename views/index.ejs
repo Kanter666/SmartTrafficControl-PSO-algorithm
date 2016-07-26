@@ -7,14 +7,15 @@
       body { height: 100%; margin: 0; padding: 0 }
       #map-canvas { height: 100% }
     </style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7J1zsErb9_7jxNu5KU5kIENFObAQEbl0">
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY">
     </script>
     
     <script type="text/javascript">
     var southampton = new google.maps.LatLng(50.924354,-1.405391);
 	var map;
-	var M = 4;
+	var M;
 	var jams = [];
 	var cars = [];
 	var radius = [];
@@ -26,7 +27,6 @@
 	var homeControlDiv2;
 	
 	var directionsService;
-	//	AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY
 	var reals = [[new google.maps.LatLng(50.8967964,-1.4069385),
 				new google.maps.LatLng(50.8985614,-1.3926258),
 				new google.maps.LatLng(50.9149906,-1.4145485),
@@ -105,6 +105,8 @@
 		coText.innerHTML = 'You have infiltrated your way into influencing the data shown from a smart traffic control system <br> This can allow you to cause traffic jams wherever you wish for your own personal gain <br> This game will present you with a number of real traffic jams and M police cars, you will then be given the chance to select M places to be fake traffic jams.';
 		var image = document.createElement('img');
 		image.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png';
+		var MSelect = document.createElement('select');
+		MSelect.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option>';
 		var controlText = document.createElement('button');
 		controlText.style.fontFamily='Arial,sans-serif';
 		controlText.style.cursor = 'pointer';
@@ -115,14 +117,20 @@
 		leaderText.innerHTML = 'Leader Board';
 		controlUI.appendChild(coText);
 		//controlUI.appendChild(image);
+		controlUI.appendChild(MSelect);
 		controlUI.appendChild(controlText);
 		controlUI.appendChild(leaderText);
 
 		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(controlText, 'click', function() {
+		$.ajax({
+			type: 'POST',
+			url: 'http://smart-traffic-control-game.herokuapp.com:1337/LEDon'
+		});
 		//add the Go button to the map again
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
 			score = 0;
+			M = controlDiv.firstChild.childNodes[1].options[controlDiv.firstChild.childNodes[1].selectedIndex].value;
 			startGame(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 		});
@@ -153,10 +161,10 @@
 	//takes a number representing the round of the current game [0-4]
 	function startGame(round){
 		if(round === 5){
-			var person = prompt("Well done! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
-			if (person != null) {
-				window.location.replace("./?name="+person+"&score="+Math.round(score));
+			do{
+				var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 			}
+			while(person !== null && person !== "");
 		}
 		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
 		google.maps.event.addDomListener(homeControlDiv2.firstChild, 'click', function() {
@@ -302,10 +310,11 @@
 				clearInterval(timer);
 				calculateScore();
 				//round ends with a lose and resets to the first level
-				var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
-				if (person != null) {
-					window.location.replace("./?name="+person+"&score="+Math.round(score));
+				do{
+					var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 				}
+				while(person === null || person === "");
+				window.location.replace("./?name="+person+"&score="+Math.round(score));
 				round = 0;
 				score = 0;
 				startGame(round);
