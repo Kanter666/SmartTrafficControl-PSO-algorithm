@@ -35,11 +35,9 @@ app.get('/leaderboard', function (request, response) {
 
 app.post('/LEDon', function(req, res) {
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-			client.query("INSERT INTO fakescores values(5, 'Jim', 4, 43)");
+			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
 		});
 });
-
-app.listen(1337);
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
