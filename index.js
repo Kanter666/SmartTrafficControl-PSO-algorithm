@@ -11,7 +11,20 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
-  response.render('index');
+	if(request.query.score !== undefined){
+		var data = {text: req.body.text, complete: false};
+		pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]), function(err, result) {
+			done();
+			if (err)
+			{ console.error(err); response.send("Error " + err); }
+			else
+			{ response.render('db', {results: result.rows} ); }
+			});
+		});
+	}else{
+		response.render('index');
+	}
 });
 
 app.get('/leaderboard', function (request, response) {
