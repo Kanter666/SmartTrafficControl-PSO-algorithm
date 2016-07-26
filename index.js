@@ -13,7 +13,7 @@ app.set('view engine', 'ejs');
 app.get('/', function(request, response) {
 	if(request.query.score !== undefined){
 		pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-			client.query("INSERT INTO fakescores values(5, 'June', 4, 654)", [request.query.name, request.query.score]);
+			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
 		});
 		response.render('redirect');}
 	else{
