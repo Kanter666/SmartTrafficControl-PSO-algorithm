@@ -35,7 +35,7 @@ app.get('/leaderboard', function (request, response) {
 
 app.post('/LEDon', function(req, res) {
     pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", ["jim", 21]);
+			client.query("INSERT INTO fakescores values(5, 'Jim', 4, 43)");
 		});
 });
 
