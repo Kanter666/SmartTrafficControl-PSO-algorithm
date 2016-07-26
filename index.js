@@ -14,7 +14,7 @@ app.get('/', function(request, response) {
   response.render('index');
 });
 
-app.get('/leaderboard', function (request, response) {
+app.get('/#leaderboard', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query('SELECT * FROM cars', function(err, result) {
       done();
