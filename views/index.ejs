@@ -123,10 +123,7 @@
 
 		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(controlText, 'click', function() {
-		$.ajax({
-			type: 'POST',
-			url: 'http://localhost:5000/LEDon?name=Jim&score=553'
-		});
+		
 		//add the Go button to the map again
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
 			score = 0;
@@ -314,7 +311,11 @@
 					var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 				}
 				while(person === null || person === "");
-				window.location.replace("./?name="+person+"&score="+Math.round(score));
+				$.ajax({
+					type: 'POST',
+					url: 'http://smart-traffic-control-game.herokuapp.com:5000/?name=person&score='+Math.round(score)
+				});
+				//window.location.replace("./?name="+person+"&score="+Math.round(score));
 				round = 0;
 				score = 0;
 				startGame(round);
