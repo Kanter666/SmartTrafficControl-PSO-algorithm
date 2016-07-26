@@ -81,6 +81,7 @@
 		
 		//create Go Button
 		homeControlDiv2 = document.createElement('div');
+		var homeControl2 = new HomeControl2(homeControlDiv2);
 
 	}
 	
@@ -119,6 +120,9 @@
 
 		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(controlText, 'click', function() {
+		//add the Go button to the map again
+		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
+			score = 0;
 			startGame(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 		});
@@ -130,8 +134,9 @@
 	}
 	
 	function HomeControl2(controlDiv) {
-	  controlDiv.style.padding = '5px';
 	  var controlUI = document.createElement('div');
+	  controlUI.style.padding = '10px';
+	  controlUI.style.width = '100px';
 	  controlUI.style.backgroundColor = 'white';
 	  controlUI.style.border='1px solid';
 	  controlUI.style.cursor = 'pointer';
@@ -140,13 +145,15 @@
 	  var controlText = document.createElement('div');
 	  controlText.style.fontFamily='Arial,sans-serif';
 	  controlText.style.fontSize='12px';
-	  controlText.style.paddingLeft = '4px';
-	  controlText.style.paddingRight = '4px';
-	  controlText.innerHTML = '<b>Go<b>';
+	  controlText.style.margin='100%';
 	  controlUI.appendChild(controlText);
-
-	  //when Go is pressed check if the correct amount of fake jams have been added
-	  google.maps.event.addDomListener(controlUI, 'click', function() {
+	  
+	}
+	
+	//takes a number representing the round of the current game [0-4]
+	function startGame(round){
+		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
+		google.maps.event.addDomListener(homeControlDiv2.firstChild, 'click', function() {
 		if(fakeJamCount<M){
 			//alert the user if not enough jams have been added
 			alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
@@ -155,26 +162,16 @@
 				alert("Please wait for " + M + " police cars to be placed on the map.");
 			}else{
 				//start the timer and allow the cars to move
-				beginRound();
-				//remove the Go button to reduce complications
-				//map.controls[google.maps.ControlPosition.BOTTOM_CENTER].pop();
-			
+				beginRound();			
 			}
 		}
 	  });
-	}
-	
-	//takes a number representing the round of the current game [0-4]
-	function startGame(round){
-		if(homeControlDiv2.firstChild){
-			homeControlDiv2.removeChild(homeControlDiv2.firstChild);
-		}
-		var homeControl2 = new HomeControl2(homeControlDiv2);
+	  
+	  //when Go is pressed check if the correct amount of fake jams have been added
+	  
 		//clear the map
 		deleteJams();
 		deleteCars();
-		//add the Go button to the map again
-		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
 		//place all real traffic jams
 		for(var i = 0; i<reals[round].length; i++){
 			placeRealJam(reals[round][i]);
@@ -270,6 +267,18 @@
 		return true;
 	}
 	
+	function calculateScore(){
+		for(var a = 0; a<jams.length; a++){
+			if(jams[a].real === false){
+				if(distanceToNearestRealJam(jams[a].center) < 0.8){
+					score += jams[a].influence * distanceToNearestRealJam(jams[a].center) * (1/distanceFromCenter(jams[a].center));
+				}else{
+					score += jams[a].influence * (1/distanceFromCenter(jams[a].center));
+				}
+			}
+		}
+	}
+	
 	function beginRound(){
 		directionsService = new google.maps.DirectionsService();
 		//set time (must be greater than assignTime * 10)
@@ -280,36 +289,23 @@
 		}
 		timer = setInterval(function(){
 		timeLeft = new Date(endTime - Date.parse(new Date())).getSeconds();
-		homeControlDiv2.removeChild(homeControlDiv2.firstChild);
-	  var controlText = document.createElement('div');
-	  controlText.style.fontFamily='Arial,sans-serif';
-	  controlText.style.fontSize='12px';
-	  controlText.style.paddingLeft = '4px';
-	  controlText.style.paddingRight = '4px';
-	  controlText.innerHTML = timeLeft + ' seconds left.';
-		homeControlDiv2.appendChild(controlText);
+		homeControlDiv2.firstChild.innerHTML = '<b>' + timeLeft + ' seconds left.</b>';
+		google.maps.event.clearListeners(homeControlDiv2.firstChild, 'click');
 			//check if the game has ended due to a loss
 			if(checkIfLost() === true){
 				clearInterval(timer);
+				calculateScore();
 				//round ends with a lose and resets to the first level
-				alert("Lose");
+				alert("Lose! Score: "+ Math.round(score));
 				round = 0;
+				score = 0;
 				startGame(round);
 			//check if the timer has run out
 			}else if(endTime - Date.parse(new Date()) <= 0){
 				clearInterval(timer);
-				var score = 0;
-				for(var a = 0; a<jams.length; a++){
-					if(jams[a].real === false){
-						if(distanceToNearestRealJam(jams[a].center) < 0.8){
-							score += jams[a].influence * distanceToNearestRealJam(jams[a].center) * (1/distanceFromCenter(jams[a].center));
-						}else{
-							score += jams[a].influence * (1/distanceFromCenter(jams[a].center));
-						}
-					}
-				}
+				calculateScore();
 				//round ends with a win and continues to the next level
-				alert("Win " + Math.round(score));
+				alert("Win!");
 				round++;
 				startGame(round);
 			}

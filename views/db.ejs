@@ -53,35 +53,20 @@
 		coText.style.fontSize='12px';
 		coText.style.paddingLeft = '4px';
 		coText.style.paddingRight = '4px';
-		coText.innerHTML = '<div class="container"><h2>Database Results</h2><ul><% results.forEach(function(r) { %><li><%= r.id %>,<%= r.round %>,<%= r.lat %>,<%= r.lng %></li><% }); %></ul></div>';
-		var image = document.createElement('img');
-		image.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png';
-		var controlText = document.createElement('button');
-		controlText.style.fontFamily='Arial,sans-serif';
-		controlText.style.cursor = 'pointer';
-		controlText.innerHTML = 'Play';
+		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><ul><% results.forEach(function(r) { %><li><%= r.name %> - <%= r.score %></li><% }); %></ul></div>';
 		var leaderText = document.createElement('button');
 		leaderText.style.fontFamily='Arial,sans-serif';
 		leaderText.style.cursor = 'pointer';
-		leaderText.innerHTML = 'Leader Board';
+		leaderText.innerHTML = 'Back';
 		controlUI.appendChild(coText);
-		//controlUI.appendChild(image);
-		controlUI.appendChild(controlText);
 		controlUI.appendChild(leaderText);
-
-		//when the text is clicked start the first round and remove the information window
-		google.maps.event.addDomListener(controlText, 'click', function() {
-			startGame(round);
-			map.controls[google.maps.ControlPosition.CENTER].pop();
-		});
 		
 		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(leaderText, 'click', function() {
-			window.location.replace("./leaderboard");
+			window.location.replace("./");
 		});
 	}
 
-	
 	google.maps.event.addDomListener(window, 'load', initialize);
 	
     </script>
