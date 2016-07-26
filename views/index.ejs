@@ -107,15 +107,25 @@
 		var controlText = document.createElement('button');
 		controlText.style.fontFamily='Arial,sans-serif';
 		controlText.style.cursor = 'pointer';
-		controlText.innerHTML = 'Close';
+		controlText.innerHTML = 'Play';
+		var leaderText = document.createElement('button');
+		leaderText.style.fontFamily='Arial,sans-serif';
+		leaderText.style.cursor = 'pointer';
+		leaderText.innerHTML = 'Leader Board';
 		controlUI.appendChild(coText);
 		//controlUI.appendChild(image);
 		controlUI.appendChild(controlText);
+		controlUI.appendChild(leaderText);
 
 		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(controlText, 'click', function() {
 			startGame(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
+		});
+		
+		//when the text is clicked start the first round and remove the information window
+		google.maps.event.addDomListener(leaderText, 'click', function() {
+			window.location.replace("./leaderboard");
 		});
 	}
 	
