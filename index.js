@@ -4,7 +4,7 @@ var app = express();
 
 app.set('port', (process.env.PORT || 5000));
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/images'));
 
 // views is directory for all template files
 app.set('views', __dirname + '/views');
@@ -14,16 +14,14 @@ app.get('/', function(request, response) {
   response.render('index');
 });
 
-var pg = require('pg');
-
-app.get('/db', function (request, response) {
+app.get('/leaderboard', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    client.query('SELECT * FROM test_table', function(err, result) {
+    client.query('SELECT * FROM cars', function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
       else
-       { response.render('pages/db', {results: result.rows} ); }
+       { response.render('db', {results: result.rows} ); }
     });
   });
 })
