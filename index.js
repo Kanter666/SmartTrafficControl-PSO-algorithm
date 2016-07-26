@@ -34,8 +34,9 @@ app.get('/leaderboard', function (request, response) {
 })
 
 app.post('/LEDon', function(req, res) {
-    console.log('LEDon button pressed!');
-    // Run your LED toggling code here
+    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+			client.query("INSERT INTO fakescores values(5, 'POST req worked', 4, 212)");
+		});
 });
 
 app.listen(1337);
