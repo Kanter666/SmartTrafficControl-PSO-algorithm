@@ -25,6 +25,7 @@
 	var timer;
 	var person;
 	var round = 0;
+	var homeControlDiv;
 	var homeControlDiv2;
 	
 	var directionsService;
@@ -59,8 +60,7 @@
 				new google.maps.LatLng(50.9346772,-1.4352648)],
 				[new google.maps.LatLng(50.8985614,-1.3926258),
 				new google.maps.LatLng(50.9149906,-1.4145485),
-				new google.maps.LatLng(50.9338139,-1.4182561)],
-				[]];
+				new google.maps.LatLng(50.9338139,-1.4182561)]];
 	
 	//run on load
 	function initialize(){
@@ -75,20 +75,20 @@
 		map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
 		map.setClickableIcons(false);
 		//create instruction window
-		var homeControlDiv = document.createElement('div');
-		var homeControl = new HomeControl(homeControlDiv);
+		
+		new HomeControl();
 		//add instruction window to the center of the map
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
 		
 		//create Go Button
-		homeControlDiv2 = document.createElement('div');
-		var homeControl2 = new HomeControl2(homeControlDiv2);
+		new HomeControl2();
 
 	}
 	
 	//start text
-	function HomeControl(controlDiv) {
-		controlDiv.style.padding = '50px';
+	function HomeControl() {
+		homeControlDiv = document.createElement('div');
+		homeControlDiv.style.padding = '50px';
 		var controlUI = document.createElement('div');
 		controlUI.style.backgroundColor = 'white';
 		controlUI.style.border='1px solid';
@@ -97,7 +97,7 @@
 		controlUI.style.paddingTop = '5px';
 		controlUI.style.paddingBottom = '5px';
 		controlUI.style.textAlign = 'center';
-		controlDiv.appendChild(controlUI);
+		homeControlDiv.appendChild(controlUI);
 		var coText = document.createElement('div');
 		coText.style.fontFamily='Arial,sans-serif';
 		coText.style.fontSize='12px';
@@ -127,7 +127,7 @@
 		//add the Go button to the map again
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
 			score = 0;
-			M = controlDiv.firstChild.childNodes[1].options[controlDiv.firstChild.childNodes[1].selectedIndex].value;
+			M = homeControlDiv.firstChild.childNodes[1].options[homeControlDiv.firstChild.childNodes[1].selectedIndex].value;
 			startGame(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 		});
@@ -138,7 +138,8 @@
 		});
 	}
 	
-	function HomeControl2(controlDiv) {
+	function HomeControl2() {
+	homeControlDiv2 = document.createElement('div');
 	  var controlUI = document.createElement('div');
 	  controlUI.style.padding = '10px';
 	  controlUI.style.width = '100px';
@@ -146,7 +147,7 @@
 	  controlUI.style.border='1px solid';
 	  controlUI.style.cursor = 'pointer';
 	  controlUI.style.textAlign = 'center';
-	  controlDiv.appendChild(controlUI);
+	  homeControlDiv2.appendChild(controlUI);
 	  var controlText = document.createElement('div');
 	  controlText.style.fontFamily='Arial,sans-serif';
 	  controlText.style.fontSize='12px';
@@ -166,7 +167,7 @@
 				type: 'POST',
 				url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
 			});
-			window.location.replace("./leaderboard");
+			window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 		}
 		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
 		google.maps.event.addDomListener(homeControlDiv2.firstChild, 'click', function() {
@@ -270,7 +271,6 @@
 				}
 			});
 		}
-		//do nothing if no such jam exists
 	}
 	
 	function checkIfLost(){
@@ -320,7 +320,7 @@
 					type: 'POST',
 					url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
 				});
-				window.location.replace("./scoreboard");
+				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 				round = 0;
 				score = 0;
 				startGame(round);
