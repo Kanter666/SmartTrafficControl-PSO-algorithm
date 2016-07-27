@@ -13,14 +13,7 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
-	if(request.query.score !== undefined){
-		pg.connect(connectionString, function(err, client, done) {
-			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
-		});
-		response.render('redirect');}
-	else{
-		response.render('index');
-	}
+	response.render('index');
 });
 
 app.post('/', function(request, response) {
