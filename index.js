@@ -12,7 +12,7 @@ app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
 	if(request.query.score !== undefined){
-		pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+		pg.connect("postgres://hahwdizbogbvgc:-XXSpyHFDYnILxx_hsK0niwWK8@ec2-50-19-240-113.compute-1.amazonaws.com:5432:/dcn9llujgn2dio", function(err, client, done) {
 			client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
 		});
 		response.render('redirect');}
@@ -28,7 +28,7 @@ app.post('/', function(request, response) {
 });
 
 app.get('/leaderboard', function (request, response) {
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+  pg.connect("postgres://hahwdizbogbvgc:-XXSpyHFDYnILxx_hsK0niwWK8@ec2-50-19-240-113.compute-1.amazonaws.com:5432:/dcn9llujgn2dio", function(err, client, done) {
     client.query('SELECT * FROM fakescores ORDER BY score DESC', function(err, result) {
       done();
       if (err)
