@@ -21,6 +21,12 @@ app.get('/', function(request, response) {
 	}
 });
 
+app.post('/', function(request, response) {
+	pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
+	});
+});
+
 app.get('/leaderboard', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query('SELECT * FROM fakescores ORDER BY score DESC', function(err, result) {
