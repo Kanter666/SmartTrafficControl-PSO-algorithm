@@ -18,6 +18,18 @@ app.get('/', function(request, response) {
 
 app.post('/', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
+		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.body.name, request.body.score]);
+	});
+});
+
+app.post('/cars', function(request, response) {
+	pg.connect(connectionString, function(err, client, done) {
+		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
+	});
+});
+
+app.post('/jams', function(request, response) {
+	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
 	});
 });
