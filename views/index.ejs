@@ -168,7 +168,7 @@
 			while(person === null || person === "");
 			$.ajax({
 				type: 'POST',
-				url: 'https://smart-traffic-control-game.herokuapp.com/,
+				url: 'https://smart-traffic-control-game.herokuapp.com/',
 				data: 'name='+person+'&score=' + Math.round(score)
 			});
 			window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
