@@ -17,13 +17,24 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
-	response.render('index');
+	if(request.query.leaderboard === "true"){
+		pg.connect(connectionString, function(err, client, done) {
+			client.query('SELECT * FROM fakescores ORDER BY score DESC', function(err, result) {
+				done();
+				if (err)
+				{ console.error(err); response.send("Error " + err); }
+				else
+				{ response.render('db', {results: result.rows} ); }
+			});
+		});
+	}else{
+		response.render('index');
+	}
 });
 
 app.post('/', function(request, response) {
-	var data = {name: request.body.name, score: request.body.score};
 	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [data.name, data.score]);
+		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.body.name, request.body.score]);
 	});
 });
 
