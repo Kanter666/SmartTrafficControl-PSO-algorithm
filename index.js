@@ -17,19 +17,7 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 app.get('/', function(request, response) {
-	if(request.query.leaderboard === "true"){
-		pg.connect(connectionString, function(err, client, done) {
-			client.query('SELECT * FROM fakescores ORDER BY score DESC', function(err, result) {
-				done();
-				if (err)
-				{ console.error(err); response.send("Error " + err); }
-				else
-				{ response.render('db', {results: result.rows} ); }
-			});
-		});
-	}else{
-		response.render('index');
-	}
+	response.render('index');
 });
 
 app.post('/', function(request, response) {

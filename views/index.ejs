@@ -168,8 +168,7 @@
 			while(person === null || person === "");
 			$.ajax({
 				type: 'POST',
-				url: 'https://smart-traffic-control-game.herokuapp.com/,
-				data: 'name='+person+'&score=' + Math.round(score)
+				url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
 			});
 			window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 			round = 0;
@@ -328,8 +327,7 @@
 				while(person === null || person === "");
 				$.ajax({
 					type: 'POST',
-					url: 'https://smart-traffic-control-game.herokuapp.com/,
-					data: 'name='+person+'&score=' + Math.round(score)
+					url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
 				});
 				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 				round = 0;
