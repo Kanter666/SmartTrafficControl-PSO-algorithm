@@ -2,6 +2,8 @@ var pg = require('pg');
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
+var multer = require('multer'); // v1.0.5
+var upload = multer(); // for parsing multipart/form-data
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -20,7 +22,7 @@ app.get('/', function(request, response) {
 	response.render('index');
 });
 
-app.post('/', function(request, response) {
+app.post('/', upload.array(), function(request, response) {
 	var data = {name: request.body.name, score: request.body.score};
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [data.name, data.score]);
