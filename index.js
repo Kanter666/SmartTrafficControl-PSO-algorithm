@@ -17,8 +17,9 @@ app.get('/', function(request, response) {
 });
 
 app.post('/', function(request, response) {
+	var data = {name: request.body.name, score: request.body.score};
 	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.body.name, request.body.score]);
+		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [data.name, data.score]);
 	});
 });
 
