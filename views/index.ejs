@@ -24,7 +24,8 @@
 	var timeLeft;
 	var timer;
 	var person;
-	var round = 0;
+	var round = 4;
+	var allAssigned;
 	var homeControlDiv;
 	var homeControlDiv2;
 	
@@ -60,7 +61,8 @@
 				new google.maps.LatLng(50.9346772,-1.4352648)],
 				[new google.maps.LatLng(50.8985614,-1.3926258),
 				new google.maps.LatLng(50.9149906,-1.4145485),
-				new google.maps.LatLng(50.9338139,-1.4182561)]];
+				new google.maps.LatLng(50.9338139,-1.4182561)],
+				[]];
 	
 	//run on load
 	function initialize(){
@@ -74,6 +76,7 @@
 		map = new google.maps.Map(document.getElementById("map-canvas"),initMap);
 		map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
 		map.setClickableIcons(false);
+		//map.fitBounds(new google.maps.LatLngBounds({south: 50.8887909, east: -1.522807, north: 50.9604229, west: -1.2890042}));
 		//create instruction window
 		
 		new HomeControl();
@@ -107,7 +110,7 @@
 		var image = document.createElement('img');
 		image.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png';
 		var MSelect = document.createElement('select');
-		MSelect.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option>';
+		MSelect.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option>';
 		var controlText = document.createElement('button');
 		controlText.style.fontFamily='Arial,sans-serif';
 		controlText.style.cursor = 'pointer';
@@ -160,14 +163,15 @@
 	function startGame(round){
 		if(round === 5){
 			do{
-				var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
+				var person = prompt("Congratulations! You beat the game! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 			}
 			while(person === null || person === "");
-			$.ajax({
-				type: 'POST',
-				url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
-			});
-			window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
+			//$.ajax({
+			//	type: 'POST',
+			//	url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
+			//});
+			//window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
+			round = 0;
 		}
 		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
 		google.maps.event.addDomListener(homeControlDiv2.firstChild, 'click', function() {
@@ -176,6 +180,10 @@
 			alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
 		}else{
 			if(cars.length<M){
+				var temp = M;
+				M = M - cars.length;
+				placeCarsRandomly();
+				M = temp;
 				alert("Please wait for " + M + " police cars to be placed on the map.");
 			}else{
 				//start the timer and allow the cars to move
@@ -209,7 +217,7 @@
 			//check if target has been checked
 			if(car.target.checked === true){
 				//assign the car a new target
-				assign(car);
+				assign(car, 0);
 			}else{
 				//increment the car along its path depending on its proximity to a real traffic jam
 				if(distanceToNearestRealJam(car.position) < 0.8){
@@ -240,14 +248,14 @@
 	}
 	
 	//takes a car object (extended google.maps.Marker) and allocates it a new target traffic jam
-	function assign(car){
+	function assign(car, aT){
 		//resets the time taken to assign a new traffic jam
-		car.assignTime = 0;
+		car.assignTime = aT;
 		var closest;
 		var closestDistance = Infinity;
 		//loops through all traffic jams looking for the closest that hasn't already been checked
 		for(var o = 0; o<jams.length; o++){
-			if(jams[o].checked === false && jams[o].assigned === false){
+			if(jams[o].checked === false && jams[o].assigned === allAssigned){
 				var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
 				if(dist < closestDistance){
 					closest = jams[o];
@@ -299,9 +307,10 @@
 		directionsService = new google.maps.DirectionsService();
 		//set time (must be greater than assignTime * 10)
 		endTime = Date.parse(new Date()) + 30000;
+		allAssigned = false;
 		//assign each car to a target
 		for(var p = 0; p<M; p++){
-			assign(cars[p]);
+			assign(cars[p], 0);
 		}
 		timer = setInterval(function(){
 		timeLeft = new Date(endTime - Date.parse(new Date())).getSeconds();
@@ -316,11 +325,11 @@
 					var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 				}
 				while(person === null || person === "");
-				$.ajax({
-					type: 'POST',
-					url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
-				});
-				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
+				//$.ajax({
+				//	type: 'POST',
+				//	url: 'https://smart-traffic-control-game.herokuapp.com/?name='+person+'&score=' + Math.round(score)
+				//});
+				//window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 				round = 0;
 				score = 0;
 				startGame(round);
@@ -337,10 +346,24 @@
 			for(var b = 0; b<cars.length;b++){
 				advance(cars[b]);
 			}
+			var assignedList = 0;
 			for(var s = 0; s<jams.length; s++){
 				if(jams[s].real === false && jams[s].checked === false){
 					jams[s].influence++;
 				}
+				if(jams[s].assigned === true){
+					assignedList++;
+				}
+			}
+			if(assignedList === jams.length){
+				allAssigned = true;
+			}
+			update++;
+			if(update >= 50){
+				for(var p = 0; p<M; p++){
+					assign(cars[p], 10);
+				}
+				update = 0;
 			}
 		}, 100);
 		//remove the ability to add more fake traffic jams
