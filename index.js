@@ -1,6 +1,7 @@
 var pg = require('pg');
 var express = require('express');
 var app = express();
+var router = express.Router();
 
 var connectionString = "postgres://hahwdizbogbvgc:-XXSpyHFDYnILxx_hsK0niwWK8@ec2-50-19-240-113.compute-1.amazonaws.com:5432/dcn9llujgn2dio";
 
@@ -16,7 +17,7 @@ app.get('/', function(request, response) {
 	response.render('index');
 });
 
-app.post('/', function(request, response) {
+router.post('/', function(request, res) {
 	var data = {name: request.body.name, score: request.body.score};
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [data.name, data.score]);
