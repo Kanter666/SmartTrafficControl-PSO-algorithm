@@ -1,7 +1,10 @@
 var pg = require('pg');
 var express = require('express');
 var app = express();
-var router = express.Router();
+var bodyParser = require('body-parser');
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 var connectionString = "postgres://hahwdizbogbvgc:-XXSpyHFDYnILxx_hsK0niwWK8@ec2-50-19-240-113.compute-1.amazonaws.com:5432/dcn9llujgn2dio";
 
@@ -17,7 +20,7 @@ app.get('/', function(request, response) {
 	response.render('index');
 });
 
-router.post('/', function(request, res) {
+app.post('/', function(request, response) {
 	var data = {name: request.body.name, score: request.body.score};
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [data.name, data.score]);
