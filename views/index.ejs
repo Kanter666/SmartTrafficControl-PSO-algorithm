@@ -420,7 +420,7 @@
 						$.ajax({
 							type: 'POST',
 							url: 'https://smart-traffic-control-game.herokuapp.com/jams',
-							data: 'game='+ID+'&round='+round+'&lat=' + jams[b].getCenter().lat() + '&lng=' + jams[b].getCenter().lng() + '&influence=' + jams[b].influence + '&distancetoreal=' + distanceToNearestRealJam(jams[b].getCenter()) + '&assigned=' + jams[b].assigned;
+							data: 'game='+ID+'&round='+round+'&lat=' + jams[b].getCenter().lat() + '&lng=' + jams[b].getCenter().lng() + '&influence=' + jams[b].influence + '&distancetoreal=' + distanceToNearestRealJam(jams[b].getCenter()) + '&assigned=' + jams[b].assigned
 						});
 					}
 				}	
