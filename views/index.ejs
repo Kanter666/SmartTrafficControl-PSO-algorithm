@@ -427,7 +427,7 @@
 				for(var c = 0; c<cars.length; c++){
 					$.ajax({
 						type: 'POST',
-						url: 'https://smart-traffic-control-game.herokuapp.com/jams',
+						url: 'https://smart-traffic-control-game.herokuapp.com/cars',
 						data: 'game='+ID+'&round='+round+'&lat=' + cars[c].getCenter().lat() + '&lng=' + cars[c].getCenter().lng() + '&jamschecked=' + 3 + '&realchecked=' + 2
 					});
 				}
@@ -451,7 +451,7 @@
 				for(var c = 0; c<cars.length; c++){
 					$.ajax({
 						type: 'POST',
-						url: 'https://smart-traffic-control-game.herokuapp.com/jams',
+						url: 'https://smart-traffic-control-game.herokuapp.com/cars',
 						data: 'game='+ID+'&round='+round+'&lat=' + cars[c].position.lat() + '&lng=' + cars[c].position.lng() + '&jamschecked=' + 3 + '&realchecked=' + 2
 					});
 				}
