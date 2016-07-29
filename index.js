@@ -27,13 +27,12 @@ app.post('/scores', function(request, response) {
 
 app.post('/cars', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
+		client.query("INSERT INTO cars values($1, $2, $3, $4, $5, $6)", [request.query.name, request.query.score]);
 	});
-});
-
+});						
 app.post('/jams', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.query.name, request.query.score]);
+		client.query("INSERT INTO jams values($1, $2, $3, $4, $5, $6, $7)", [request.body.game, request.body.round, request.body.lat, request.body.lng, request.body.influence, request.body.distancetoreal, request.body.assigned]);
 	});
 });
 

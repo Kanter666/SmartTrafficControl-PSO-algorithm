@@ -233,7 +233,6 @@
 				person = prompt("Congratulations! You beat the game! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 			}
 			while(person === null || person === "");
-			var M = 53;
 			$.ajax({
 				type: 'POST',
 				url: 'https://smart-traffic-control-game.herokuapp.com/scores',
@@ -411,12 +410,20 @@
 					person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 				}
 				while(person === null || person === "");
-				var M = 53;
 				$.ajax({
 					type: 'POST',
 					url: 'https://smart-traffic-control-game.herokuapp.com/scores',
 					data: 'game='+ID+'&M='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
 				});
+				for(var b = 0; b<jams.length; b++){
+					if(jams[b].real === false){
+						$.ajax({
+							type: 'POST',
+							url: 'https://smart-traffic-control-game.herokuapp.com/jams',
+							data: 'game='+ID+'&round='+round+'&lat=' + jams[b].getCenter().lat() + '&lng=' + jams[b].getCenter().lng() + '&influence=' + jams[b].influence + '&distancetoreal=' + distanceToNearestRealJam(jams[b].getCenter()) + '&assigned=' + jams[b].assigned;
+						});
+					}
+				}	
 				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 				round = 0;
 				score = 0;
