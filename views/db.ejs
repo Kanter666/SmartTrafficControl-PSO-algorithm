@@ -55,7 +55,7 @@
 		coText.style.fontSize='12px';
 		coText.style.paddingLeft = '4px';
 		coText.style.paddingRight = '4px';
-		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><ul><% results.forEach(function(r) { %><li><%= r.name %> - <%= r.score %></li><% }); %></ul></div>';
+		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><ul><% results.forEach(function(r) { %><li><%= r.name %> - <%= r.score %> - <%= r.M %></li><% }); %></ul></div>';
 		var leaderText = document.createElement('button');
 		leaderText.style.fontFamily='Arial,sans-serif';
 		leaderText.style.cursor = 'pointer';

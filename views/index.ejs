@@ -24,6 +24,8 @@
 	var timeLeft;
 	var timer;
 	var person;
+	var score;
+	var ID;
 	var round = 0;
 	var allAssigned;
 	var homeControlDiv;
@@ -74,18 +76,82 @@
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
 		map = new google.maps.Map(document.getElementById("map-canvas"),initMap);
-		map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
 		map.setClickableIcons(false);
-		//map.fitBounds(new google.maps.LatLngBounds({south: 50.8887909, east: -1.522807, north: 50.9604229, west: -1.2890042}));
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 90,
+				south: 50.9603811,
+				east: 180,
+				west: -180
+			}
+		});
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 50.8883491,
+				south: -90,
+				east: 180,
+				west: -180
+			}
+		});
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 90,
+				south: -90,
+				east: 180,
+				west: -1.3106925
+			}
+		});
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 90,
+				south: -90,
+				east: -1.4981467,
+				west: -180
+			}
+		});
 		//create instruction window
 		
-		new HomeControl();
+		HomeControl();
 		//add instruction window to the center of the map
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
 		
 		//create Go Button
-		new HomeControl2();
+		HomeControl2();
 
+	}
+	
+	function makeid(){
+		var text = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		for( var i=0; i < 10; i++ ){
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+		}
+		return text;
 	}
 	
 	//start text
@@ -131,6 +197,7 @@
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
 			score = 0;
 			M = homeControlDiv.firstChild.childNodes[1].options[homeControlDiv.firstChild.childNodes[1].selectedIndex].value;
+			ID = makeid();
 			startGame(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 		});
@@ -163,16 +230,17 @@
 	function startGame(round){
 		if(round === 5){
 			do{
-				var person = prompt("Congratulations! You beat the game! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
+				person = prompt("Congratulations! You beat the game! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 			}
 			while(person === null || person === "");
 			$.ajax({
 				type: 'POST',
-				url: 'https://smart-traffic-control-game.herokuapp.com/',
-				data: 'name='+person+'&score=' + Math.round(score)
+				url: 'https://smart-traffic-control-game.herokuapp.com/scores',
+				data: 'game='+ID+'&M='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
 			});
 			window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 			round = 0;
+			ID = makeid();
 		}
 		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
 		google.maps.event.addDomListener(homeControlDiv2.firstChild, 'click', function() {
@@ -180,15 +248,28 @@
 			//alert the user if not enough jams have been added
 			alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
 		}else{
-			if(cars.length<M){
-				var temp = M;
-				M = M - cars.length;
-				placeCarsRandomly();
-				M = temp;
-				alert("Please wait for " + M + " police cars to be placed on the map.");
+			var fine = true;
+			for(var p = 0; p<jams.length; p++){
+				if(jams[p].getCenter().lat() < 50.8883491 || jams[p].getCenter().lat() > 50.9603811 || jams[p].getCenter().lng() > -1.3106925 || jams[p].getCenter().lng() < -1.4981467){
+					fine = false;
+				}
+			}
+			if(fine === false){
+				deleteJams();
+				for(var i = 0; i<reals[round].length; i++){
+					placeRealJam(reals[round][i]);
+				}
 			}else{
+				if(cars.length<M){
+					var temp = M;
+					M = M - cars.length;
+					placeCarsRandomly();
+					M = temp;
+					alert("Please wait for " + M + " police cars to be placed on the map.");
+				}else{
 				//start the timer and allow the cars to move
 				beginRound();			
+				}
 			}
 		}
 	  });
@@ -266,6 +347,9 @@
 		}
 		//check that the closest traffic jam actually exists and set it as the cars target
 		if(closest !== undefined){
+		if(car.target !== undefined){
+			car.target.assigned = false;			
+		}
 		car.target = closest;
 		directionsService.route({
 				origin:car.getPosition(),
@@ -296,9 +380,9 @@
 		for(var a = 0; a<jams.length; a++){
 			if(jams[a].real === false){
 				if(distanceToNearestRealJam(jams[a].center) < 0.8){
-					score += jams[a].influence * distanceToNearestRealJam(jams[a].center) * (1/distanceFromCenter(jams[a].center));
+					score += jams[a].influence * distanceToNearestRealJam(jams[a].center);
 				}else{
-					score += jams[a].influence * (1/distanceFromCenter(jams[a].center));
+					score += jams[a].influence;
 				}
 			}
 		}
@@ -323,13 +407,13 @@
 				calculateScore();
 				//round ends with a lose and resets to the first level
 				do{
-					var person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
+					person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 				}
 				while(person === null || person === "");
 				$.ajax({
 					type: 'POST',
-					url: 'https://smart-traffic-control-game.herokuapp.com/',
-					data: 'name='+person+'&score=' + Math.round(score)
+					url: 'https://smart-traffic-control-game.herokuapp.com/scores',
+					data: 'game='+ID+'&M='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
 				});
 				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 				round = 0;
@@ -359,13 +443,6 @@
 			}
 			if(assignedList === jams.length){
 				allAssigned = true;
-			}
-			update++;
-			if(update >= 50){
-				for(var p = 0; p<M; p++){
-					assign(cars[p], 10);
-				}
-				update = 0;
 			}
 		}, 100);
 		//remove the ability to add more fake traffic jams
@@ -511,7 +588,7 @@
 	function placeCarsRandomly(){
 		directionsService = new google.maps.DirectionsService();
 		for(var i = 0; i<M; i++){
-				var rPoint = randomPoint(new google.maps.LatLng(50.893150, -1.473627), new google.maps.LatLng(50.940552, -1.341619));
+				var rPoint = randomPoint(new google.maps.LatLng(50.8883491, -1.4981467), new google.maps.LatLng(50.9603811, -1.3106925));
 				directionsService.route({
 				origin:rPoint,
 				destination:new google.maps.LatLng(50.893150, -1.473627),
@@ -535,10 +612,6 @@
 			}
 		}
 		return closestDistance * 110.574;
-	}
-	
-	function distanceFromCenter(location){
-		return Math.sqrt(Math.pow(location.lat()-50.9104951, 2)+Math.pow(location.lng()+1.4048904, 2)) * 110.574;
 	}
 	
 	google.maps.event.addDomListener(window, 'load', initialize);

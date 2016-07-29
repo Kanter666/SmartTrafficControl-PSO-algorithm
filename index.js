@@ -19,10 +19,9 @@ app.set('view engine', 'ejs');
 app.get('/', function(request, response) {
 	response.render('index');
 });
-
-app.post('/', function(request, response) {
+app.post('/scores', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO fakescores values(5, $1, 4, $2)", [request.body.name, request.body.score]);
+		client.query("INSERT INTO scores values($1, $2, $3, $4, $5)", [request.body.game, request.body.M, request.body.name, request.body.score, request.body.round]);
 	});
 });
 
@@ -40,7 +39,7 @@ app.post('/jams', function(request, response) {
 
 app.get('/leaderboard', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
-    client.query('SELECT * FROM fakescores ORDER BY score DESC', function(err, result) {
+    client.query('SELECT * FROM scores ORDER BY score DESC', function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
