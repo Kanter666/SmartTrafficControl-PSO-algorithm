@@ -452,7 +452,7 @@
 					$.ajax({
 						type: 'POST',
 						url: 'https://smart-traffic-control-game.herokuapp.com/jams',
-						data: 'game='+ID+'&round='+round+'&lat=' + cars[c].getCenter().lat() + '&lng=' + cars[c].getCenter().lng() + '&jamschecked=' + 3 + '&realchecked=' + 2
+						data: 'game='+ID+'&round='+round+'&lat=' + cars[c].position.lat() + '&lng=' + cars[c].position.lng() + '&jamschecked=' + 3 + '&realchecked=' + 2
 					});
 				}
 				//round ends with a win and continues to the next level
