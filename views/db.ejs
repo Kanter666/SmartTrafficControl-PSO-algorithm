@@ -28,6 +28,62 @@
 		map = new google.maps.Map(document.getElementById("map-canvas"),initMap);
 		map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
 		map.setClickableIcons(false);
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 90,
+				south: 50.9603811,
+				east: 180,
+				west: -180
+			}
+		});
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 50.8883491,
+				south: -90,
+				east: 180,
+				west: -180
+			}
+		});
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 90,
+				south: -90,
+				east: 180,
+				west: -1.3106925
+			}
+		});
+		var rectangle = new google.maps.Rectangle({
+			strokeColor: '#000000',
+			strokeOpacity: 1.0,
+			strokeWeight: 2,
+			fillColor: '#000000',
+			fillOpacity: 1.0,
+			map: map,
+			bounds: {
+				north: 90,
+				south: -90,
+				east: -1.4981467,
+				west: -180
+			}
+		});
 		//create instruction window
 		var homeControlDiv = document.createElement('div');
 		var homeControl = new HomeControl(homeControlDiv);
