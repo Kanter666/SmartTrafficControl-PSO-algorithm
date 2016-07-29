@@ -236,7 +236,7 @@
 			$.ajax({
 				type: 'POST',
 				url: 'https://smart-traffic-control-game.herokuapp.com/scores',
-				data: 'game='+ID+'&M='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
+				data: 'game='+ID+'&m='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
 			});
 			window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 			round = 0;
@@ -413,7 +413,7 @@
 				$.ajax({
 					type: 'POST',
 					url: 'https://smart-traffic-control-game.herokuapp.com/scores',
-					data: 'game='+ID+'&M='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
+					data: 'game='+ID+'&m='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
 				});
 				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 				round = 0;
