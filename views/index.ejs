@@ -420,10 +420,10 @@
 						$.ajax({
 							type: 'POST',
 							url: 'https://smart-traffic-control-game.herokuapp.com/jams',
-							data: 'game='+ID+'&round='+round+'&lat=' + jams[b].getCenter().lat() + '&lng=' + jams[b].getCenter().lng() + '&influence=' + jams[b].influence + '&distancetoreal=' + distanceToNearestRealJam(jams[b].getCenter()) + '&assigned=' + jams[b].assigned
+							data: 'game='+ID+'&round='+round+'&lat=' + jams[b].getCenter().lat() + '&lng=' + jams[b].getCenter().lng() + '&influence=' + jams[b].influence + '&distancetoreal=' + distanceToNearestRealJam(jams[b].getCenter())
 						});
 					}
-				}	
+				}
 				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 				round = 0;
 				score = 0;
@@ -432,6 +432,15 @@
 			}else if(endTime - Date.parse(new Date()) <= 0){
 				clearInterval(timer);
 				calculateScore();
+				for(var b = 0; b<jams.length; b++){
+					if(jams[b].real === false){
+						$.ajax({
+							type: 'POST',
+							url: 'https://smart-traffic-control-game.herokuapp.com/jams',
+							data: 'game='+ID+'&round='+round+'&lat=' + jams[b].getCenter().lat() + '&lng=' + jams[b].getCenter().lng() + '&influence=' + jams[b].influence + '&distancetoreal=' + distanceToNearestRealJam(jams[b].getCenter())
+						});
+					}
+				}
 				//round ends with a win and continues to the next level
 				alert("Win!");
 				round++;

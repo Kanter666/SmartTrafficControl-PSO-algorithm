@@ -32,7 +32,7 @@ app.post('/cars', function(request, response) {
 });						
 app.post('/jams', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO jams values($1, $2, $3, $4, $5, $6, $7)", [request.body.game, request.body.round, request.body.lat, request.body.lng, request.body.influence, request.body.distancetoreal, request.body.assigned]);
+		client.query("INSERT INTO jams values($1, $2, $3, $4, $5, $6)", [request.body.game, request.body.round, request.body.lat, request.body.lng, request.body.influence, request.body.distancetoreal]);
 	});
 });
 
