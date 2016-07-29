@@ -233,6 +233,7 @@
 				person = prompt("Congratulations! You beat the game! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 			}
 			while(person === null || person === "");
+			var M = 53;
 			$.ajax({
 				type: 'POST',
 				url: 'https://smart-traffic-control-game.herokuapp.com/scores',
@@ -410,6 +411,7 @@
 					person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 				}
 				while(person === null || person === "");
+				var M = 53;
 				$.ajax({
 					type: 'POST',
 					url: 'https://smart-traffic-control-game.herokuapp.com/scores',
