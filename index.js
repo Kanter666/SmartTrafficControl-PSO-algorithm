@@ -21,7 +21,7 @@ app.get('/', function(request, response) {
 });
 app.post('/scores', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO scores values($1, $2, $3, $4, $5)", [request.body.game, request.body.M, request.body.name, request.body.score, request.body.round]);
+		client.query("INSERT INTO scores values($1, $2, $3, $4, $5)", [request.body.game, request.body.m, request.body.name, request.body.score, request.body.round]);
 	});
 });
 
