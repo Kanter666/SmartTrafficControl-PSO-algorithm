@@ -22,17 +22,20 @@ app.get('/', function(request, response) {
 app.post('/scores', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO scores values($1, $2, $3, $4, $5)", [request.body.game, request.body.M, request.body.name, request.body.score, request.body.round]);
+		done();
 	});
 });
 
 app.post('/cars', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO cars values($1, $2, $3, $4, $5, $6)", [request.query.name, request.query.score]);
+		done();
 	});
 });						
 app.post('/jams', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO jams values($1, $2, $3, $4, $5, $6)", [request.body.game, request.body.round, request.body.lat, request.body.lng, request.body.influence, request.body.distancetoreal]);
+		done();
 	});
 });
 
