@@ -448,13 +448,18 @@
 						});
 					}
 				}
+				var cars2 = [];
 				for(var c = 0; c<cars.length; c++){
-					alert(cars[c].position.lat() + '&lng=' + cars[c].position.lng());
+					cars2.push([cars[c].position.lat(), cars[c].position.lng(), 3, 2]);
+				}
+				alert(cars2.length);
+				for(var c = 0; c<cars2.length; c++){
 					$.ajax({
 						type: 'POST',
 						url: 'https://smart-traffic-control-game.herokuapp.com/cars',
-						data: 'game='+ID+'&round='+round+'&lat=' + cars[c].position.lat() + '&lng=' + cars[c].position.lng() + '&jamschecked=' + 3 + '&realchecked=' + 2
+						data: 'game='+ID+'&round='+round+'&lat=' + cars2[c][0] + '&lng=' + cars2[c][1] + '&jamschecked=' + 3 + '&realchecked=' + 2
 					});
+					
 				}
 				//round ends with a win and continues to the next level
 				alert("Win!");
