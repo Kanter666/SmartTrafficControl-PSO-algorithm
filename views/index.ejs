@@ -26,12 +26,12 @@
 	var person;
 	var score;
 	var ID;
-	var round = 5;
+	var round = 0;
 	var allAssigned;
 	var homeControlDiv;
 	var homeControlDiv2;
-	var jamJSON;
-	var carJSON;
+	var jamJSON = "";
+	var carJSON = "";
 	
 	var directionsService;
 	var reals = [[new google.maps.LatLng(50.8967964,-1.4069385),
@@ -237,12 +237,15 @@
 			while(person === null || person === "");
 			$.ajax({
 				type: 'POST',
-				url: 'https://smart-traffic-control-game.herokuapp.com/scores',
-				data: 'game='+ID+'&M='+M+'&name='+person+'&round='+round+'&score=' + Math.round(score)
+				url: 'https://smart-traffic-control-game.herokuapp.com/',
+				data: 'game='+ID+'&M='+M+'&name='+person+'&score='+ Math.round(score) +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1)
 			});
-			window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
+			prompt("Please copy the code below to complete the HIT", ID);
+			//window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
 			round = 0;
 			ID = makeid();
+			jamJSON = "";
+			carJSON = "";
 		}
 		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
 		google.maps.event.addDomListener(homeControlDiv2.firstChild, 'click', function() {
@@ -317,7 +320,7 @@
 				//move the car to this new point if this isn't past its target and check if the current location is a jam and if so check it
 				if(car.pointOnPath<car.path.length){
 					moveCar(car, car.path[car.pointOnPath]);
-					checkCircle(car.path[car.pointOnPath]);
+					checkCircle(car);
 				}else{
 					car.target.setOptions({
 					//change colour to green
@@ -326,6 +329,10 @@
 					});
 					//set checked value
 					car.target.checked = true;
+					if(car.target.real === false){
+						car.fakeJamsChecked++;
+					}
+					car.jamsChecked++;
 				}
 			}
 		}
@@ -412,23 +419,24 @@
 					person = prompt("Unlucky! Your score is " + Math.round(score) + ". Please enter your name to add it to the leader board.", "");
 				}
 				while(person === null || person === "");
-				var jamJSON = "";
 				for(var b = 0; b<jams.length; b++){
-					jamJSON = jamJSON + '"game":'+ID+',"round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter())
+					if(jams[b].real === false){
+						jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
+					}
 				}
 				for(var c = 0; c<cars.length; c++){
-					$.ajax({
-						type: 'POST',
-						url: 'https://smart-traffic-control-game.herokuapp.com/cars',
-						data: 'game='+ID+'&round='+round+'&lat=' + cars[c].position.lat() + '&lng=' + cars[c].position.lng() + '&jamschecked=' + 3 + '&realchecked=' + 2
-					});
+					carJSON = carJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + cars[c].position.lat() + ',"lng":' + cars[c].position.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
 				}
 				$.ajax({
 					type: 'POST',
 					url: 'https://smart-traffic-control-game.herokuapp.com/',
-					data: 'game='+ID+'&M='+M+'&name='+person+'&score='+ Math.round(score) +'&round='+round + '&jams=' +jamJSON + '&cars=' + carJSON
+					data: 'game='+ID+'&M='+M+'&name='+person+'&score='+ Math.round(score) +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1)
 				});
-				window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
+				prompt("Please copy the code below to complete the HIT", ID);
+				//window.location.replace("https://smart-traffic-control-game.herokuapp.com/leaderboard");
+				ID = makeid();
+				jamJSON = "";
+				carJSON = "";
 				round = 0;
 				score = 0;
 				startGame(round);
@@ -436,6 +444,14 @@
 			}else if(endTime - Date.parse(new Date()) <= 0){
 				clearInterval(timer);
 				calculateScore();
+				for(var b = 0; b<jams.length; b++){
+					if(jams[b].real === false){
+						jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
+					}
+				}	
+				for(var c = 0; c<cars.length; c++){
+					carJSON = carJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + cars[c].position.lat() + ',"lng":' + cars[c].position.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
+				}
 				//round ends with a win and continues to the next level
 				alert("Win!");
 				round++;
@@ -487,7 +503,8 @@
 	}
 	
 	//takes a google.maps.LatLng object and verifies if a traffic jam is present at it, if there is one it becomes green
-	function checkCircle(location){
+	function checkCircle(car){
+		var location = car.path[car.pointOnPath];
 		for (var i = 0; i < jams.length; i++) {
 			if(Math.round(jams[i].getCenter().lat() * 1000) === Math.round(location.lat() * 1000) && Math.round(jams[i].getCenter().lng() * 1000) === Math.round(location.lng() * 1000)){
 				jams[i].setOptions({
@@ -497,6 +514,10 @@
 				});
 				//set checked value
 				jams[i].checked = true;
+				if(jams[i].real === false){
+					car.fakeJamsChecked++;
+				}
+				car.jamsChecked++;
 			}
         }
 	}
@@ -528,6 +549,8 @@
 		});
 		car.path = [];
 		car.assignTime = 0;
+		car.fakeJamsChecked = 0;
+		car.jamsChecked = 0;
 		cars.push(car);
 	}
 	

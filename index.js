@@ -26,19 +26,6 @@ app.post('/', function(request, response) {
 	});
 });
 
-app.post('/cars', function(request, response) {
-	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO cars values($1, $2, $3, $4, $5, $6)", [request.body.game, request.body.round, request.body.lat, request.body.lng, request.body.jamschecked, request.body.realchecked]);
-		done();
-	});
-});						
-app.post('/jams', function(request, response) {
-	pg.connect(connectionString, function(err, client, done) {
-		client.query("INSERT INTO jams values($1, $2, $3, $4, $5, $6)", [request.body.game, request.body.round, request.body.lat, request.body.lng, request.body.influence, request.body.distancetoreal]);
-		done();
-	});
-});
-
 app.get('/leaderboard', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
     client.query('SELECT * FROM scores ORDER BY score DESC', function(err, result) {
