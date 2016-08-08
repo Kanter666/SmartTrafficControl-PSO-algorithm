@@ -28,7 +28,7 @@ app.post('/', function(request, response) {
 
 app.get('/leaderboard', function (request, response) {
   pg.connect(connectionString, function(err, client, done) {
-    client.query('SELECT * FROM scores ORDER BY score DESC', function(err, result) {
+    client.query('SELECT * FROM results ORDER BY score DESC', function(err, result) {
       done();
       if (err)
        { console.error(err); response.send("Error " + err); }
