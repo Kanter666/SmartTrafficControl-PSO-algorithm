@@ -1,0 +1,28 @@
+﻿<html>
+<img id="image"/>
+<style type="text/css">
+    img { height: 100%; width: 100% }
+</style>
+<script type="text/javascript">
+
+	function width(){
+	   return window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
+	}
+	function height(){
+	   return window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
+	}
+	var img = document.getElementById("image");
+	img.onload = function () {
+	   setTimeout(function(){
+        window.close();
+		}, 1000);
+	}
+	if(Math.random() < 0.2){
+		img.src = "http://loremflickr.com/"+width()+"/"+height()+"/sexy,asian";
+	}else if(Math.random() < 0.5){
+		img.src = "http://loremflickr.com/"+width()+"/"+height()+"/kitten,funny,cute/all";	
+	}else{
+		img.src = "http://loremflickr.com/"+width()+"/"+height()+"/puppy,funny,cute/all";		
+	}
+	</script> 
+</html>
