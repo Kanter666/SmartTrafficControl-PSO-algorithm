@@ -28,6 +28,7 @@
 	var homeControlDiv2;
 	var jamJSON;
 	var carJSON;
+	var MSelect;
 	var directionsService = new google.maps.DirectionsService();
 	var reals = [[new google.maps.LatLng(50.8967964,-1.4069385),
 				new google.maps.LatLng(50.8985614,-1.3926258),
@@ -147,28 +148,29 @@
 		homeControlDiv.appendChild(controlUI);
 		var coText = document.createElement('div');
 		coText.style.fontFamily='Arial,sans-serif';
-		coText.style.fontSize='12px';
-		coText.style.paddingLeft = '4px';
-		coText.style.paddingRight = '4px';
-		coText.innerHTML = 'You have infiltrated your way into influencing the data shown from a smart traffic control system <br> This can allow you to cause traffic jams wherever you wish for your own personal gain <br> This game will present you with a number of real traffic jams and M police cars, you will then be given the chance to select M places to be fake traffic jams.';
+		coText.style.fontSize='18px';
+		coText.innerHTML = 'Number of police cars and fake traffic jams:  ';
 		var image = document.createElement('img');
-		image.src = './radius.png';
-		var MSelect = document.createElement('select');
+		image.src = './description.png';
+		MSelect = document.createElement('select');
 		MSelect.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option>';
 		var controlText = document.createElement('button');
 		controlText.style.fontFamily='Arial,sans-serif';
 		controlText.style.cursor = 'pointer';
+		controlText.style.marginRight = '10px';
+		controlText.style.marginBottom = '20px';
 		controlText.innerHTML = 'Play';
 		var leaderText = document.createElement('button');
 		leaderText.style.fontFamily='Arial,sans-serif';
 		leaderText.style.cursor = 'pointer';
 		leaderText.innerHTML = 'Leader Board';
-		controlUI.appendChild(coText);
+		leaderText.style.marginBottom = '20px';
 		controlUI.appendChild(image);
 		var brk = document.createElement('div');
 		brk.innerHTML = '<br>';
+		coText.appendChild(MSelect);
+		controlUI.appendChild(coText);
 		controlUI.appendChild(brk);
-		controlUI.appendChild(MSelect);
 		controlUI.appendChild(controlText);
 		controlUI.appendChild(leaderText);
 
@@ -176,7 +178,7 @@
 		google.maps.event.addDomListener(controlText, 'click', function() {
 		//add the Go button to the map again
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
-			M = homeControlDiv.firstChild.childNodes[3].options[homeControlDiv.firstChild.childNodes[3].selectedIndex].value;
+			M = MSelect.options[MSelect.selectedIndex].value;
 			resetVariables();
 			startRound(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
