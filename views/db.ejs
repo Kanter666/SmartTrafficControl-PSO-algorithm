@@ -3,9 +3,13 @@
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 		<style type="text/css">
-		  html { height: 100% }
-		  body { height: 100%; margin: 0; padding: 0 }
-		  #map-canvas { height: 100% }
+			div {
+				text-align: center;
+			}
+			h2 {
+				text-align: center;
+			}
+			
 			table {
 				font-family: arial, sans-serif;
 				border-collapse: collapse;
@@ -26,6 +30,17 @@
 	
 		
   <body>
-	<div class="container"><h2>Leader Board</h2><table><tr><th>Rank</th><th>Name</th><th>Police Cars (M)</th><th>Score</th></tr><% results.forEach(function(r) { %><tr><td><%= r.number %></td><td><%= r.name %></td><td><%= r.m %></td><td><%= r.score %></td></tr><% }); %></table></div>
+	<div class="container">
+		<h2>Leader Board</h2>
+		<table>
+			<tr>
+				<th>Rank</th>
+				<th>Name</th>
+				<th>Police Cars (M)</th>
+				<th>Score</th>
+			</tr>
+			<% results.forEach(function(r) { %><tr><td><%= r.number %></td><td><%= r.name %></td><td><%= r.m %></td><td><%= r.score %></td></tr><% }); %>
+		</table>
+	</div>
   </body>
 </html>
