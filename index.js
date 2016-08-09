@@ -27,15 +27,27 @@ app.post('/', function(request, response) {
 });
 
 app.get('/leaderboard', function (request, response) {
-  pg.connect(connectionString, function(err, client, done) {
-    client.query('SELECT ROW_NUMBER() OVER (ORDER BY score DESC) AS number, * FROM results ORDER BY score DESC', function(err, result) {
-      done();
-      if (err)
-       { console.error(err); response.send("Error " + err); }
-      else
-       { response.render('db', {results: result.rows} ); }
-    });
-  });
+	if(request.query.m === undefined){
+	  pg.connect(connectionString, function(err, client, done) {
+		client.query('SELECT ROW_NUMBER() OVER (ORDER BY score DESC) AS number, * FROM results ORDER BY score DESC', function(err, result) {
+		  done();
+		  if (err)
+		   { console.error(err); response.send("Error " + err); }
+		  else
+		   { response.render('db', {results: result.rows} ); }
+		});
+	  });
+	 }else{
+		pg.connect(connectionString, function(err, client, done) {
+		client.query('SELECT ROW_NUMBER() OVER (ORDER BY score DESC) AS number, * FROM results ORDER BY score DESC WHERE m=$1', [request.query.m], function(err, result) {
+		  done();
+		  if (err)
+		   { console.error(err); response.send("Error " + err); }
+		  else
+		   { response.render('db', {results: result.rows} ); }
+		});
+	  });
+	 }
 })
 
 app.listen(app.get('port'), function() {
