@@ -6,6 +6,21 @@
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
       #map-canvas { height: 100% }
+		table {
+			font-family: arial, sans-serif;
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		td, th {
+			border: 1px solid #dddddd;
+			text-align: left;
+			padding: 8px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #dddddd;
+		}
     </style>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY"></script>
     <script type="text/javascript">
@@ -91,7 +106,6 @@
 		coText.style.fontSize='12px';
 		coText.style.paddingLeft = '4px';
 		coText.style.paddingRight = '4px';
-		coText.style.textAlign = 'center';
 		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><table><tr><th>Rank</th><th>Name</th><th>Police Cars (M)</th><th>Score</th></tr><% results.forEach(function(r) { %><tr><td><%= r.number %></td><td><%= r.name %></td><td><%= r.m %></td><td><%= r.score %></td></tr><% }); %></table></div>';
 		var leaderText = document.createElement('button');
 		leaderText.style.fontFamily='Arial,sans-serif';
