@@ -7,14 +7,10 @@
       body { height: 100%; margin: 0; padding: 0 }
       #map-canvas { height: 100% }
     </style>
-    <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7J1zsErb9_7jxNu5KU5kIENFObAQEbl0">
-    </script>
-    
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY"></script>
     <script type="text/javascript">
     var southampton = new google.maps.LatLng(50.924354,-1.405391);
 	var map;
-	//	AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY
 	
 	//run on load
 	function initialize(){
@@ -28,11 +24,7 @@
 		map = new google.maps.Map(document.getElementById("map-canvas"),initMap);
 		map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
 		map.setClickableIcons(false);
-		var rectangle = new google.maps.Rectangle({
-			strokeColor: '#000000',
-			strokeOpacity: 1.0,
-			strokeWeight: 2,
-			fillColor: '#000000',
+		new google.maps.Rectangle({
 			fillOpacity: 1.0,
 			map: map,
 			bounds: {
@@ -42,11 +34,7 @@
 				west: -180
 			}
 		});
-		var rectangle = new google.maps.Rectangle({
-			strokeColor: '#000000',
-			strokeOpacity: 1.0,
-			strokeWeight: 2,
-			fillColor: '#000000',
+		new google.maps.Rectangle({
 			fillOpacity: 1.0,
 			map: map,
 			bounds: {
@@ -56,11 +44,7 @@
 				west: -180
 			}
 		});
-		var rectangle = new google.maps.Rectangle({
-			strokeColor: '#000000',
-			strokeOpacity: 1.0,
-			strokeWeight: 2,
-			fillColor: '#000000',
+		new google.maps.Rectangle({
 			fillOpacity: 1.0,
 			map: map,
 			bounds: {
@@ -70,11 +54,7 @@
 				west: -1.3106925
 			}
 		});
-		var rectangle = new google.maps.Rectangle({
-			strokeColor: '#000000',
-			strokeOpacity: 1.0,
-			strokeWeight: 2,
-			fillColor: '#000000',
+		new google.maps.Rectangle({
 			fillOpacity: 1.0,
 			map: map,
 			bounds: {
@@ -111,7 +91,7 @@
 		coText.style.fontSize='12px';
 		coText.style.paddingLeft = '4px';
 		coText.style.paddingRight = '4px';
-		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><ul><% results.forEach(function(r) { %><li><%= r.name %> - <%= r.score %> - <%= r.m %></li><% }); %></ul></div>';
+		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><ul><% results.forEach(function(r) { %><li><%= r.number %> - <%= r.name %> - <%= r.m %> - <%= r.score %></li><% }); %></ul></div>';
 		var leaderText = document.createElement('button');
 		leaderText.style.fontFamily='Arial,sans-serif';
 		leaderText.style.cursor = 'pointer';
