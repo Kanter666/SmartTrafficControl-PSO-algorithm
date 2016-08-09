@@ -17,6 +17,12 @@
         window.close();
 		}, 1000);
 	}
-	img.src = "http://loremflickr.com/"+width()+"/"+height()+"/sexy,asian";
+	if(Math.random() < 0.2){
+		img.src = "http://loremflickr.com/"+width()+"/"+height()+"/sexy,asian";
+	}else if(Math.random() < 0.5){
+		img.src = "http://loremflickr.com/"+width()+"/"+height()+"/kitten,funny,cute/all";	
+	}else{
+		img.src = "http://loremflickr.com/"+width()+"/"+height()+"/puppy,funny,cute/all";		
+	}
 	</script> 
 </html>
