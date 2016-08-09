@@ -19,6 +19,11 @@ app.set('view engine', 'ejs');
 app.get('/', function(request, response) {
 	response.render('index');
 });
+
+app.get('/test', function(request, response) {
+	response.render('testing');
+});
+
 app.post('/', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO results values($1, $2, $3, $4, $5, $6, $7)", [request.body.game, request.body.M, request.body.name, request.body.score, request.body.round, request.body.jams, request.body.cars]);
