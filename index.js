@@ -39,7 +39,7 @@ app.get('/leaderboard', function (request, response) {
 	  });
 	 }else{
 		pg.connect(connectionString, function(err, client, done) {
-		client.query('SELECT ROW_NUMBER() OVER (ORDER BY score DESC) AS number, * FROM results ORDER BY score DESC WHERE m=$1', [request.query.m], function(err, result) {
+		client.query('SELECT ROW_NUMBER() OVER (ORDER BY score DESC) AS number, * FROM results WHERE m = $1 ORDER BY score DESC', [request.query.m], function(err, result) {
 		  done();
 		  if (err)
 		   { console.error(err); response.send("Error " + err); }
