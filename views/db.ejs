@@ -100,7 +100,6 @@
 		controlUI.style.paddingTop = '5px';
 		controlUI.style.paddingBottom = '5px';
 		controlUI.style.textAlign = 'center';
-		controlUI.style.overflow = 'scroll';
 		controlDiv.appendChild(controlUI);
 		var coText = document.createElement('div');
 		coText.style.fontFamily='Arial,sans-serif';
@@ -108,6 +107,7 @@
 		coText.style.paddingLeft = '4px';
 		coText.style.paddingRight = '4px';
 		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><table><tr><th>Rank</th><th>Name</th><th>Police Cars (M)</th><th>Score</th></tr><% results.forEach(function(r) { %><tr><td><%= r.number %></td><td><%= r.name %></td><td><%= r.m %></td><td><%= r.score %></td></tr><% }); %></table></div>';
+		coText.style.overflow = 'scroll';
 		var leaderText = document.createElement('button');
 		leaderText.style.fontFamily='Arial,sans-serif';
 		leaderText.style.cursor = 'pointer';
