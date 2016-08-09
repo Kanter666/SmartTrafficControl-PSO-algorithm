@@ -2,130 +2,30 @@
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">
-      html { height: 100% }
-      body { height: 100%; margin: 0; padding: 0 }
-      #map-canvas { height: 100% }
-		table {
-			font-family: arial, sans-serif;
-			border-collapse: collapse;
-			width: 100%;
-		}
+		<style type="text/css">
+		  html { height: 100% }
+		  body { height: 100%; margin: 0; padding: 0 }
+		  #map-canvas { height: 100% }
+			table {
+				font-family: arial, sans-serif;
+				border-collapse: collapse;
+				width: 100%;
+			}
 
-		td, th {
-			border: 1px solid #dddddd;
-			text-align: left;
-			padding: 8px;
-		}
+			td, th {
+				border: 1px solid #dddddd;
+				text-align: left;
+				padding: 8px;
+			}
 
-		tr:nth-child(even) {
-			background-color: #dddddd;
-		}
-    </style>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY"></script>
-    <script type="text/javascript">
-    var southampton = new google.maps.LatLng(50.924354,-1.405391);
-	var map;
+			tr:nth-child(even) {
+				background-color: #dddddd;
+			}
+		</style>
+	</head>
 	
-	//run on load
-	function initialize(){
-		//set up map
-		var initMap = {
-			center: southampton,
-			zoom:13,
-			disableDefaultUI:true,
-			mapTypeId: google.maps.MapTypeId.ROADMAP
-		};
-		map = new google.maps.Map(document.getElementById("map-canvas"),initMap);
-		map.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
-		map.setClickableIcons(false);
-		new google.maps.Rectangle({
-			fillOpacity: 1.0,
-			map: map,
-			bounds: {
-				north: 90,
-				south: 50.9603811,
-				east: 180,
-				west: -180
-			}
-		});
-		new google.maps.Rectangle({
-			fillOpacity: 1.0,
-			map: map,
-			bounds: {
-				north: 50.8883491,
-				south: -90,
-				east: 180,
-				west: -180
-			}
-		});
-		new google.maps.Rectangle({
-			fillOpacity: 1.0,
-			map: map,
-			bounds: {
-				north: 90,
-				south: -90,
-				east: 180,
-				west: -1.3106925
-			}
-		});
-		new google.maps.Rectangle({
-			fillOpacity: 1.0,
-			map: map,
-			bounds: {
-				north: 90,
-				south: -90,
-				east: -1.4981467,
-				west: -180
-			}
-		});
-		//create instruction window
-		var homeControlDiv = document.createElement('div');
-		var homeControl = new HomeControl(homeControlDiv);
-		//add instruction window to the center of the map
-		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
 		
-	}
-	
-	//start text
-	function HomeControl(controlDiv) {
-		controlDiv.style.padding = '50px';
-		controlDiv.style.minHeight = '80%';
-		controlDiv.style.minWidth='80%';
-		var controlUI = document.createElement('div');
-		controlUI.style.backgroundColor = 'white';
-		controlUI.style.border='1px solid';
-		controlUI.style.paddingLeft = '5px';
-		controlUI.style.paddingRight = '5px';
-		controlUI.style.paddingTop = '5px';
-		controlUI.style.paddingBottom = '5px';
-		controlUI.style.textAlign = 'center';
-		controlDiv.appendChild(controlUI);
-		var coText = document.createElement('div');
-		coText.style.fontFamily='Arial,sans-serif';
-		coText.style.fontSize='12px';
-		coText.style.paddingLeft = '4px';
-		coText.style.paddingRight = '4px';
-		coText.innerHTML = '<div class="container"><h2>Leader Board</h2><table><tr><th>Rank</th><th>Name</th><th>Police Cars (M)</th><th>Score</th></tr><% results.forEach(function(r) { %><tr><td><%= r.number %></td><td><%= r.name %></td><td><%= r.m %></td><td><%= r.score %></td></tr><% }); %></table></div>';
-		coText.style.overflow = 'scroll';
-		var leaderText = document.createElement('button');
-		leaderText.style.fontFamily='Arial,sans-serif';
-		leaderText.style.cursor = 'pointer';
-		leaderText.innerHTML = 'Back';
-		controlUI.appendChild(coText);
-		controlUI.appendChild(leaderText);
-		
-		//when the text is clicked start the first round and remove the information window
-		google.maps.event.addDomListener(leaderText, 'click', function() {
-			window.location.replace("./");
-		});
-	}
-
-	google.maps.event.addDomListener(window, 'load', initialize);
-	
-    </script>
-  </head>
   <body>
-    <div id="map-canvas"/>
+	<div class="container"><h2>Leader Board</h2><table><tr><th>Rank</th><th>Name</th><th>Police Cars (M)</th><th>Score</th></tr><% results.forEach(function(r) { %><tr><td><%= r.number %></td><td><%= r.name %></td><td><%= r.m %></td><td><%= r.score %></td></tr><% }); %></table></div>
   </body>
 </html>
