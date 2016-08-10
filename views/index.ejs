@@ -17,7 +17,7 @@
 	var cars = [];
 	var radius = [];
 	var fakeJamCount = 0;
-	var endTime;
+	var timeGone;
 	var timeLeft;
 	var timer;
 	var score;
@@ -26,6 +26,7 @@
 	var allAssigned;
 	var homeControlDiv;
 	var homeControlDiv2;
+	var homeControlDiv3;
 	var jamJSON;
 	var carJSON;
 	var MSelect;
@@ -121,6 +122,7 @@
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
 		//create Go Button
 		HomeControl2();
+		HomeControl3();
 
 	}
 	
@@ -178,6 +180,7 @@
 		google.maps.event.addDomListener(controlText, 'click', function() {
 		//add the Go button to the map again
 		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
+		map.controls[google.maps.ControlPosition.TOP_CENTER].push(homeControlDiv3);
 			M = MSelect.options[MSelect.selectedIndex].value;
 			resetVariables();
 			startRound(round);
@@ -200,6 +203,19 @@
 	  controlUI.style.cursor = 'pointer';
 	  controlUI.style.textAlign = 'center';
 	  homeControlDiv2.appendChild(controlUI);
+	  controlUI.appendChild(document.createElement('div'));
+	}
+	
+	function HomeControl3() {
+	homeControlDiv3 = document.createElement('div');
+	  var controlUI = document.createElement('div');
+	  controlUI.style.padding = '10px';
+	  controlUI.style.width = '100px';
+	  controlUI.style.backgroundColor = 'white';
+	  controlUI.style.border='1px solid';
+	  controlUI.style.textAlign = 'center';
+	  controlUI.style.innerHTML = '<b>Score: 0</b>';
+	  homeControlDiv3.appendChild(controlUI);
 	  controlUI.appendChild(document.createElement('div'));
 	}
 	
@@ -258,6 +274,9 @@
 					var temp = M;
 					M = M - cars.length;
 					placeCarsRandomly();
+					for(var c = 0; c<cars.length; c++){
+						carJSON = carJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + cars[c].position.lat() + ',"lng":' + cars[c].position.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
+					}
 					M = temp;
 					alert("Please wait for " + M + " police cars to be placed on the map.");
 				}else{
@@ -388,30 +407,41 @@
 		}
 	}
 	
+	function calculateScore2(){
+		for(var a = 0; a<jams.length; a++){
+			if(jams[a].real === false && jams[a].checked === false){
+				if(distanceToNearestRealJam(jams[a].center) < 0.8){
+					score += distanceToNearestRealJam(jams[a].center);
+				}else{
+					score += 1;
+				}
+			}
+		}
+	}
+	
 	function endRound(){
 		clearInterval(timer);
-		calculateScore();
+		//calculateScore();
 		for(var b = 0; b<jams.length; b++){
 			if(jams[b].real === false){
 				jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
 			}
 		}
-		for(var c = 0; c<cars.length; c++){
-			carJSON = carJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + cars[c].position.lat() + ',"lng":' + cars[c].position.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
-		}
 	}
 	
 	function startCountdown(){
 		//set time (must be greater than assignTime * 10)
-		endTime = Date.parse(new Date()) + 30000;
+		endTime = 300;
 		allAssigned = false;
 		//assign each car to a target
 		for(var p = 0; p<M; p++){
 			assign(cars[p], 0);
 		}
+		timeGone = 0;
 		timer = setInterval(function(){
-		timeLeft = new Date(endTime - Date.parse(new Date())).getSeconds();
-		homeControlDiv2.firstChild.innerHTML = '<b>' + timeLeft + ' seconds left.</b>';
+		homeControlDiv2.firstChild.innerHTML = '<b>' + Math.round((endTime - timeGone)/10) + ' seconds left.</b>';
+		calculateScore2();
+		homeControlDiv3.firstChild.innerHTML = '<b>Score: ' + Math.round(score) + '</b>';
 		google.maps.event.clearListeners(homeControlDiv2.firstChild, 'click');
 			//check if the game has ended due to a loss
 			if(checkIfLost() === true){
@@ -425,7 +455,7 @@
 				while(person === null || person === "");
 				sendAndReset(person);
 			//check if the timer has run out
-			}else if(endTime - Date.parse(new Date()) <= 0){
+			}else if(endTime - timeGone <= 0){
 				endRound();
 				//round ends with a win and continues to the next level
 				alert("Win!");
@@ -445,6 +475,7 @@
 					assignedList++;
 				}
 			}
+			timeGone++;
 			if(assignedList === jams.length){
 				allAssigned = true;
 			}
