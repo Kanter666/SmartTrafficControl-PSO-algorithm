@@ -274,9 +274,6 @@
 					var temp = M;
 					M = M - cars.length;
 					placeCarsRandomly();
-					for(var c = 0; c<cars.length; c++){
-						carJSON = carJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + cars[c].position.lat() + ',"lng":' + cars[c].position.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
-					}
 					M = temp;
 					alert("Please wait for " + M + " police cars to be placed on the map.");
 				}else{
@@ -424,8 +421,15 @@
 		//calculateScore();
 		for(var b = 0; b<jams.length; b++){
 			if(jams[b].real === false){
-				jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
+				if(round === 4){
+					jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":-1},'
+				}else{
+					jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
+				}
 			}
+		}
+		for(var c = 0; c<cars.length; c++){
+			carJSON = carJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + cars[c].startPosition.lat() + ',"lng":' + cars[c].startPosition.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
 		}
 	}
 	
@@ -547,6 +551,7 @@
 		car.assignTime = 0;
 		car.fakeJamsChecked = 0;
 		car.jamsChecked = 0;
+		car.startPosition = car.position;
 		cars.push(car);
 	}
 	
