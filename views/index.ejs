@@ -5,7 +5,27 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
-      #map-canvas { height: 100% }
+      #map-canvas { height: 100%; width: 80%}
+	  #controlUI{
+		
+	  padding = '10px';
+	  width = '200px';
+	  backgroundColor = 'white';
+	  border='1px solid';
+	  textAlign = 'center';
+	  fontSize = '20px';
+	  }
+	  #controlUI2{
+		
+	  padding = '10px';
+	  width = '200px';
+	  backgroundColor = 'white';
+	  border='1px solid';
+	  textAlign = 'center';
+	  fontSize = '20px';
+	  cursor = 'pointer';
+	  textAlign = 'center';
+	  }
     </style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY"></script>
@@ -18,7 +38,6 @@
 	var radius = [];
 	var fakeJamCount = 0;
 	var timeGone;
-	var timeLeft;
 	var timer;
 	var score;
 	var ID;
@@ -75,6 +94,7 @@
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
 		map = new google.maps.Map(document.getElementById("map-canvas"),initMap);
+		map.setOptions({disableDoubleClickZoom: true, zoomControl: false, scrollwheel:false, draggable: false});
 		map.setClickableIcons(false);
 		new google.maps.Rectangle({
 			fillOpacity: 1.0,
@@ -122,7 +142,8 @@
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
 		//create Go Button
 		HomeControl2();
-		HomeControl3();
+		
+		//HomeControl3();
 
 	}
 	
@@ -179,12 +200,12 @@
 		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(controlText, 'click', function() {
 		//add the Go button to the map again
-		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv2);
-		map.controls[google.maps.ControlPosition.TOP_CENTER].push(homeControlDiv3);
+		
 			M = MSelect.options[MSelect.selectedIndex].value;
 			resetVariables();
 			startRound(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
+			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});			
 		});
 		
 		//when the text is clicked start the first round and remove the information window
@@ -195,28 +216,15 @@
 	
 	function HomeControl2() {
 	homeControlDiv2 = document.createElement('div');
-	  var controlUI = document.createElement('div');
-	  controlUI.style.padding = '10px';
-	  controlUI.style.width = '100px';
-	  controlUI.style.backgroundColor = 'white';
-	  controlUI.style.border='1px solid';
-	  controlUI.style.cursor = 'pointer';
-	  controlUI.style.textAlign = 'center';
-	  homeControlDiv2.appendChild(controlUI);
-	  controlUI.appendChild(document.createElement('div'));
-	}
-	
-	function HomeControl3() {
-	homeControlDiv3 = document.createElement('div');
-	  var controlUI = document.createElement('div');
-	  controlUI.style.padding = '10px';
-	  controlUI.style.width = '100px';
-	  controlUI.style.backgroundColor = 'white';
-	  controlUI.style.border='1px solid';
-	  controlUI.style.textAlign = 'center';
-	  controlUI.style.innerHTML = '<b>Score: 0</b>';
-	  homeControlDiv3.appendChild(controlUI);
-	  controlUI.appendChild(document.createElement('div'));
+	  var controlUI2 = document.createElement('div');
+	  controlUI2.style.padding = '10px';
+	  controlUI2.style.width = '200px';
+	  controlUI2.style.backgroundColor = 'white';
+	  controlUI2.style.border='1px solid';
+	  controlUI2.style.cursor = 'pointer';
+	  controlUI2.style.textAlign = 'center';
+	  controlUI2.style.fontSize = '20px';
+	  homeControlDiv2.appendChild(controlUI2);
 	}
 	
 	function sendAndReset(person){
@@ -229,7 +237,6 @@
 		//clear the map
 		deleteJams();
 		deleteCars();
-		map.controls[google.maps.ControlPosition.BOTTOM_CENTER].pop();
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
 	}
 	
@@ -251,38 +258,7 @@
 			}
 			while(person === null || person === "");
 			sendAndReset(person);
-		}
-		homeControlDiv2.firstChild.innerHTML = '<b>Go</b>';
-		google.maps.event.addDomListener(homeControlDiv2.firstChild, 'click', function() {
-		if(fakeJamCount<M){
-			//alert the user if not enough jams have been added
-			alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
 		}else{
-			var fine = true;
-			for(var p = 0; p<jams.length; p++){
-				if(jams[p].getCenter().lat() < 50.8883491 || jams[p].getCenter().lat() > 50.9603811 || jams[p].getCenter().lng() > -1.3106925 || jams[p].getCenter().lng() < -1.4981467){
-					fine = false;
-				}
-			}
-			if(fine === false){
-				deleteJams();
-				for(var i = 0; i<reals[round].length; i++){
-					placeRealJam(reals[round][i]);
-				}
-			}else{
-				if(cars.length<M){
-					var temp = M;
-					M = M - cars.length;
-					placeCarsRandomly();
-					M = temp;
-					alert("Please wait for " + M + " police cars to be placed on the map.");
-				}else{
-				//start the timer and allow the cars to move
-				startCountdown();			
-				}
-			}
-		}
-	  });
 		//clear the map
 		deleteJams();
 		deleteCars();
@@ -295,6 +271,39 @@
 		google.maps.event.addListener(map, 'click', function(event) {
 			placeCircle(event.latLng);
 		});
+		}
+	}
+	
+	function button(){
+		if(fakeJamCount<M){
+				//alert the user if not enough jams have been added
+				alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
+			}else{
+				var fine = true;
+				for(var p = 0; p<jams.length; p++){
+					if(jams[p].getCenter().lat() < 50.8883491 || jams[p].getCenter().lat() > 50.9603811 || jams[p].getCenter().lng() > -1.3106925 || jams[p].getCenter().lng() < -1.4981467){
+						fine = false;
+					}
+				}
+				if(fine === false){
+					deleteJams();
+					for(var i = 0; i<reals[round].length; i++){
+						placeRealJam(reals[round][i]);
+					}
+				}else{
+					if(cars.length<M){
+						var temp = M;
+						M = M - cars.length;
+						placeCarsRandomly();
+						M = temp;
+						alert("Please wait for " + M + " police cars to be placed on the map and try again.");
+					}else{
+					//start the timer and allow the cars to move
+					spreadOfFakes();
+					startCountdown();			
+					}
+				}
+			}
 	}
 	
 	//takes a Car (extended google.maps.Marker object) and moves it forward on its path to its target
@@ -396,9 +405,9 @@
 		for(var a = 0; a<jams.length; a++){
 			if(jams[a].real === false){
 				if(distanceToNearestRealJam(jams[a].center) < 0.8){
-					score += jams[a].influence * distanceToNearestRealJam(jams[a].center);
+					score += jams[a].influence * distanceToNearestRealJam(jams[a].center) * spreadOfFakes();
 				}else{
-					score += jams[a].influence;
+					score += jams[a].influence * spreadOfFakes();
 				}
 			}
 		}
@@ -408,12 +417,13 @@
 		for(var a = 0; a<jams.length; a++){
 			if(jams[a].real === false && jams[a].checked === false){
 				if(distanceToNearestRealJam(jams[a].center) < 0.8){
-					score += distanceToNearestRealJam(jams[a].center);
+					score += distanceToNearestRealJam(jams[a].center) * spreadOfFakes();
 				}else{
-					score += 1;
+					score += spreadOfFakes();
 				}
 			}
 		}
+		return score;
 	}
 	
 	function endRound(){
@@ -434,19 +444,18 @@
 	}
 	
 	function startCountdown(){
-		//set time (must be greater than assignTime * 10)
-		endTime = 300;
+		timeGone = 0;
 		allAssigned = false;
 		//assign each car to a target
 		for(var p = 0; p<M; p++){
 			assign(cars[p], 0);
 		}
-		timeGone = 0;
 		timer = setInterval(function(){
-		homeControlDiv2.firstChild.innerHTML = '<b>' + Math.round((endTime - timeGone)/10) + ' seconds left.</b>';
 		calculateScore2();
-		homeControlDiv3.firstChild.innerHTML = '<b>Score: ' + Math.round(score) + '</b>';
-		google.maps.event.clearListeners(homeControlDiv2.firstChild, 'click');
+		var eventsTable = document.getElementById('controlUI');
+		eventsTable.innerHTML = '<b>Score: ' + Math.round(score) + '</b>';
+		var eventsTable2 = document.getElementById('timeleft');
+		eventsTable2.innerHTML = '<b>' + Math.round((300 - timeGone)/10) + ' seconds left.</b>';
 			//check if the game has ended due to a loss
 			if(checkIfLost() === true){
 				endRound();
@@ -459,7 +468,7 @@
 				while(person === null || person === "");
 				sendAndReset(person);
 			//check if the timer has run out
-			}else if(endTime - timeGone <= 0){
+			}else if(300 - timeGone <= 0){
 				endRound();
 				//round ends with a win and continues to the next level
 				alert("Win!");
@@ -633,7 +642,8 @@
 				if (status == google.maps.DirectionsStatus.OK) {
 					placeCar(new google.maps.LatLng(result.routes[0].legs[0].start_location.lat(), result.routes[0].legs[0].start_location.lng()));
 				}else{
-					alert("Error: Google Maps API not returning location data. Please refresh the page.");
+					alert("Error: Google Maps API not returning location data. The game will restart.");
+					window.location = "./";
 				}
 			});
 		}
@@ -651,10 +661,46 @@
 		}
 		return closestDistance * 110.574;
 	}
+	
+	function spreadOfFakes(){
+		var bounds;
+		for(var i = 0; i<jams.length; i++){
+			if(jams[i].real === false){
+				if(bounds === undefined){
+					bounds = new google.maps.LatLngBounds(jams[i].getCenter(), jams[i].getCenter());
+				}
+				bounds = bounds.extend(new google.maps.LatLng(jams[i].getCenter().lat(), jams[i].getCenter().lng()));
+			}
+		}
+		var northEast = bounds.getNorthEast();
+		var southWest = bounds.getSouthWest();
+		var spread = Math.sqrt(Math.pow(southWest.lat()-northEast.lat(), 2)+Math.pow(southWest.lng()-northEast.lng(), 2)) * 10;
+		if(spread > 1){
+			spread = Math.sqrt(Math.pow((spread - 2), 2));
+		}
+		if(spread === 0){
+			spread = 1;
+		}
+		return spread;
+	}
+	
 	google.maps.event.addDomListener(window, 'load', initialize);
     </script>
   </head>
   <body>
-    <div id="map-canvas"/>
+      <div id="map-canvas" style="float:left;">
+      </div>
+	  <div id="sidebar" >
+	  <div id="timeleft">
+	  <b>30 seconds left.</b>
+	  </div>
+	  <div id="controlUI">
+	  <b>Score: 0</b>
+	  </div>
+	  
+	  <div id="controlUI2">
+	  <button onclick="button()">Go</b>
+	  </div>
+	  </div>
   </body>
 </html>
