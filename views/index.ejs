@@ -6,26 +6,6 @@
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
       #map-canvas { height: 100%; width: 80%}
-	  #controlUI{
-		
-	  padding = '10px';
-	  width = '200px';
-	  backgroundColor = 'white';
-	  border='1px solid';
-	  textAlign = 'center';
-	  fontSize = '20px';
-	  }
-	  #controlUI2{
-		
-	  padding = '10px';
-	  width = '200px';
-	  backgroundColor = 'white';
-	  border='1px solid';
-	  textAlign = 'center';
-	  fontSize = '20px';
-	  cursor = 'pointer';
-	  textAlign = 'center';
-	  }
     </style>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY"></script>
@@ -44,11 +24,11 @@
 	var round;
 	var allAssigned;
 	var homeControlDiv;
-	var homeControlDiv2;
-	var homeControlDiv3;
 	var jamJSON;
 	var carJSON;
 	var MSelect;
+	var sof;
+	var running = false;
 	var directionsService = new google.maps.DirectionsService();
 	var reals = [[new google.maps.LatLng(50.8967964,-1.4069385),
 				new google.maps.LatLng(50.8985614,-1.3926258),
@@ -84,9 +64,7 @@
 				new google.maps.LatLng(50.9338139,-1.4182561)],
 				[]];
 	
-	//run on load
 	function initialize(){
-		//set up map
 		var initMap = {
 			center: southampton,
 			zoom:13,
@@ -136,15 +114,8 @@
 				west: -180
 			}
 		});
-		//create instruction window
 		HomeControl();
-		//add instruction window to the center of the map
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
-		//create Go Button
-		HomeControl2();
-		
-		//HomeControl3();
-
 	}
 	
 	function makeid(){
@@ -156,7 +127,6 @@
 		return text;
 	}
 	
-	//start text
 	function HomeControl() {
 		homeControlDiv = document.createElement('div');
 		homeControlDiv.style.padding = '50px';
@@ -197,34 +167,19 @@
 		controlUI.appendChild(controlText);
 		controlUI.appendChild(leaderText);
 
-		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(controlText, 'click', function() {
-		//add the Go button to the map again
-		
 			M = MSelect.options[MSelect.selectedIndex].value;
 			resetVariables();
 			startRound(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
-			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});			
+			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});	
+			var eventsTable = document.getElementById('toplace');
+			eventsTable.innerHTML = '<b>Left to place:' + M + '</b>';			
 		});
 		
-		//when the text is clicked start the first round and remove the information window
 		google.maps.event.addDomListener(leaderText, 'click', function() {
 			window.location = "https://smart-traffic-control-game.herokuapp.com/leaderboard";
 		});
-	}
-	
-	function HomeControl2() {
-	homeControlDiv2 = document.createElement('div');
-	  var controlUI2 = document.createElement('div');
-	  controlUI2.style.padding = '10px';
-	  controlUI2.style.width = '200px';
-	  controlUI2.style.backgroundColor = 'white';
-	  controlUI2.style.border='1px solid';
-	  controlUI2.style.cursor = 'pointer';
-	  controlUI2.style.textAlign = 'center';
-	  controlUI2.style.fontSize = '20px';
-	  homeControlDiv2.appendChild(controlUI2);
 	}
 	
 	function sendAndReset(person){
@@ -234,7 +189,6 @@
 			data: 'game='+ID+'&M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1)
 		});
 		prompt("Please copy the code below to complete the HIT", ID);
-		//clear the map
 		deleteJams();
 		deleteCars();
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
@@ -248,7 +202,6 @@
 		score = 0;
 	}
 	
-	//takes a number representing the round of the current game [0-4]
 	function startRound(round){
 		if(round === 5){
 			score = Math.round(score);
@@ -259,24 +212,21 @@
 			while(person === null || person === "");
 			sendAndReset(person);
 		}else{
-		//clear the map
-		deleteJams();
-		deleteCars();
-		//place all real traffic jams
-		for(var i = 0; i<reals[round].length; i++){
-			placeRealJam(reals[round][i]);
-		}
-		placeCarsRandomly();
-		//enable a click anywhere on the map to add a fake jam
-		google.maps.event.addListener(map, 'click', function(event) {
-			placeCircle(event.latLng);
-		});
+			deleteJams();
+			deleteCars();
+			for(var i = 0; i<reals[round].length; i++){
+				placeRealJam(reals[round][i]);
+			}
+			placeCarsRandomly();
+			google.maps.event.addListener(map, 'click', function(event) {
+				placeCircle(event.latLng);
+			});
 		}
 	}
 	
 	function button(){
-		if(fakeJamCount<M){
-				//alert the user if not enough jams have been added
+		if(running === false){
+			if(fakeJamCount<M){
 				alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
 			}else{
 				var fine = true;
@@ -298,26 +248,20 @@
 						M = temp;
 						alert("Please wait for " + M + " police cars to be placed on the map and try again.");
 					}else{
-					//start the timer and allow the cars to move
-					spreadOfFakes();
-					startCountdown();			
+						startCountdown();			
 					}
 				}
 			}
+		}
 	}
 	
-	//takes a Car (extended google.maps.Marker object) and moves it forward on its path to its target
 	function advance(car){
-		//if taking time to assign then increment this value
 		if(car.assignTime < 10){
 			car.assignTime++;
 		}else{
-			//check if target has been checked
 			if(car.target.checked === true){
-				//assign the car a new target
 				assign(car, 0);
 			}else{
-				//increment the car along its path depending on its proximity to a real traffic jam
 				if(distanceToNearestRealJam(car.position) < 0.8){
 					if(car.wait === 0){
 						car.pointOnPath++;
@@ -328,7 +272,6 @@
 				}else{
 					car.pointOnPath++;		
 				}
-				//move the car to this new point if this isn't past its target and check if the current location is a jam and if so check it
 				if(car.pointOnPath<car.path.length){
 					moveCar(car, car.path[car.pointOnPath]);
 					checkCurrentLocation(car);
@@ -340,12 +283,7 @@
 	}
 	
 	function checkCircle(car){
-		car.target.setOptions({
-		//change colour to green
-			strokeColor:"#00FF00",
-			fillColor:"#00FF00"
-		});
-		//set checked value
+		car.target.setOptions({strokeColor:"#00FF00",fillColor:"#00FF00"});
 		car.target.checked = true;
 		if(car.target.real === false){
 			car.fakeJamsChecked++;
@@ -353,13 +291,10 @@
 		car.jamsChecked++;
 	}
 	
-	//takes a car object (extended google.maps.Marker) and allocates it a new target traffic jam
 	function assign(car, aT){
-		//resets the time taken to assign a new traffic jam
 		car.assignTime = aT;
 		var closest;
 		var closestDistance = Infinity;
-		//loops through all traffic jams looking for the closest that hasn't already been checked
 		for(var o = 0; o<jams.length; o++){
 			if(jams[o].checked === false && jams[o].assigned === allAssigned){
 				var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
@@ -369,7 +304,6 @@
 				}
 			}
 		}
-		//check that the closest traffic jam actually exists and set it as the cars target
 		if(closest !== undefined){
 			if(car.target !== undefined){
 				car.target.assigned = false;			
@@ -392,7 +326,6 @@
 	}
 	
 	function checkIfLost(){
-		//loop around all the traffic jams checking that all the fake ones have been checked or not
 		for (var i = 0; i<jams.length; i++) {
 			if (jams[i].real === false && jams[i].checked === false) {
 				return false;
@@ -403,23 +336,11 @@
 	
 	function calculateScore(){
 		for(var a = 0; a<jams.length; a++){
-			if(jams[a].real === false){
-				if(distanceToNearestRealJam(jams[a].center) < 0.8){
-					score += jams[a].influence * distanceToNearestRealJam(jams[a].center) * spreadOfFakes();
-				}else{
-					score += jams[a].influence * spreadOfFakes();
-				}
-			}
-		}
-	}
-	
-	function calculateScore2(){
-		for(var a = 0; a<jams.length; a++){
 			if(jams[a].real === false && jams[a].checked === false){
 				if(distanceToNearestRealJam(jams[a].center) < 0.8){
-					score += distanceToNearestRealJam(jams[a].center) * spreadOfFakes();
+					score += distanceToNearestRealJam(jams[a].center) * sof;
 				}else{
-					score += spreadOfFakes();
+					score += sof;
 				}
 			}
 		}
@@ -428,7 +349,7 @@
 	
 	function endRound(){
 		clearInterval(timer);
-		//calculateScore();
+		running = false;
 		for(var b = 0; b<jams.length; b++){
 			if(jams[b].real === false){
 				if(round === 4){
@@ -446,20 +367,19 @@
 	function startCountdown(){
 		timeGone = 0;
 		allAssigned = false;
-		//assign each car to a target
 		for(var p = 0; p<M; p++){
 			assign(cars[p], 0);
 		}
 		timer = setInterval(function(){
-		calculateScore2();
+		running = true;
+		sof = spreadOfFakes();
+		calculateScore();
 		var eventsTable = document.getElementById('controlUI');
 		eventsTable.innerHTML = '<b>Score: ' + Math.round(score) + '</b>';
 		var eventsTable2 = document.getElementById('timeleft');
 		eventsTable2.innerHTML = '<b>' + Math.round((300 - timeGone)/10) + ' seconds left.</b>';
-			//check if the game has ended due to a loss
 			if(checkIfLost() === true){
 				endRound();
-				//round ends with a lose and resets to the first level
 				score = Math.round(score);
 				var person;
 				do{
@@ -467,15 +387,12 @@
 				}
 				while(person === null || person === "");
 				sendAndReset(person);
-			//check if the timer has run out
 			}else if(300 - timeGone <= 0){
 				endRound();
-				//round ends with a win and continues to the next level
 				alert("Win!");
 				round++;
 				startRound(round);
 			}
-			//advance all cars along their path
 			for(var f = 0; f<cars.length;f++){
 				advance(cars[f]);
 			}
@@ -493,7 +410,6 @@
 				allAssigned = true;
 			}
 		}, 100);
-		//remove the ability to add more fake traffic jams
 		google.maps.event.clearListeners(map, 'click');
 		disableDrag();
 	}
@@ -519,9 +435,10 @@
 			circle.influence = 0;
 			jams.push(circle);
 		}
+		var eventsTable = document.getElementById('toplace');
+		eventsTable.innerHTML = '<b>Left to place:' + (M - fakeJamCount) + '</b>';
 	}
 	
-	//takes a google.maps.LatLng object and verifies if a traffic jam is present at it, if there is one it becomes green
 	function checkCurrentLocation(car){
 		var location = car.path[car.pointOnPath];
 		for (var i = 0; i < jams.length; i++) {
@@ -570,7 +487,7 @@
 	
 	function clearCars(){
 		for (var i = 0; i < cars.length; i++) {
-          cars[i].setMap(null);
+			cars[i].setMap(null);
         }
 	}
 	
@@ -698,6 +615,9 @@
 	  <b>Score: 0</b>
 	  </div>
 	  
+	  <div id="toplace">
+	  <b>Left to place:\</b>
+	  </div>
 	  <div id="controlUI2">
 	  <button onclick="button()">Go</b>
 	  </div>
