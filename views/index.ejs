@@ -1,15 +1,53 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">
-      html { height: 100% }
-      body { height: 100%; margin: 0; padding: 0 }
-      #map-canvas { height: 100%; width: 80%}
-    </style>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY"></script>
-    <script type="text/javascript">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<style type="text/css">
+<!--
+html {
+	height: 100%
+}
+#map-canvas {
+	 height: 100%; 
+	 width: 80%;
+}
+body {
+	background-color: #000000;	
+	height: 100%; 
+	margin: 0; 
+	padding: 0;
+}
+#goButton {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+	font-family: Geneva, Arial, Helvetica, sans-serif;
+	color: #CCCCCC;
+	background-color: #999999;
+	width: 100%;
+	border-radius: 50px;
+	font-weight: bold;
+	margin-top: 50px;
+}
+.sidebar {
+	background-color: #CCCCCC;
+	height: 100%;
+	overflow: auto;
+	position: relative;
+}
+.style7 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #999999;
+	text-align: center;
+	font-weight: bold;
+	margin-top: 50px;
+}
+-->
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAd7lDXsyY13jO9zRM5AiLWCbhqbrf5XCY"></script>
+<script type="text/javascript">
     var southampton = new google.maps.LatLng(50.924354,-1.405391);
 	var map;
 	var M;
@@ -29,6 +67,8 @@
 	var MSelect;
 	var sof;
 	var running = false;
+	var jamschecked;
+	var fakeschecked;
 	var directionsService = new google.maps.DirectionsService();
 	var reals = [[new google.maps.LatLng(50.8967964,-1.4069385),
 				new google.maps.LatLng(50.8985614,-1.3926258),
@@ -145,6 +185,10 @@
 		coText.innerHTML = 'Number of police cars and fake traffic jams:  ';
 		var image = document.createElement('img');
 		image.src = './description.png';
+		var roText = document.createElement('div');
+		roText.innerHTML = '<p align="center" style="font-size: 18px">In this game, you play the role of an attacker of a smart traffic control system. You have infiltrated the system to the point where you have the ability to flag fake traffic jams at locations of your choice to influence the flow of traffic.</p> <p align="center" style="font-size: 18px">You also know the location of a select number of police cars and all of the real traffic jams.</p> <p align="center" style="font-size: 18px">You can place fake traffic jams anywhere within the bounding black box on the map. The police cars will then have 30 seconds to check as many traffic jams as they <img src="./radius.png" width="243" height="152" style="float: right;margin-left: 10px;margin-top: 10px;" /> can, the longer your fake jams go unchecked the more influence they have which scores more points. The closer a police car gets to a real traffic jam the slower it will move. However, the closer you place a fake traffic jam to a real one the less points it will score. To see a guide on this range simply mouse over the traffic jam of interest (an example is in the picture on the right). Scores will also be panelised if the fake jams are too close together or too far apart.</p> <p align="center" style="font-size: 18px">If the police cars manage to check <u><strong>ALL</strong></u> of the fake jams then you lose the game. </p> <p align="center" style="font-size: 18px">There are 5 rounds to the whole game which have increasing difficulty. Your score across these rounds is cumulative and you will have a chance to see how you compare to others by adding this to the leader board.&nbsp;<strong>Your aim is to maximise your influence over the traffic and therefore your score over all the rounds you play.&nbsp;</strong></p> <p align="center" style="font-size: 18px">At the bottom of the screen, you will be able to see how much time is left in the current round of the game.</p>';
+		roText.style.marginRight = "50px";
+		roText.style.marginLeft = "50px";
 		MSelect = document.createElement('select');
 		MSelect.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option>';
 		var controlText = document.createElement('button');
@@ -158,12 +202,9 @@
 		leaderText.style.cursor = 'pointer';
 		leaderText.innerHTML = 'Leader Board';
 		leaderText.style.marginBottom = '20px';
-		controlUI.appendChild(image);
-		var brk = document.createElement('div');
-		brk.innerHTML = '<br>';
+		controlUI.appendChild(roText);
 		coText.appendChild(MSelect);
 		controlUI.appendChild(coText);
-		controlUI.appendChild(brk);
 		controlUI.appendChild(controlText);
 		controlUI.appendChild(leaderText);
 
@@ -173,8 +214,11 @@
 			startRound(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});	
-			var eventsTable = document.getElementById('toplace');
-			eventsTable.innerHTML = '<b>Left to place:' + M + '</b>';			
+			document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
+			document.getElementById('toplace').style.color = '#000000';	
+			document.getElementById('controlUI').style.color = '#000000';
+			document.getElementById('goButton').style.color = '#FFFFFF';
+			document.getElementById('goButton').style.backgroundColor = '#66FF33';	
 		});
 		
 		google.maps.event.addDomListener(leaderText, 'click', function() {
@@ -191,6 +235,12 @@
 		prompt("Please copy the code below to complete the HIT", ID);
 		deleteJams();
 		deleteCars();
+		document.getElementById('controlUI').style.color = '#999999';	
+		document.getElementById('toplace').style.color = '#999999';		
+		document.getElementById('goButton').style.color = '#CCCCCC';	
+		document.getElementById('goButton').style.backgroundColor = '#999999';
+		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ';
+		document.getElementById('controlUI').innerHTML = 'SCORE: 0';
 		map.controls[google.maps.ControlPosition.CENTER].push(homeControlDiv);
 	}
 	
@@ -285,8 +335,10 @@
 	function checkCircle(car){
 		car.target.setOptions({strokeColor:"#00FF00",fillColor:"#00FF00"});
 		car.target.checked = true;
+		jamschecked++;
 		if(car.target.real === false){
 			car.fakeJamsChecked++;
+			fakeschecked++;
 		}
 		car.jamsChecked++;
 	}
@@ -350,6 +402,14 @@
 	function endRound(){
 		clearInterval(timer);
 		running = false;
+		document.getElementById('toplace').style.color = '#000000';	
+		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
+		document.getElementById('timeleft').style.color = '#999999';
+		document.getElementById('timeleft').innerHTML = '30 SECONDS LEFT';
+		document.getElementById('checked').style.color = '#999999';
+		document.getElementById('checked').innerHTML = 'JAMS CHECKED:';
+		document.getElementById('fakesleft').style.color = '#999999';
+		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ';
 		for(var b = 0; b<jams.length; b++){
 			if(jams[b].real === false){
 				if(round === 4){
@@ -366,6 +426,8 @@
 	
 	function startCountdown(){
 		timeGone = 0;
+		fakeschecked = 0;
+		jamschecked = 0;
 		allAssigned = false;
 		for(var p = 0; p<M; p++){
 			assign(cars[p], 0);
@@ -373,11 +435,15 @@
 		timer = setInterval(function(){
 		running = true;
 		sof = spreadOfFakes();
-		calculateScore();
-		var eventsTable = document.getElementById('controlUI');
-		eventsTable.innerHTML = '<b>Score: ' + Math.round(score) + '</b>';
-		var eventsTable2 = document.getElementById('timeleft');
-		eventsTable2.innerHTML = '<b>' + Math.round((300 - timeGone)/10) + ' seconds left.</b>';
+		calculateScore();	
+		document.getElementById('timeleft').style.color = '#000000';
+		document.getElementById('fakesleft').style.color = '#000000';
+		document.getElementById('checked').style.color = '#000000';
+		document.getElementById('toplace').style.color = '#999999';	
+		document.getElementById('controlUI').innerHTML = 'SCORE: ' + Math.round(score);
+		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + jamschecked + '/' + jams.length;
+		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ' + (M - fakeschecked) + '/' + M;
+		document.getElementById('timeleft').innerHTML = Math.round((300 - timeGone)/10) + ' SECONDS LEFT';
 			if(checkIfLost() === true){
 				endRound();
 				score = Math.round(score);
@@ -389,7 +455,7 @@
 				sendAndReset(person);
 			}else if(300 - timeGone <= 0){
 				endRound();
-				alert("Win!");
+				//alert("Win!");
 				round++;
 				startRound(round);
 			}
@@ -435,8 +501,7 @@
 			circle.influence = 0;
 			jams.push(circle);
 		}
-		var eventsTable = document.getElementById('toplace');
-		eventsTable.innerHTML = '<b>Left to place:' + (M - fakeJamCount) + '</b>';
+		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + (M - fakeJamCount);
 	}
 	
 	function checkCurrentLocation(car){
@@ -603,24 +668,19 @@
 	
 	google.maps.event.addDomListener(window, 'load', initialize);
     </script>
-  </head>
-  <body>
-      <div id="map-canvas" style="float:left;">
-      </div>
-	  <div id="sidebar" >
-	  <div id="timeleft">
-	  <b>30 seconds left.</b>
-	  </div>
-	  <div id="controlUI">
-	  <b>Score: 0</b>
-	  </div>
-	  
-	  <div id="toplace">
-	  <b>Left to place:\</b>
-	  </div>
-	  <div id="controlUI2">
-	  <button onclick="button()">Go</b>
-	  </div>
-	  </div>
-  </body>
+</head>
+
+<body>
+    <div id="map-canvas" style="float:left;"></div>
+	<div class="sidebar">
+        <div class="style7" id="controlUI">SCORE: 0</div>
+	    <div class="style7" id="toplace">LEFT TO PLACE:</div>
+	    <div class="style7" id="checked">JAMS CHECKED:</div>
+	    <div class="style7" id="fakesleft">FAKE JAMS LEFT:</div>
+	    <div class="style7" id="timeleft">30 SECONDS LEFT</div>
+        <button id="goButton" onclick="button()">
+        		<h1>Go</h1>
+        </button>
+	</div>
+</body>
 </html>
