@@ -197,7 +197,7 @@ body {
 
 		//click listener for the play button
 		google.maps.event.addDomListener(playButton, 'click', function() {
-			M = MComboBox.options[MComboBox.selectedIndex].value;
+			M = 0;
 			resetVariables();
 			startRound(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
