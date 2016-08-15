@@ -115,7 +115,7 @@ body {
 			success: function(data){
 						alert(data);
 						var jsonObj = $.parseJSON(data);
-						alert(jsonObj);
+						alert(JSON.stringify(jsonObj));
 						alert(jsonObj[0].random_text);
 					}
 		});
