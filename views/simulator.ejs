@@ -151,7 +151,6 @@ body {
 				west: -180
 			}
 		});
-		M = 0;
 			resetVariables();
 			startRound(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
@@ -203,7 +202,7 @@ body {
 						var jsonObj = $.parseJSON(JSON.stringify(data));
 						var str = JSON.stringify(jsonObj[0].jams).replace(/\\"/g, "\"");
 						var jsonObj2 = $.parseJSON('[' + jsonObj[0].jams + ']');
-						M = jsonObj2.length;
+						M = jsonObj2.length - jsonObj2[jsonObj2.length-1].round;
 						for(var q = 0; q<jsonObj2.length;q++){
 							if(jsonObj2[q].round === round){
 								placeFakeJam(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
