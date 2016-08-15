@@ -151,18 +151,9 @@ body {
 				west: -180
 			}
 		});
-		M = 0;
-			resetVariables();
-			startRound(round);
-			map.controls[google.maps.ControlPosition.CENTER].pop();
-			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});	
-			//enable part of the sidebar
-			document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
-			document.getElementById('toplace').style.color = '#000000';
-			document.getElementById('score').style.color = '#000000';
-			document.getElementById('goButton').style.color = '#FFFFFF';
-			document.getElementById('goButton').style.backgroundColor = '#66FF33';	
-			grey = false;
+		createSplashPanel();
+		//add splash panel
+		map.controls[google.maps.ControlPosition.CENTER].push(splashPanel);
 	}
 	
 	function createSplashPanel() {
@@ -204,6 +195,21 @@ body {
 		score.appendChild(playButton);
 		score.appendChild(leaderButton);
 
+		//click listener for the play button
+		google.maps.event.addDomListener(playButton, 'click', function() {
+			M = 0;
+			resetVariables();
+			startRound(round);
+			map.controls[google.maps.ControlPosition.CENTER].pop();
+			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});	
+			//enable part of the sidebar
+			document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
+			document.getElementById('toplace').style.color = '#000000';
+			document.getElementById('score').style.color = '#000000';
+			document.getElementById('goButton').style.color = '#FFFFFF';
+			document.getElementById('goButton').style.backgroundColor = '#66FF33';	
+			grey = false;
+		});
 		
 		//click listener for the leaderboard button
 		google.maps.event.addDomListener(leaderButton, 'click', function() {
@@ -261,6 +267,7 @@ body {
 			for(var i = 0; i<reals[round].length; i++){
 				placeRealJam(reals[round][i]);
 			}
+			//placeCars();
 			placeFakes();
 		}
 	}
