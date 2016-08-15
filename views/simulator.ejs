@@ -286,16 +286,6 @@ body {
 								M++;
 							}		
 						}
-					}
-		});
-	}
-	
-	function placeCars(){
-		$.ajax({
-			type: 'GET',
-			url: 'https://smart-traffic-control-game.herokuapp.com/simulator-data?id=' + window.location.search.replace("?", ""),
-			success: function(data){
-						var jsonObj = $.parseJSON(JSON.stringify(data));
 						var str = JSON.stringify(jsonObj[0].cars).replace(/\\"/g, "\"");
 						var jsonObj2 = $.parseJSON('[' + jsonObj[0].cars + ']');
 						for(var q = 0; q<jsonObj2.length;q++){
@@ -305,6 +295,9 @@ body {
 						}
 					}
 		});
+	}
+	
+	function placeCars(){
 	}
 	
 	//Represents the actions taken place after clicking the go button
