@@ -114,8 +114,8 @@ body {
 			url: 'https://smart-traffic-control-game.herokuapp.com/random',
 			success: function(data){
 						alert(data);
-						var jsonObj = $.parseJSON(data);
-						alert(JSON.stringify(jsonObj));
+						var jsonObj = JSON.stringify(data);
+						alert(jsonObj);
 						alert(jsonObj[0].random_text);
 					}
 		});
