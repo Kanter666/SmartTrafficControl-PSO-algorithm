@@ -231,13 +231,8 @@ body {
 			url: 'https://smart-traffic-control-game.herokuapp.com/',
 			data: 'M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1),
 			success: function(data){
-						alert(data);
 						var jsonObj = $.parseJSON(JSON.stringify(data));
-						alert(JSON.stringify(data));
-						alert(jsonObj);
-						alert(jsonObj[0]);
-						alert("Please copy the code below to complete the HIT");
-						alert(jsonObj[0].gameid);
+						prompt("Please copy the code below to complete the HIT", jsonObj[0].gameid);
 					}
 		});
 		deleteJams();
