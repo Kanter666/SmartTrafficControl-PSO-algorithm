@@ -279,8 +279,9 @@ body {
 			success: function(data){
 						alert(JSON.stringify(data));
 						var jsonObj = $.parseJSON(JSON.stringify(data));
-						alert('['+JSON.stringify(jsonObj[0].jams).replace(/\\"/g, "\"").substr(1,-1)+']');
-						var jsonObj2 = $.parseJSON('['+jsonObj[0].jams+']');
+						var str = JSON.stringify(jsonObj[0].jams).replace(/\\"/g, "\"");
+						alert('['+str.substring(1,str.length-2)+']');
+						var jsonObj2 = $.parseJSON('['+str.substring(1,str.length-2)+']');
 						for(var q = 0; q<jsonObj.length;q++){
 							if(jsonObj[q].round === round){
 								placeCircle(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
