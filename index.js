@@ -34,6 +34,30 @@ app.post('/', function(request, response) {
 	});
 });
 
+app.get('/simulator-data', function(request, response) {
+	pg.connect(connectionString, function(err, client, done) {
+		client.query('SELECT jams, cars FROM results WHERE gameid=$1', [request.query.id], function(err, result) {
+		  done();
+		  if (err)
+		   { console.error(err); response.send("Error " + err); }
+		  else
+		   { response.json(result.rows); }
+		});
+	});
+});
+
+app.get('/simulator', function(request, response) {
+	pg.connect(connectionString, function(err, client, done) {
+		client.query('SELECT jams, cars FROM results WHERE gameid=$1', [request.query.id], function(err, result) {
+		  done();
+		  if (err)
+		   { console.error(err); response.send("Error " + err); }
+		  else
+		   { response.json(result.rows); }
+		});
+	});
+});
+
 app.get('/leaderboard', function (request, response) {
 	if(request.query.m === undefined){
 	  pg.connect(connectionString, function(err, client, done) {
