@@ -195,12 +195,14 @@ body {
 		score.appendChild(playButton);
 		score.appendChild(leaderButton);
 
+		//click listener for the play button
 		google.maps.event.addDomListener(playButton, 'click', function() {
 			M = MComboBox.options[MComboBox.selectedIndex].value;
 			resetVariables();
 			startRound(round);
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});	
+			//enable part of the sidebar
 			document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
 			document.getElementById('toplace').style.color = '#000000';
 			document.getElementById('score').style.color = '#000000';
@@ -209,6 +211,7 @@ body {
 			grey = false;
 		});
 		
+		//click listener for the leaderboard button
 		google.maps.event.addDomListener(leaderButton, 'click', function() {
 			window.location = "https://smart-traffic-control-game.herokuapp.com/leaderboard";
 		});
@@ -233,6 +236,12 @@ body {
 		document.getElementById('score').innerHTML = 'SCORE: 0';
 		document.getElementById('goButton').style.color = '#CCCCCC';	
 		document.getElementById('goButton').style.backgroundColor = '#999999';
+		document.getElementById('timeleft').style.color = '#999999';	
+		document.getElementById('timeleft').innerHTML = '30 SECONDS LEFT';
+		document.getElementById('checked').style.color = '#999999';	
+		document.getElementById('checked').innerHTML = 'JAMS CHECKED:';
+		document.getElementById('fakesleft').style.color = '#999999';	
+		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ';
 		grey = true;
 		map.controls[google.maps.ControlPosition.CENTER].push(splashPanel);
 	}
@@ -245,7 +254,19 @@ body {
 		score = 0;
 	}
 	
+	//Adds everything to the map for a new round
 	function startRound(round){
+		document.getElementById('toplace').style.color = '#000000';	
+		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
+		document.getElementById('timeleft').style.color = '#999999';	
+		document.getElementById('timeleft').innerHTML = '30 SECONDS LEFT';
+		document.getElementById('checked').style.color = '#999999';	
+		document.getElementById('checked').innerHTML = 'JAMS CHECKED:';
+		document.getElementById('fakesleft').style.color = '#999999';	
+		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ';
+		document.getElementById('goButton').style.color = '#FFFFFF';
+		document.getElementById('goButton').style.backgroundColor = '#66FF33';
+		grey = false;
 		if(round === 5){
 			score = Math.round(score);
 			var person;
@@ -267,6 +288,7 @@ body {
 		}
 	}
 	
+	//Represents the actions taken place after clicking the go button
 	function button(){
 		if(grey === false){
 			if(fakeJamCount<M){
@@ -279,6 +301,7 @@ body {
 					}
 				}
 				if(fine === false){
+					alert("Please place jams within the black box, resetting the map now.");
 					deleteJams();
 					for(var i = 0; i<reals[round].length; i++){
 						placeRealJam(reals[round][i]);
@@ -298,6 +321,7 @@ body {
 		}
 	}
 	
+	//Moves a car along its path at the correct speed
 	function advance(car){
 		if(car.assignTime < 10){
 			car.assignTime++;
@@ -337,8 +361,9 @@ body {
 		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + (parseInt(document.getElementById('checked').innerHTML.substring(14,16))+1) + '/' + jams.length;
 	}
 	
-	function assign(car, aT){
-		car.assignTime = aT;
+	//Assigns a new traffic jam to car while waiting for aTime time
+	function assign(car, aTime){
+		car.assignTime = aTime;
 		var closest;
 		var closestDistance = Infinity;
 		for(var o = 0; o<jams.length; o++){
@@ -395,19 +420,9 @@ body {
 		return score;
 	}
 	
+	//Stops the current timer and adds the jam and car data to their arrays
 	function endRound(){
 		clearInterval(timer);
-		document.getElementById('toplace').style.color = '#000000';	
-		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
-		document.getElementById('timeleft').style.color = '#999999';	
-		document.getElementById('timeleft').innerHTML = '30 SECONDS LEFT';
-		document.getElementById('checked').style.color = '#999999';	
-		document.getElementById('checked').innerHTML = 'JAMS CHECKED:';
-		document.getElementById('fakesleft').style.color = '#999999';	
-		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ';
-		document.getElementById('goButton').style.color = '#FFFFFF';
-		document.getElementById('goButton').style.backgroundColor = '#66FF33';
-		grey = false;
 		for(var b = 0; b<jams.length; b++){
 			if(jams[b].real === false){
 				if(round === 4){
@@ -422,17 +437,16 @@ body {
 		}
 	}
 	
+	//Starts a round
 	function startCountdown(){
 		timeGone = 0;
-		fakeschecked = 0;
-		jamschecked = 0;
 		allAssigned = false;	
 		document.getElementById('fakesleft').style.color = '#000000';	
 		document.getElementById('checked').style.color = '#000000';	
 		document.getElementById('timeleft').style.color = '#000000';	
 		document.getElementById('toplace').style.color = '#999999';	
-		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + jamschecked + '/' + jams.length;
-		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ' + (M - fakeschecked) + '/' + M;
+		document.getElementById('checked').innerHTML = 'JAMS CHECKED: 0/' + jams.length;
+		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ' + M + '/' + M;
 		document.getElementById('goButton').style.color = '#CCCCCC';	
 		document.getElementById('goButton').style.backgroundColor = '#999999';
 		grey = true;
