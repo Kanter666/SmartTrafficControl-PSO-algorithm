@@ -28,6 +28,7 @@ app.get('/random', function(request, response) {
 		   { console.error(err); response.send("Error " + err); }
 		  else
 		   { response.json({ message: 'Bear created!' }); }
+		});
 	});
 });
 
