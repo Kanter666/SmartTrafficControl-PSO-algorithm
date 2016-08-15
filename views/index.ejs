@@ -229,13 +229,12 @@ body {
 		$.ajax({
 			type: 'POST',
 			url: 'https://smart-traffic-control-game.herokuapp.com/',
-			data: 'game='+ID+'&M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1),
+			data: 'M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1),
 			success: function(data){
 						var jsonObj = $.parseJSON(JSON.stringify(data));
-						alert(jsonObj[0].random_text);
+						prompt("Please copy the code below to complete the HIT", jsonObj[0].random_text);
 					}
 		});
-		prompt("Please copy the code below to complete the HIT", ID);
 		deleteJams();
 		deleteCars();	
 		document.getElementById('score').style.color = '#999999';	
