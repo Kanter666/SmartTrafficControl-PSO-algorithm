@@ -24,7 +24,7 @@ app.post('/', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO results values(random_text(10), $1, $2, $3, $4, $5, $6)", [request.body.M, request.body.name, request.body.score, request.body.round, request.body.jams, request.body.cars]);
 		done();
-		client.query('SELECT id FROM results WHERE m=$1 AND name=$2 AND score=$3', [request.body.M, request.body.name, request.body.score], function(err, result) {
+		client.query('SELECT gameid FROM results WHERE m=$1 AND name=$2 AND score=$3', [request.body.M, request.body.name, request.body.score], function(err, result) {
 		  done();
 		  if (err)
 		   { console.error(err); response.send("Error " + err); }
