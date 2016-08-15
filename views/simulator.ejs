@@ -300,8 +300,7 @@ body {
 						var jsonObj2 = $.parseJSON('[' + jsonObj[0].cars + ']');
 						for(var q = 0; q<jsonObj2.length;q++){
 							if(jsonObj2[q].round === round){
-								placeFakeJam(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
-								M++;
+								placeCar(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
 							}		
 						}
 					}
