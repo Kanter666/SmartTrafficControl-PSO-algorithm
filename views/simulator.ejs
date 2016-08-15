@@ -228,33 +228,7 @@ body {
 	//Represents the actions taken place after clicking the go button
 	function button(){
 		if(grey === false){
-			if(fakeJamCount<M){
-				alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
-			}else{
-				var fine = true;
-				for(var p = 0; p<jams.length; p++){
-					if(jams[p].getCenter().lat() < 50.8883491 || jams[p].getCenter().lat() > 50.9603811 || jams[p].getCenter().lng() > -1.3106925 || jams[p].getCenter().lng() < -1.4981467){
-						fine = false;
-					}
-				}
-				if(fine === false){
-					alert("Please place jams within the black box, resetting the map now.");
-					deleteJams();
-					for(var i = 0; i<reals[round].length; i++){
-						placeRealJam(reals[round][i]);
-					}
-				}else{
-					if(cars.length<M){
-						var temp = M;
-						M = M - cars.length;
-						placeCarsRandomly();
-						M = temp;
-						alert("Please wait for " + M + " police cars to be placed on the map and try again.");
-					}else{
-						startCountdown();			
-					}
-				}
-			}
+			startCountdown();
 		}
 	}
 	
@@ -360,18 +334,6 @@ body {
 	//Stops the current timer and adds the jam and car data to their arrays
 	function endRound(){
 		clearInterval(timer);
-		for(var b = 0; b<jams.length; b++){
-			if(jams[b].real === false){
-				if(round === 4){
-					jamJSON = jamJSON + '{"round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":-1},'
-				}else{
-					jamJSON = jamJSON + '{"round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
-				}
-			}
-		}
-		for(var c = 0; c<cars.length; c++){
-			carJSON = carJSON + '{"round":'+round+',"lat":' + cars[c].startPosition.lat() + ',"lng":' + cars[c].startPosition.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
-		}
 	}
 	
 	//Starts a round
@@ -380,8 +342,7 @@ body {
 		allAssigned = false;	
 		document.getElementById('fakesleft').style.color = '#000000';	
 		document.getElementById('checked').style.color = '#000000';	
-		document.getElementById('timeleft').style.color = '#000000';	
-		document.getElementById('toplace').style.color = '#999999';	
+		document.getElementById('timeleft').style.color = '#000000';
 		document.getElementById('checked').innerHTML = 'JAMS CHECKED: 0/' + jams.length;
 		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ' + M + '/' + M;
 		document.getElementById('goButton').style.color = '#CCCCCC';	
@@ -431,7 +392,7 @@ body {
 		if(fakeJamCount < M){
 			var circle = new google.maps.Circle({
 				center:location,
-				draggable:true,
+				draggable:false,
 				radius:100,
 				strokeColor:"#FF0000",
 				strokeOpacity:0.8,
@@ -472,13 +433,6 @@ body {
 		clearJams();
 		fakeJamCount = 0;
 		jams = [];
-	}
-	
-	//Disables the drag of all jams (fakes previously draggable)
-	function disableDrag(){
-		for(var i = 0; i<jams.length;i++){
-			jams[i].setOptions({draggable: false});
-		}
 	}
 	
 	//Places a car at position
@@ -562,34 +516,6 @@ body {
 		radius = [];
 	}
 	
-	//Returns a random point within the area defined bottomLeft and topRight
-	function randomPoint(bottomLeft, topRight){
-		var latDiff = topRight.lat() - bottomLeft.lat();
-		var lngDiff = topRight.lng() - bottomLeft.lng();
-		var newLat = bottomLeft.lat() + Math.random() * latDiff;
-		var newLng = bottomLeft.lng() + Math.random() * lngDiff;
-		return new google.maps.LatLng(newLat, newLng);
-	}
-	
-	//Places M cars randomly within the box (50.8883491, -1.4981467),(50.9603811, -1.3106925)
-	function placeCarsRandomly(){
-		for(var i = 0; i<M; i++){
-				var rPoint = randomPoint(new google.maps.LatLng(50.8883491, -1.4981467), new google.maps.LatLng(50.9603811, -1.3106925));
-				directionsService.route({
-				origin:rPoint,
-				destination:new google.maps.LatLng(50.893150, -1.473627),
-				travelMode: google.maps.TravelMode.DRIVING
-			}, function(result, status) {
-				if (status == google.maps.DirectionsStatus.OK) {
-					placeCar(new google.maps.LatLng(result.routes[0].legs[0].start_location.lat(), result.routes[0].legs[0].start_location.lng()));
-				}else{
-					alert("Error: Google Maps API not returning location data. The game will restart.");
-					window.location = "./";
-				}
-			});
-		}
-	}
-	
 	//Returns the distance to the nearest real jam in km
 	function distanceToNearestRealJam(location){
 		var closestDistance = Infinity;
@@ -637,7 +563,6 @@ body {
     <div id="map-canvas" style="float:left;"></div>
 	<div class="sidebar">
         <div class="style7" id="score">SCORE: 0</div>
-	    <div class="style7" id="toplace">LEFT TO PLACE:</div>
 	    <div class="style7" id="checked">JAMS CHECKED:</div>
 	    <div class="style7" id="fakesleft">FAKE JAMS LEFT:</div>
 	    <div class="style7" id="timeleft">30 SECONDS LEFT</div>
