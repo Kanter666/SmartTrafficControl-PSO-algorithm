@@ -275,6 +275,7 @@ body {
 						var jsonObj2 = $.parseJSON('[' + jsonObj[0].jams + ']');
 						for(var q = 0; q<jsonObj2.length;q++){
 							if(jsonObj2[q].round === round){
+								alert(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
 								placeFakeJam(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
 								M++;
 							}		
@@ -283,6 +284,7 @@ body {
 						var jsonObj2 = $.parseJSON('[' + jsonObj[0].cars + ']');
 						for(var q = 0; q<jsonObj2.length;q++){
 							if(jsonObj2[q].round === round){
+								alert(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
 								placeCar(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
 							}		
 						}
