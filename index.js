@@ -20,6 +20,17 @@ app.get('/', function(request, response) {
 	response.render('index');
 });
 
+app.get('/random', function(request, response) {
+	pg.connect(connectionString, function(err, client, done) {
+		client.query('SELECT random_text(10)', function(err, result) {
+		  done();
+		  if (err)
+		   { console.error(err); response.send("Error " + err); }
+		  else
+		   { response.render('db', {results: result.rows} ); }
+	});
+});
+
 app.post('/', function(request, response) {
 	pg.connect(connectionString, function(err, client, done) {
 		client.query("INSERT INTO results values($1, $2, $3, $4, $5, $6, $7)", [request.body.game, request.body.M, request.body.name, request.body.score, request.body.round, request.body.jams, request.body.cars]);
