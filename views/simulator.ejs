@@ -267,7 +267,7 @@ body {
 			for(var i = 0; i<reals[round].length; i++){
 				placeRealJam(reals[round][i]);
 			}
-			placeCars();
+			//placeCars();
 			placeFakes();
 		}
 	}
@@ -280,7 +280,6 @@ body {
 						var jsonObj = $.parseJSON(JSON.stringify(data));
 						var str = JSON.stringify(jsonObj[0].jams).replace(/\\"/g, "\"");
 						var jsonObj2 = $.parseJSON('[' + jsonObj[0].jams + ']');
-						alert(jsonObj2.length);
 						for(var q = 0; q<jsonObj2.length;q++){
 							if(jsonObj2[q].round === round){
 								placeFakeJam(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
@@ -299,7 +298,6 @@ body {
 						var jsonObj = $.parseJSON(JSON.stringify(data));
 						var str = JSON.stringify(jsonObj[0].cars).replace(/\\"/g, "\"");
 						var jsonObj2 = $.parseJSON('[' + jsonObj[0].cars + ']');
-						alert(jsonObj2.length);
 						for(var q = 0; q<jsonObj2.length;q++){
 							if(jsonObj2[q].round === round){
 								placeCar(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
