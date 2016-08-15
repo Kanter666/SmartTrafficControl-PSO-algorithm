@@ -157,8 +157,6 @@ body {
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});	
 			//enable part of the sidebar
-			document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
-			document.getElementById('toplace').style.color = '#000000';
 			document.getElementById('score').style.color = '#000000';
 			document.getElementById('goButton').style.color = '#FFFFFF';
 			document.getElementById('goButton').style.backgroundColor = '#66FF33';	
@@ -174,8 +172,6 @@ body {
 	
 	//Adds everything to the map for a new round
 	function startRound(round){
-		document.getElementById('toplace').style.color = '#000000';	
-		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
 		document.getElementById('timeleft').style.color = '#999999';	
 		document.getElementById('timeleft').innerHTML = '30 SECONDS LEFT';
 		document.getElementById('checked').style.color = '#999999';	
@@ -408,7 +404,6 @@ body {
 			circle.influence = 0;
 			jams.push(circle);
 		}
-		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + (M - fakeJamCount);
 	}
 	
 	//Checks if there is a jam at the car 's current location, if there is it checks it
