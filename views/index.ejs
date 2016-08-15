@@ -66,10 +66,7 @@ body {
 	var carJSON;
 	var MComboBox;
 	var sof;
-	var running = false;
 	var grey = true;
-	var jamschecked;
-	var fakeschecked;
 	var directionsService = new google.maps.DirectionsService();
 	var reals = [[new google.maps.LatLng(50.8967964,-1.4069385),
 				new google.maps.LatLng(50.8985614,-1.3926258),
@@ -106,15 +103,22 @@ body {
 				[]];
 	
 	function initialize(){
-		var initMap = {
+		map = new google.maps.Map(document.getElementById("map-canvas"),{
 			center: southampton,
 			zoom:13,
 			disableDefaultUI:true,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
-		};
-		map = new google.maps.Map(document.getElementById("map-canvas"),initMap);
+		});
+		$.ajax({
+			type: 'GET',
+			url: 'https://smart-traffic-control-game.herokuapp.com/random',
+			success: function(data){
+						alert("work");
+					}
+		});
 		map.setOptions({disableDoubleClickZoom: true, zoomControl: false, scrollwheel:false, draggable: false});
 		map.setClickableIcons(false);
+		//add bounding black boxes
 		new google.maps.Rectangle({
 			fillOpacity: 1.0,
 			map: map,
@@ -156,6 +160,7 @@ body {
 			}
 		});
 		createSplashPanel();
+		//add splash panel
 		map.controls[google.maps.ControlPosition.CENTER].push(splashPanel);
 	}
 	
@@ -214,7 +219,7 @@ body {
 			map.controls[google.maps.ControlPosition.CENTER].pop();
 			map.setOptions({disableDoubleClickZoom: true, zoomControl: true, scrollwheel:true, draggable: true});	
 			document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
-			document.getElementById('toplace').style.color = '#000000';	
+			document.getElementById('toplace').style.color = '#000000';
 			document.getElementById('score').style.color = '#000000';
 			document.getElementById('goButton').style.color = '#FFFFFF';
 			document.getElementById('goButton').style.backgroundColor = '#66FF33';	
@@ -226,6 +231,7 @@ body {
 		});
 	}
 	
+	//Sends the game data to the database and resets back to the splash panel
 	function sendAndReset(person){
 		$.ajax({
 			type: 'POST',
@@ -234,17 +240,18 @@ body {
 		});
 		prompt("Please copy the code below to complete the HIT", ID);
 		deleteJams();
-		deleteCars();
+		deleteCars();	
 		document.getElementById('score').style.color = '#999999';	
-		document.getElementById('toplace').style.color = '#999999';		
-		document.getElementById('goButton').style.color = '#CCCCCC';	
-		document.getElementById('goButton').style.backgroundColor = '#999999';
+		document.getElementById('toplace').style.color = '#999999';	
 		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ';
 		document.getElementById('score').innerHTML = 'SCORE: 0';
+		document.getElementById('goButton').style.color = '#CCCCCC';	
+		document.getElementById('goButton').style.backgroundColor = '#999999';
 		grey = true;
 		map.controls[google.maps.ControlPosition.CENTER].push(splashPanel);
 	}
 	
+	//Resets the variables that change game on game
 	function resetVariables(){
 		ID = makeid();
 		jamJSON = "";
@@ -270,13 +277,13 @@ body {
 			}
 			placeCarsRandomly();
 			google.maps.event.addListener(map, 'click', function(event) {
-				placeCircle(event.latLng);
+				placeFakeJam(event.latLng);
 			});
 		}
 	}
 	
 	function button(){
-		if(running === false && grey === false){
+		if(grey === false){
 			if(fakeJamCount<M){
 				alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
 			}else{
@@ -333,17 +340,16 @@ body {
 		}
 	}
 	
+	//Checks the jam that is the cars target in the case where that car has reached its target and updates the sidebar
 	function checkCircle(car){
 		car.target.setOptions({strokeColor:"#00FF00",fillColor:"#00FF00"});
 		car.target.checked = true;
-		jamschecked++;
 		if(car.target.real === false){
 			car.fakeJamsChecked++;
-			fakeschecked++;
+			document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ' + (parseInt(document.getElementById('fakesleft').innerHTML[16])-1) + '/' + M;
 		}
 		car.jamsChecked++;
-		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + jamschecked + '/' + jams.length;
-		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ' + (M - fakeschecked) + '/' + M;
+		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + (parseInt(document.getElementById('checked').innerHTML.substring(14,16))+1) + '/' + jams.length;
 	}
 	
 	function assign(car, aT){
@@ -380,6 +386,7 @@ body {
 		}
 	}
 	
+	//Returns if the state of the current game is a loss or not, this is determined by all fake jams being checked
 	function checkIfLost(){
 		for (var i = 0; i<jams.length; i++) {
 			if (jams[i].real === false && jams[i].checked === false) {
@@ -389,6 +396,7 @@ body {
 		return true;
 	}
 	
+	//Returns the current score for the game, determined by spread and closeness to real jams over time
 	function calculateScore(){
 		for(var a = 0; a<jams.length; a++){
 			if(jams[a].real === false && jams[a].checked === false){
@@ -404,15 +412,17 @@ body {
 	
 	function endRound(){
 		clearInterval(timer);
-		running = false;
 		document.getElementById('toplace').style.color = '#000000';	
 		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + M;
-		document.getElementById('timeleft').style.color = '#999999';
+		document.getElementById('timeleft').style.color = '#999999';	
 		document.getElementById('timeleft').innerHTML = '30 SECONDS LEFT';
-		document.getElementById('checked').style.color = '#999999';
+		document.getElementById('checked').style.color = '#999999';	
 		document.getElementById('checked').innerHTML = 'JAMS CHECKED:';
-		document.getElementById('fakesleft').style.color = '#999999';
+		document.getElementById('fakesleft').style.color = '#999999';	
 		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ';
+		document.getElementById('goButton').style.color = '#FFFFFF';
+		document.getElementById('goButton').style.backgroundColor = '#66FF33';
+		grey = false;
 		for(var b = 0; b<jams.length; b++){
 			if(jams[b].real === false){
 				if(round === 4){
@@ -431,18 +441,20 @@ body {
 		timeGone = 0;
 		fakeschecked = 0;
 		jamschecked = 0;
-		allAssigned = false;
-		document.getElementById('fakesleft').style.color = '#000000';
-		document.getElementById('checked').style.color = '#000000';
-		document.getElementById('timeleft').style.color = '#000000';
+		allAssigned = false;	
+		document.getElementById('fakesleft').style.color = '#000000';	
+		document.getElementById('checked').style.color = '#000000';	
+		document.getElementById('timeleft').style.color = '#000000';	
 		document.getElementById('toplace').style.color = '#999999';	
 		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + jamschecked + '/' + jams.length;
 		document.getElementById('fakesleft').innerHTML = 'FAKE JAMS LEFT: ' + (M - fakeschecked) + '/' + M;
+		document.getElementById('goButton').style.color = '#CCCCCC';	
+		document.getElementById('goButton').style.backgroundColor = '#999999';
+		grey = true;
 		for(var p = 0; p<M; p++){
 			assign(cars[p], 0);
 		}
 		timer = setInterval(function(){
-			running = true;
 			sof = spreadOfFakes();
 			calculateScore();	
 			document.getElementById('score').innerHTML = 'SCORE: ' + Math.round(score);
@@ -483,8 +495,8 @@ body {
 		disableDrag();
 	}
 
-	
-	function placeCircle(location) {
+	//Places a fake jam at location
+	function placeFakeJam(location) {
 		if(fakeJamCount < M){
 			var circle = new google.maps.Circle({
 				center:location,
@@ -507,6 +519,7 @@ body {
 		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + (M - fakeJamCount);
 	}
 	
+	//Checks if there is a jam at the car 's current location, if there is it checks it
 	function checkCurrentLocation(car){
 		var location = car.path[car.pointOnPath];
 		for (var i = 0; i < jams.length; i++) {
@@ -516,24 +529,28 @@ body {
         }
 	}
 	
+	//Clears all jams from the map
 	function clearJams(){
 		for (var i = 0; i < jams.length; i++) {
           jams[i].setMap(null);
         }
 	}
 	
+	//Deletes all jams
 	function deleteJams(){
 		clearJams();
 		fakeJamCount = 0;
 		jams = [];
 	}
 	
+	//Disables the drag of all jams (fakes previously draggable)
 	function disableDrag(){
 		for(var i = 0; i<jams.length;i++){
 			jams[i].setOptions({draggable: false});
 		}
 	}
-		
+	
+	//Places a car at position
 	function placeCar(position){
 		var car = new google.maps.Marker({
 			position: position,
@@ -549,21 +566,25 @@ body {
 		cars.push(car);
 	}
 	
+	//Relocates car to position
 	function moveCar(car, position){
 		car.setPosition(position);
 	}
 	
+	//Removes the cars from the map
 	function clearCars(){
 		for (var i = 0; i < cars.length; i++) {
 			cars[i].setMap(null);
         }
 	}
 	
+	//Removes all of the cars
 	function deleteCars(){
 		clearCars();
 		cars = [];
 	}
 	
+	//Adds a real traffic jam to the map
 	function placeRealJam(location){
 		var circle = new google.maps.Circle({
 			center:location,
@@ -583,6 +604,7 @@ body {
 		jams.push(circle);
 	}
 	
+	//Draws a target style radius around a given real jam at location, numberOfRings determines the size of this radius
 	function placeRadius(location, numberOfRings){
 		for(var i = numberOfRings;i>0;i--){
 			var circle = new google.maps.Circle({
@@ -601,6 +623,7 @@ body {
 		}
 	}
 	
+	//Removes the target style radius from a real jam
 	function removeRadius(location){
 		for(var i = 0;i<radius.length;i++){
 			radius[i].setMap(null);
@@ -608,6 +631,7 @@ body {
 		radius = [];
 	}
 	
+	//Returns a random point within the area defined bottomLeft and topRight
 	function randomPoint(bottomLeft, topRight){
 		var latDiff = topRight.lat() - bottomLeft.lat();
 		var lngDiff = topRight.lng() - bottomLeft.lng();
@@ -616,6 +640,7 @@ body {
 		return new google.maps.LatLng(newLat, newLng);
 	}
 	
+	//Places M cars randomly within the box (50.8883491, -1.4981467),(50.9603811, -1.3106925)
 	function placeCarsRandomly(){
 		for(var i = 0; i<M; i++){
 				var rPoint = randomPoint(new google.maps.LatLng(50.8883491, -1.4981467), new google.maps.LatLng(50.9603811, -1.3106925));
@@ -634,6 +659,7 @@ body {
 		}
 	}
 	
+	//Returns the distance to the nearest real jam in km
 	function distanceToNearestRealJam(location){
 		var closestDistance = Infinity;
 		for(var i = 0; i<jams.length; i++){
@@ -647,6 +673,7 @@ body {
 		return closestDistance * 110.574;
 	}
 	
+	//Calculates a value of the spread of all of the placed fake jams to influence the score
 	function spreadOfFakes(){
 		var bounds;
 		for(var i = 0; i<jams.length; i++){
@@ -659,11 +686,13 @@ body {
 		}
 		var northEast = bounds.getNorthEast();
 		var southWest = bounds.getSouthWest();
-		var spread = Math.sqrt(Math.pow(southWest.lat()-northEast.lat(), 2)+Math.pow(southWest.lng()-northEast.lng(), 2)) * 10;
+		//spread is determined by the pythagorus distance of the diagonal corners
+		var spread = Math.sqrt(Math.pow(southWest.lat()-northEast.lat(), 2) + Math.pow(southWest.lng()-northEast.lng(), 2)) * 10;
+		//further away points just as bad as too close, fix this by removing some value
 		if(spread > 1){
 			spread = Math.sqrt(Math.pow((spread - 2), 2));
-		}
-		if(spread === 0){
+		//in the case of one jam the score didn't increase, quite hard to place >1 jam in the exact same place so this works
+		}else if(spread === 0){
 			spread = 1;
 		}
 		return spread;
