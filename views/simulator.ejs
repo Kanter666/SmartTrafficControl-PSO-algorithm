@@ -280,7 +280,7 @@ body {
 						alert(JSON.stringify(data));
 						var jsonObj = $.parseJSON(JSON.stringify(data));
 						alert(JSON.stringify(jsonObj[0].jams));
-						var jsonObj2 = $.parseJSON(jsonObj[0].jams);
+						var jsonObj2 = $.parseJSON('['+jsonObj[0].jams+']');
 						for(var q = 0; q<jsonObj.length;q++){
 							if(jsonObj[q].round === round){
 								placeCircle(new google.maps.LatLng(jsonObj2[q].lat,jsonObj2[q].lng));
