@@ -58,7 +58,6 @@ body {
 	var timeGone;
 	var timer;
 	var score;
-	var ID;
 	var round;
 	var allAssigned;
 	var splashPanel;
@@ -157,15 +156,6 @@ body {
 		map.controls[google.maps.ControlPosition.CENTER].push(splashPanel);
 	}
 	
-	function makeid(){
-		var text = "";
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		for( var i=0; i < 10; i++ ){
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-		}
-		return text;
-	}
-	
 	function createSplashPanel() {
 		splashPanel = document.createElement('div');
 		splashPanel.style.padding = '50px';
@@ -249,7 +239,6 @@ body {
 	
 	//Resets the variables that change game on game
 	function resetVariables(){
-		ID = makeid();
 		jamJSON = "";
 		carJSON = "";
 		round = 0;
@@ -422,14 +411,14 @@ body {
 		for(var b = 0; b<jams.length; b++){
 			if(jams[b].real === false){
 				if(round === 4){
-					jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":-1},'
+					jamJSON = jamJSON + '{"round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":-1},'
 				}else{
-					jamJSON = jamJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
+					jamJSON = jamJSON + '{"round":'+round+',"lat":' + jams[b].getCenter().lat() + ',"lng":' + jams[b].getCenter().lng() + ',"influence":' + jams[b].influence + ',"distancetoreal":' + distanceToNearestRealJam(jams[b].getCenter()) + '},'
 				}
 			}
 		}
 		for(var c = 0; c<cars.length; c++){
-			carJSON = carJSON + '{"game":"'+ID+'","round":'+round+',"lat":' + cars[c].startPosition.lat() + ',"lng":' + cars[c].startPosition.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
+			carJSON = carJSON + '{"round":'+round+',"lat":' + cars[c].startPosition.lat() + ',"lng":' + cars[c].startPosition.lng() + ',"jamschecked":' + cars[c].jamsChecked + ',"fakechecked":' + cars[c].fakeJamsChecked + '},'
 		}
 	}
 	
