@@ -261,7 +261,6 @@ body {
 			for(var i = 0; i<reals[round].length; i++){
 				placeRealJam(reals[round][i]);
 			}
-			placeFakes();
 		}
 	}
 
@@ -296,6 +295,7 @@ body {
 	//Represents the actions taken place after clicking the go button
 	function button(){
 		if(grey === false){
+			placeFakes();
 			if(fakeJamCount<M){
 				alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
 			}else{
