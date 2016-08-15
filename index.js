@@ -27,7 +27,7 @@ app.get('/random', function(request, response) {
 		  if (err)
 		   { console.error(err); response.send("Error " + err); }
 		  else
-		   { response.json({ "id": result.rows }); }
+		   { response.json(result.rows); }
 		});
 	});
 });
