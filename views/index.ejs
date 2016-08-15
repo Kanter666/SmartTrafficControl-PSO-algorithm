@@ -109,14 +109,6 @@ body {
 			disableDefaultUI:true,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		});
-		$.ajax({
-			type: 'POST',
-			url: 'https://smart-traffic-control-game.herokuapp.com/random',
-			success: function(data){
-						var jsonObj = $.parseJSON(JSON.stringify(data));
-						alert(jsonObj[0].random_text);
-					}
-		});
 		map.setOptions({disableDoubleClickZoom: true, zoomControl: false, scrollwheel:false, draggable: false});
 		map.setClickableIcons(false);
 		//add bounding black boxes
@@ -238,6 +230,10 @@ body {
 			type: 'POST',
 			url: 'https://smart-traffic-control-game.herokuapp.com/',
 			data: 'game='+ID+'&M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1)
+			success: function(data){
+						var jsonObj = $.parseJSON(JSON.stringify(data));
+						alert(jsonObj[0].random_text);
+					}
 		});
 		prompt("Please copy the code below to complete the HIT", ID);
 		deleteJams();
