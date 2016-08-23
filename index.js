@@ -76,7 +76,7 @@ app.get('/cars', function(request, response) {
 				  if (err)
 				   { console.error(err); response.send("Error " + err); }
 				  else
-				   { response.json("[" + result.rows[0].cars + "]"); }
+				   { response.json(JSON.parse("[" + result.rows[0].cars + "]")); }
 				});
 			});
 	}else{
