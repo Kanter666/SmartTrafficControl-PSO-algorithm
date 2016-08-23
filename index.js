@@ -43,7 +43,7 @@ app.get('/AMTPayList', function(request, response) {
 				  if (err)
 				   { console.error(err); response.send("Error " + err); }
 				  else
-				   { response.json(result.rows); }
+				   { response.json(result.rows.gameid); }
 				});
 			});
 		//}
