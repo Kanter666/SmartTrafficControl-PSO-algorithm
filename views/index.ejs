@@ -210,7 +210,7 @@ body {
 		
 		//click listener for the leaderboard button
 		google.maps.event.addDomListener(leaderButton, 'click', function() {
-			window.location = "https://smart-traffic-control-game.herokuapp.com/leaderboard";
+			window.location = "smart-traffic-control-game.herokuapp.com/leaderboard";
 		});
 	}
 	
@@ -218,7 +218,7 @@ body {
 	function sendAndReset(person){
 		$.ajax({
 			type: 'POST',
-			url: 'https://smart-traffic-control-game.herokuapp.com/',
+			url: 'smart-traffic-control-game.herokuapp.com/',
 			data: 'M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1),
 			success: function(data){
 						var jsonObj = $.parseJSON(JSON.stringify(data));
