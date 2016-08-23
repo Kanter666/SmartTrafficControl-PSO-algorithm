@@ -221,9 +221,11 @@ body {
 			url: 'https://smart-traffic-control-game.herokuapp.com/',
 			data: 'M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1),
 			success: function(data){
-						if(round>3){
+						if(round>=3){
 							var jsonObj = $.parseJSON(JSON.stringify(data));
 							prompt("Please copy the code below to complete the HIT", jsonObj[0].gameid);
+						}else{
+							alert("Sorry you didn't reach round 3 or above");
 						}
 					}
 		});
