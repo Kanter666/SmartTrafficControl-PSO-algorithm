@@ -60,7 +60,7 @@ app.get('/jams', function(request, response) {
 				  if (err)
 				   { console.error(err); response.send("Error " + err); }
 				  else
-				   { response.json("[" + result.rows[0].jams.replace(/\"/g, "") + "]"); }
+				   { response.json(JSON.parse("[" + result.rows[0].jams + "]")); }
 				});
 			});
 	}else{
@@ -76,7 +76,7 @@ app.get('/cars', function(request, response) {
 				  if (err)
 				   { console.error(err); response.send("Error " + err); }
 				  else
-				   { response.json("[" + result.rows[0].cars.replace(/\"/g, "") + "]"); }
+				   { response.json("[" + result.rows[0].cars + "]"); }
 				});
 			});
 	}else{
