@@ -60,7 +60,7 @@ app.get('/jams', function(request, response) {
 				  if (err)
 				   { console.error(err); response.send("Error " + err); }
 				  else
-				   { response.json(result.rows); }
+				   { response.json(result.rows[0].jams); }
 				});
 			});
 	}else{
