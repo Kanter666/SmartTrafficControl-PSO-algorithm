@@ -34,7 +34,7 @@ app.post('/', function(request, response) {
 	});
 });
 
-app.get('/AMTPayList', function(request, response) {
+/*app.get('/AMTPayList', function(request, response) {
 	if(request.query.id !== undefined){
 		//if(request.query.id.substr(0,3) === "AI53"){
 			pg.connect(connectionString, function(err, client, done) {
@@ -47,6 +47,38 @@ app.get('/AMTPayList', function(request, response) {
 				});
 			});
 		//}
+	}else{
+		response.json([]);
+	}
+});*/
+
+app.get('/jams', function(request, response) {
+	if(request.query.id !== undefined){
+			pg.connect(connectionString, function(err, client, done) {
+				client.query('SELECT jams FROM results WHERE gameid=$1', [request.query.id],function(err, result) {
+				  done();
+				  if (err)
+				   { console.error(err); response.send("Error " + err); }
+				  else
+				   { response.json(result.rows); }
+				});
+			});
+	}else{
+		response.json([]);
+	}
+});
+
+app.get('/cars', function(request, response) {
+	if(request.query.id !== undefined){
+			pg.connect(connectionString, function(err, client, done) {
+				client.query('SELECT cars FROM results WHERE gameid=$1', [request.query.id],function(err, result) {
+				  done();
+				  if (err)
+				   { console.error(err); response.send("Error " + err); }
+				  else
+				   { response.json(result.rows); }
+				});
+			});
 	}else{
 		response.json([]);
 	}
