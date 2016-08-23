@@ -221,8 +221,10 @@ body {
 			url: 'https://smart-traffic-control-game.herokuapp.com/',
 			data: 'M='+M+'&name='+person+'&score='+ score +'&round='+round + '&jams=' +jamJSON.substr(0,jamJSON.length-1) + '&cars=' + carJSON.substr(0,carJSON.length-1),
 			success: function(data){
-						var jsonObj = $.parseJSON(JSON.stringify(data));
-						prompt("Please copy the code below to complete the HIT", jsonObj[0].gameid);
+						if(round>3){
+							var jsonObj = $.parseJSON(JSON.stringify(data));
+							prompt("Please copy the code below to complete the HIT", jsonObj[0].gameid);
+						}
 					}
 		});
 		deleteJams();
@@ -298,7 +300,7 @@ body {
 					}
 				}
 				if(fine === false){
-					alert("Please place jams within the black box, resetting the map now.");
+					alert("Please place jams within the black box next time, the map will now be reset");
 					deleteJams();
 					for(var i = 0; i<reals[round].length; i++){
 						placeRealJam(reals[round][i]);
