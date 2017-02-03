@@ -1,0 +1,9 @@
+Name: Traffic Attacker Game
+
+Title: Play a game to aid understand of cyber security attacks
+Description: In this game you play an attacker of a traffic system, you need to create fake traffic that the police can't inspect before the time is up.
+Keywords: game, research, cyber security, traffic systems
+
+Instructions:
+To learn about the behaviour of potential attackers of smart traffic systems we have developed a game.
+Click the link below to play the game which consists of at most 5 rounds. If you make it to round 3 or greater then you will be presented with a code which can be copy and pasted below to complete the HIT.

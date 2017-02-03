@@ -272,7 +272,7 @@ body {
 			score = Math.round(score);
 			var person;
 			do{
-				person = prompt("Congratulations! You beat the game! Your score is " + score + ". Please enter your name to add it to the leader board.", "");
+				person = prompt("Congratulations! You beat the game! Your score is " + score + ". Please enter a username to add it to the leader board.", "");
 			}
 			while(person === null || person === "");
 			sendAndReset(person);
@@ -464,7 +464,7 @@ body {
 				score = Math.round(score);
 				var person;
 				do{
-					person = prompt("Unlucky! Your score is " + score + ". Please enter your name to add it to the leader board.", "");
+					person = prompt("Unlucky! Your score is " + score + ". Please enter a username to add it to the leader board.", "");
 				}
 				while(person === null || person === "");
 				sendAndReset(person);
