@@ -408,12 +408,12 @@ body {
 			sof = spreadOfFakes();
 			calculateScore();	
 			document.getElementById('score').innerHTML = 'SCORE: ' + Math.round(score);
-			document.getElementById('timeleft').innerHTML = Math.round((300 - timeGone)/10) + ' SECONDS LEFT';
+			document.getElementById('timeleft').innerHTML = Math.round((3000 - timeGone)/10) + ' SECONDS LEFT';
 			if(checkIfLost() === true){
 				endRound();
 				score = Math.round(score);
 				alert("Score: " + score);
-			}else if(300 - timeGone <= 0){
+			}else if(3000 - timeGone <= 0){
 				endRound();
 				//alert("Win!");
 				round++;
