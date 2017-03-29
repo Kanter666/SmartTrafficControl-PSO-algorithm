@@ -269,7 +269,7 @@ body {
 	
 	//Assigns a new traffic jam to car while waiting for aTime time
 	function assign(car, aTime){
-		car.assignTime = aTime;
+		//car.assignTime = aTime;
 		var closest;
 		var closestDistance = Infinity;
 		for(var o = 0; o<jams.length; o++){
@@ -289,6 +289,61 @@ body {
 			directionsService.route({
 					origin:car.getPosition(),
 					destination:car.target.getCenter(),
+					travelMode: google.maps.TravelMode.DRIVING
+				}, function(result, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						car.path = result.routes[0].overview_path;
+						car.pointOnPath = 0;
+						car.wait = 0;
+						car.target.assigned = true;
+					}
+				}
+			);
+		}
+	}
+
+	//Split all jams at the beginning of the round between all cars
+	function splitAssign(numOfCars){
+
+		//assign all of the jams
+		for(var j = 0; j<jams.length; j++){
+			//get car with smallest route
+			var car = cars[0];
+			for(var n = 1; n<numOfCars; n++){
+				if (car.totalDistance > cars[n].totalDistance){
+					car = cars[n];
+				}
+			}
+			//get closest jam to the car
+			for(var o = 0; o<jams.length; o++){
+				if(jams[o].checked === false && jams[o].assigned === false){
+					var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
+					if(dist < closestDistance){
+						closest = jams[o];
+						closestDistance = dist;
+					}	
+				}
+			}
+
+			closest.assigned = true;
+			car.totalDistance += closestDistance;
+			car.jams.push(closest);
+			
+		}
+		
+		
+		for(var n = 0; n<numOfCars; n++){
+
+			car.target = cars[n].jams.pop();
+			for(var x = 0; x<car.jams.length; x++){
+				waypoints.push(car.jams[x].getCenter());
+			}
+
+			directionsService.route({
+					origin:cars[n].getPosition(),
+					destination:car.target.getCenter(),
+					waypoints: waypoints, //an array of waypoints
+            				optimizeWaypoints: true, //set to true if you want google to determine the shortest route or false to use the order specified.
 					travelMode: google.maps.TravelMode.DRIVING
 				}, function(result, status) {
 					if (status == google.maps.DirectionsStatus.OK) {
@@ -343,9 +398,12 @@ body {
 		document.getElementById('goButton').style.color = '#CCCCCC';	
 		document.getElementById('goButton').style.backgroundColor = '#999999';
 		grey = true;
-		for(var p = 0; p<M; p++){
-			assign(cars[p], 0);
-		}
+		//for(var p = 0; p<M; p++){
+		//	assign(cars[p], 0);
+		//}
+		splitAssign(p);
+
+
 		timer = setInterval(function(){
 			sof = spreadOfFakes();
 			calculateScore();	
@@ -436,6 +494,8 @@ body {
 			map: map
 		});
 		car.path = [];
+		car.jams = [];
+		car.totalDistance = 0;
 		car.assignTime = 0;
 		car.fakeJamsChecked = 0;
 		car.jamsChecked = 0;

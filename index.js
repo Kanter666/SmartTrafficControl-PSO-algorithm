@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-var connectionString = "postgres://hahwdizbogbvgc:-XXSpyHFDYnILxx_hsK0niwWK8@ec2-50-19-240-113.compute-1.amazonaws.com:5432/dcn9llujgn2dio";
+var connectionString = "postgres://xqexpnucxslaxx:fe267bb2462aba52bac8977a8b88dcb5bf538dff2644a15812399b5146f26d21@ec2-54-247-166-129.eu-west-1.compute.amazonaws.com:5432/dbgdvh0db5d2c7";
 
 app.set('port', (process.env.PORT || 5000));
 
