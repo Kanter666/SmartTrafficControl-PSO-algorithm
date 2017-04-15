@@ -408,12 +408,12 @@ body {
 			sof = spreadOfFakes();
 			calculateScore();	
 			document.getElementById('score').innerHTML = 'SCORE: ' + Math.round(score);
-			document.getElementById('timeleft').innerHTML = Math.round((3000 - timeGone)/10) + ' SECONDS LEFT';
+			document.getElementById('timeleft').innerHTML = Math.round((6000 - timeGone)/10) + ' SECONDS LEFT';
 			if(checkIfLost() === true){
 				endRound();
 				score = Math.round(score);
 				alert("Score: " + score);
-			}else if(3000 - timeGone <= 0){
+			}else if(6000 - timeGone <= 0){
 				endRound();
 				//alert("Win!");
 				round++;
@@ -523,6 +523,25 @@ body {
 	
 	//Adds a real traffic jam to the map
 	function placeRealJam(location){
+		var myOptions = {
+		    content: "a",
+		    boxStyle: {
+		      border: "none",
+		      textAlign: "center",
+		      fontSize: "10pt",
+		      width: "50px"
+		    },
+		    disableAutoPan: true,
+		    pixelOffset: new google.maps.Size(-25, -5),
+		    position: location,
+		    closeBoxURL: "",
+		    isHidden: false,
+		    pane: "floatPane",
+		    enableEventPropagation: true
+		};
+
+		var ibLabel = new InfoBox(myOptions);
+		ibLabel.open(map);
 		var circle = new google.maps.Circle({
 			center:location,
 			draggable:false,
@@ -537,6 +556,7 @@ body {
 		circle.real = true;
 		circle.checked = false;
 		circle.assigned = false;
+		circle.text = myOptions;
 		google.maps.event.addListener(circle, 'mouseover', function() {placeRadius(circle.center, 5);});
 		jams.push(circle);
 	}
