@@ -396,6 +396,83 @@ body {
 			);
 		}
 	}
+
+	//Split all jams at the beginning of the round between all cars
+	function splitAssign(numOfCars){
+
+		//assign all of the jams
+		for(var j = 0; j<jams.length; j++){
+
+			var closest;
+			var closestDistance = Infinity;
+			//get car with smallest route
+			var car = cars[0];
+			for(var n = 1; n<numOfCars; n++){
+				if (car.totalDistance > cars[n].totalDistance){
+					car = cars[n];
+				}
+			}
+			//get closest jam to the car
+			for(var o = 0; o<jams.length; o++){
+				if(jams[o].checked === false && jams[o].assigned === false){
+					var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
+					if(dist < closestDistance){
+						closest = jams[o];
+						closestDistance = dist;
+					}	
+				}
+			}
+
+			closest.assigned = true;
+			car.totalDistance += closestDistance;
+			car.jams.push(closest);
+			
+		}
+		
+		
+		for(var n = 0; n<numOfCars; n++){
+
+			car = cars.pop()
+
+			car.target = car.jams.pop();
+			for(var x = 0; x<car.jams.length; x++){
+				car.waypoints.push({location: car.jams[x].getCenter()});
+			}
+
+			if(car.waypoints.length>0){
+				directionsService.route({
+						origin:car.getPosition(),
+						destination:car.target.getCenter(),
+						waypoints: car.waypoints, //an array of waypoints
+	            				optimizeWaypoints: true, //set to true if you want google to determine the shortest route or false to use the order specified.
+						travelMode: google.maps.TravelMode.DRIVING
+					}, function(result, status) {
+						if (status == google.maps.DirectionsStatus.OK) {
+							car.path = result.routes[0].overview_path;
+							car.pointOnPath = 0;
+							car.wait = 0;
+							car.target.assigned = true;
+						}
+					}
+				);
+			}else{
+			directionsService.route({
+					origin:car.getPosition(),
+					destination:car.target.getCenter(),
+					travelMode: google.maps.TravelMode.DRIVING
+				}, function(result, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						car.path = result.routes[0].overview_path;
+						car.pointOnPath = 0;
+						car.wait = 0;
+						car.target.assigned = true;
+					}
+				}
+			);
+			}
+			
+		}
+	}
 	
 	//Returns if the state of the current game is a loss or not, this is determined by all fake jams being checked
 	function checkIfLost(){
@@ -451,14 +528,15 @@ body {
 		document.getElementById('goButton').style.color = '#CCCCCC';	
 		document.getElementById('goButton').style.backgroundColor = '#999999';
 		grey = true;
-		for(var p = 0; p<M; p++){
-			assign(cars[p], 0);
-		}
+		//for(var p = 0; p<M; p++){
+		//	assign(cars[p], 0);
+		//}
+		splitAssign(M);
 		timer = setInterval(function(){
 			sof = spreadOfFakes();
 			calculateScore();	
 			document.getElementById('score').innerHTML = 'SCORE: ' + Math.round(score);
-			document.getElementById('timeleft').innerHTML = Math.round((300 - timeGone)/10) + ' SECONDS LEFT';
+			document.getElementById('timeleft').innerHTML = Math.round((3000 - timeGone)/10) + ' SECONDS LEFT';
 			if(checkIfLost() === true){
 				endRound();
 				score = Math.round(score);
@@ -468,7 +546,7 @@ body {
 				}
 				while(person === null || person === "");
 				sendAndReset(person);
-			}else if(300 - timeGone <= 0){
+			}else if(3000 - timeGone <= 0){
 				endRound();
 				//alert("Win!");
 				round++;
@@ -563,6 +641,8 @@ body {
 		car.fakeJamsChecked = 0;
 		car.jamsChecked = 0;
 		car.startPosition = car.position;
+		car.jams = [];
+		car.waypoints = [];
 		cars.push(car);
 	}
 	
@@ -651,7 +731,7 @@ body {
 			}, function(result, status) {
 				if (status == google.maps.DirectionsStatus.OK) {
 					placeCar(new google.maps.LatLng(result.routes[0].legs[0].start_location.lat(), result.routes[0].legs[0].start_location.lng()));
-				}else{
+				}else{s
 					alert("Error: Google Maps API not returning location data. The game will restart.");
 					window.location = "./";
 				}
