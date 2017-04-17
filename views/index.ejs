@@ -328,7 +328,7 @@ body {
 			car.assignTime++;
 		}else{
 			if(car.target.checked === true){
-				assign(car, 0);
+				direction(car, 0);
 			}else{
 				if(distanceToNearestRealJam(car.position) < 0.8){
 					if(car.wait === 0){
@@ -397,6 +397,31 @@ body {
 		}
 	}
 
+	function direction(car, aTime){
+		car.assignTime = aTime;
+		var closest = car.jams.shift();
+
+		if(closest !== undefined){
+			if(car.target !== undefined){
+				car.target.assigned = false;			
+			}
+			car.target = closest;
+			directionsService.route({
+					origin:car.getPosition(),
+					destination:car.target.getCenter(),
+					travelMode: google.maps.TravelMode.DRIVING
+				}, function(result, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						car.path = result.routes[0].overview_path;
+						car.pointOnPath = 0;
+						car.wait = 0;
+						car.target.assigned = true;
+					}
+				}
+			);
+		}
+	}
+
 	//Split all jams at the beginning of the round between all cars
 	function splitAssign(numOfCars){
 
@@ -430,48 +455,48 @@ body {
 		}
 		
 		
-		for(var n = 0; n<numOfCars; n++){
+		// for(var n = 0; n<numOfCars; n++){
 
-			car = cars.pop()
+		// 	car = cars[n]
 
-			car.target = car.jams.pop();
-			for(var x = 0; x<car.jams.length; x++){
-				car.waypoints.push({location: car.jams[x].getCenter()});
-			}
+		// 	car.target = car.jams.pop();
+		// 	for(var x = 0; x<car.jams.length; x++){
+		// 		car.waypoints.push({location: car.jams[x].getCenter()});
+		// 	}
 
-			if(car.waypoints.length>0){
-				directionsService.route({
-						origin:car.getPosition(),
-						destination:car.target.getCenter(),
-						waypoints: car.waypoints, //an array of waypoints
-	            				optimizeWaypoints: true, //set to true if you want google to determine the shortest route or false to use the order specified.
-						travelMode: google.maps.TravelMode.DRIVING
-					}, function(result, status) {
-						if (status == google.maps.DirectionsStatus.OK) {
-							car.path = result.routes[0].overview_path;
-							car.pointOnPath = 0;
-							car.wait = 0;
-							car.target.assigned = true;
-						}
-					}
-				);
-			}else{
-			directionsService.route({
-					origin:car.getPosition(),
-					destination:car.target.getCenter(),
-					travelMode: google.maps.TravelMode.DRIVING
-				}, function(result, status) {
-					if (status == google.maps.DirectionsStatus.OK) {
-						car.path = result.routes[0].overview_path;
-						car.pointOnPath = 0;
-						car.wait = 0;
-						car.target.assigned = true;
-					}
-				}
-			);
-			}
+		// 	if(car.waypoints.length>0){
+		// 		directionsService.route({
+		// 				origin:car.getPosition(),
+		// 				destination:car.target.getCenter(),
+		// 				waypoints: car.waypoints, //an array of waypoints
+	 //            				optimizeWaypoints: true, //set to true if you want google to determine the shortest route or false to use the order specified.
+		// 				travelMode: google.maps.TravelMode.DRIVING
+		// 			}, function(result, status) {
+		// 				if (status == google.maps.DirectionsStatus.OK) {
+		// 					car.path = result.routes[0].overview_path;
+		// 					car.pointOnPath = 0;
+		// 					car.wait = 0;
+		// 					car.target.assigned = true;
+		// 				}
+		// 			}
+		// 		);
+		// 	}else{
+		// 	directionsService.route({
+		// 			origin:car.getPosition(),
+		// 			destination:car.target.getCenter(),
+		// 			travelMode: google.maps.TravelMode.DRIVING
+		// 		}, function(result, status) {
+		// 			if (status == google.maps.DirectionsStatus.OK) {
+		// 				car.path = result.routes[0].overview_path;
+		// 				car.pointOnPath = 0;
+		// 				car.wait = 0;
+		// 				car.target.assigned = true;
+		// 			}
+		// 		}
+		// 	);
+		// 	}
 			
-		}
+		// }
 	}
 	
 	//Returns if the state of the current game is a loss or not, this is determined by all fake jams being checked
@@ -528,10 +553,11 @@ body {
 		document.getElementById('goButton').style.color = '#CCCCCC';	
 		document.getElementById('goButton').style.backgroundColor = '#999999';
 		grey = true;
-		//for(var p = 0; p<M; p++){
-		//	assign(cars[p], 0);
-		//}
 		splitAssign(M);
+		for(var p = 0; p<M; p++){
+			direction(cars[p], 0);
+		}
+
 		timer = setInterval(function(){
 			sof = spreadOfFakes();
 			calculateScore();	
