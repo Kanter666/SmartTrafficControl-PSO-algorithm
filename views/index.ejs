@@ -455,6 +455,15 @@ body {
 			car.jams.push(closest);
 			
 		}
+
+		for(var n = 0; n<numOfCars; n++){
+			var message = "Car "+(n+1)+" has these jams assigned: ";
+			var numOfJams = cars[n].jams.length;
+			for(var i = 0; i< numOfJams; i++){
+				message += cars[n].jams[i].text.content+", ";
+			}
+			console.log(message);
+		}
 		
 		
 		// for(var n = 0; n<numOfCars; n++){
