@@ -442,7 +442,11 @@ body {
 			//get closest jam to the car
 			for(var o = 0; o<jams.length; o++){
 				if(jams[o].checked === false && jams[o].assigned === false){
-					var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
+					if (car.jams.length>0){
+						var dist = Math.sqrt(Math.pow(car.jams[car.jams.length-1].getCenter().lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.jams[car.jams.length-1].getCenter().lng()-jams[o].getCenter().lng(), 2));
+					}else{
+						var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
+					}
 					if(dist < closestDistance){
 						closest = jams[o];
 						closestDistance = dist;
@@ -706,6 +710,7 @@ body {
 		car.startPosition = car.position;
 		car.jams = [];
 		car.waypoints = [];
+		car.totalDistance = 0;
 		cars.push(car);
 	}
 	
