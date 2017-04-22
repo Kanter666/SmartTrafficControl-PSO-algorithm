@@ -427,6 +427,18 @@ body {
 	//Split all jams at the beginning of the round between all cars
 	function splitAssign(numOfCars){
 
+		//get distances between jams
+		distances = {};
+		for(var i = 0; i<jams.length; i++){
+			for(var j = i+1; j<jams.length; j++){
+				dist = Math.sqrt(Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lat(), 2)+Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lng(), 2));
+				distances[jams[i].text.content+jams[j].text.content] = dist;
+				console.log(dist);
+			}
+		}
+		for (var i in distances[i]) {
+		    console.log('Key is: ' + i + '. Value is: ' + distances[i]);
+		} 
 		//assign all of the jams
 		for(var j = 0; j<jams.length; j++){
 
