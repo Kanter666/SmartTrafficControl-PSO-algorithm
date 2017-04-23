@@ -431,12 +431,14 @@ body {
 		distances = {};
 		for(var i = 0; i<jams.length; i++){
 			for(var j = i+1; j<jams.length; j++){
-				dist = Math.sqrt(Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lat(), 2)+Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lng(), 2));
-				distances[jams[i].text.content+jams[j].text.content] = dist;
-				console.log(dist);
+				var dist = Math.sqrt(Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lat(), 2)+Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lng(), 2));
+				var key = jams[i].text.content+jams[j].text.content;
+				distances[key] = dist;
+				console.log(key + ' : ' +dist);
 			}
 		}
-		for (var i in distances[i]) {
+		//printing values and distances
+		for (var i in distances) {
 		    console.log('Key is: ' + i + '. Value is: ' + distances[i]);
 		} 
 		//assign all of the jams
