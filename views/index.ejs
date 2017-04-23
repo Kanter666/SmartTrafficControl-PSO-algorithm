@@ -424,6 +424,23 @@ body {
 		}
 	}
 
+	function calculateFitness(){
+		var longestDistance = 0;
+		for(var n = 0; n<numOfCars; n++){
+			var car = cars[n];
+			var carDist = dist = Math.sqrt(Math.pow(car.position.lat()-car.jams[0].getCenter().lat(), 2)+Math.pow(car.position.lng()-car.jams[0].getCenter().lng(), 2));
+
+			for(var i = 1; i<car/jams.length; i++){
+				carDist += Math.sqrt(Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lat(), 2)+Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lng(), 2));
+			}
+			if(carDist>longestDistance){
+				longestDistance = carDist;
+			}
+		}
+		console.log(longestDistance);
+
+	}
+
 	function randomAssign(numOfCars){
 		for(var j = 0; j<jams.length; j++){
 			var car = cars[Math.floor(Math.random() * numOfCars)];
@@ -439,6 +456,7 @@ body {
 			}
 			console.log(message);
 		}
+		calculateFitness();
 	}
 
 	//Split all jams at the beginning of the round between all cars
