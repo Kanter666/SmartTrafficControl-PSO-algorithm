@@ -399,6 +399,30 @@ body {
 		}
 	}
 
+	function getAllDistances(){
+		jams.distances={}
+		var path;
+		for (var i = 0; i < jams.length; i++) {
+			for (var j =i+1; j< jams.length ; j++){
+				var key = jams[i].text.content+ " " +jams[j].text.content;
+				var value;
+				directionsService.route({
+					origin:jams[i].getCenter(),
+					destination:jams[j].getCenter(),
+					travelMode: google.maps.TravelMode.DRIVING
+				}, function(result, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						path = result;
+						value = path.routes[0].legs[0].duration.value;
+						jams.distances.key=value;
+						console.log(jams.distances);
+					}
+				}
+				);	
+			}
+		}
+	}
+
 	function direction(car, aTime){
 		car.assignTime = aTime;
 		var closest = car.jams.shift();
@@ -426,7 +450,7 @@ body {
 
 	function calculateFitness(){
 		var longestDistance = 0;
-		for(var n = 0; n<numOfCars; n++){
+		for(var n = 0; n<cars.length; n++){
 			var car = cars[n];
 			var carDist = dist = Math.sqrt(Math.pow(car.position.lat()-car.jams[0].getCenter().lat(), 2)+Math.pow(car.position.lng()-car.jams[0].getCenter().lng(), 2));
 
@@ -463,18 +487,10 @@ body {
 	function splitAssign(numOfCars){
 
 		//get distances between jams
-		distances = {};
-		for(var i = 0; i<jams.length; i++){
-			for(var j = i+1; j<jams.length; j++){
-				var dist = Math.sqrt(Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lat(), 2)+Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lng(), 2));
-				var key = jams[i].text.content+jams[j].text.content;
-				distances[key] = dist;
-				console.log(key + ' : ' +dist);
-			}
-		}
+		getAllDistances();
 		//printing values and distances
-		for (var i in distances) {
-		    console.log('Key is: ' + i + '. Value is: ' + distances[i]);
+		for (var i in jams.distances) {
+		    console.log('Key is: ' + i + '. Value is: ' + jams.distances[i]);
 		}
 
 		randomAssign(numOfCars);
