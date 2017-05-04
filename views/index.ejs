@@ -400,11 +400,18 @@ body {
 	}
 
 	function getAllDistances(){
-		jams.distances={}
-		var path;
+		//creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
+		jams.distances= new Map();
 		for (var i = 0; i < jams.length; i++) {
+			jams.distances.set(jams[i].text.content, new Map());
+		}
+		var path;
+		var startP;
+		var endP;
+		for (var i = 0; i < jams.length; i++) {
+			startP = jams[i].text.content;
 			for (var j =i+1; j< jams.length ; j++){
-				var key = jams[i].text.content+ " " +jams[j].text.content;
+				endP = jams[j].text.content;
 				var value;
 				directionsService.route({
 					origin:jams[i].getCenter(),
@@ -414,7 +421,8 @@ body {
 					if (status == google.maps.DirectionsStatus.OK) {
 						path = result;
 						value = path.routes[0].legs[0].duration.value;
-						jams.distances.key=value;
+						jams.distances.get(startP).set(endP, value);
+						jams.distances.get(endP).set(startP, value);
 						console.log(jams.distances);
 					}
 				}
