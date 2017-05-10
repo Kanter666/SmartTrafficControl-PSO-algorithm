@@ -405,30 +405,38 @@ body {
 		for (var i = 0; i < jams.length; i++) {
 			jams.distances.set(jams[i].text.content, new Map());
 		}
-		var path;
-		var startP;
-		var endP;
 		for (var i = 0; i < jams.length; i++) {
 			startP = jams[i].text.content;
 			for (var j =i+1; j< jams.length ; j++){
-				endP = jams[j].text.content;
-				var value;
-				directionsService.route({
-					origin:jams[i].getCenter(),
-					destination:jams[j].getCenter(),
-					travelMode: google.maps.TravelMode.DRIVING
-				}, function(result, status) {
-					if (status == google.maps.DirectionsStatus.OK) {
-						path = result;
-						value = path.routes[0].legs[0].duration.value;
-						jams.distances.get(startP).set(endP, value);
-						jams.distances.get(endP).set(startP, value);
-						console.log(jams.distances);
-					}
-				}
-				);	
+				console.log(i, j);
+				// endP = jams[j].text.content;
+				// directionsService.route({
+				// 	origin:jams[i].getCenter(),
+				// 	destination:jams[j].getCenter(),
+				// 	travelMode: google.maps.TravelMode.DRIVING
+				// }, function(result, status) {
+				// 	if (status == google.maps.DirectionsStatus.OK) {
+				// 		console.log(i, j);
+				// 		path = result;
+				// 		value = path.routes[0].legs[0].duration.value;
+				// 		jams.distances.get(startP).set(endP, value);
+				// 		jams.distances.get(endP).set(startP, value);
+				// 		console.log(value);
+				// 	}
+				// }
+				// );
+				console.log(jams[i].getCenter().lat);
+
+				var APIurl = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + ((String(jams[i].getCenter()).replace('(','')).replace(' ','')).replace(')','') + "&destinations=" + ((String(jams[j].getCenter()).replace('(','')).replace(' ','')).replace(')','') + "&mode=car&language=en&sensor=false";
+				console.log(APIurl);
+
+				fetch(APIurl, {'mode': 'no-cors'})
+    			.then(data => {
+        			console.log(data);
+    			});
 			}
 		}
+		console.log(jams.distances);
 	}
 
 	function direction(car, aTime){
