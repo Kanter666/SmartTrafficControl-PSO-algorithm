@@ -66,6 +66,7 @@ body {
 	var sof;
 	var grey = true;
 	var directionsService = new google.maps.DirectionsService();
+	var distance = require('google-distance-matrix');
 	var reals = [[new google.maps.LatLng(50.8967964,-1.4069385),
 				new google.maps.LatLng(50.8985614,-1.3926258),
 				new google.maps.LatLng(50.9149906,-1.4145485),
@@ -402,41 +403,40 @@ body {
 	function getAllDistances(){
 		//creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
 		jams.distances= new Map();
+		var coordinates = [];
 		for (var i = 0; i < jams.length; i++) {
-			jams.distances.set(jams[i].text.content, new Map());
+			coordinates.push(jams[i].getCenter());
 		}
-		for (var i = 0; i < jams.length; i++) {
-			startP = jams[i].text.content;
-			for (var j =i+1; j< jams.length ; j++){
-				console.log(i, j);
-				// endP = jams[j].text.content;
-				// directionsService.route({
-				// 	origin:jams[i].getCenter(),
-				// 	destination:jams[j].getCenter(),
-				// 	travelMode: google.maps.TravelMode.DRIVING
-				// }, function(result, status) {
-				// 	if (status == google.maps.DirectionsStatus.OK) {
-				// 		console.log(i, j);
-				// 		path = result;
-				// 		value = path.routes[0].legs[0].duration.value;
-				// 		jams.distances.get(startP).set(endP, value);
-				// 		jams.distances.get(endP).set(startP, value);
-				// 		console.log(value);
-				// 	}
-				// }
-				// );
-				console.log(jams[i].getCenter().lat);
+		for (var i = 0; i < (jams.length-1); i++) {
+			coordinates.shift();
+			distance.matrix(jams[i].getCenter(), coordinates, function (err, distances) {
+			    if (!err){
+			        console.log(distances);
+			    }else{
+			    	return console.log(err);
+			    }
+			});
+      	}
 
-				var APIurl = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + ((String(jams[i].getCenter()).replace('(','')).replace(' ','')).replace(')','') + "&destinations=" + ((String(jams[j].getCenter()).replace('(','')).replace(' ','')).replace(')','') + "&mode=car&language=en&sensor=false";
-				console.log(APIurl);
+			// var startCoordinates = ((String(jams[i].getCenter()).replace('(','')).replace(' ','')).replace(')','');
+			// coordinates = coordinates.substring(coordinates.indexOf("|") + 1);
+			// console.log(coordinates);
+	  // 		var APIurl = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + startCoordinates + "&destinations=" + coordinates + "&mode=car&key=AIzaSyDbyydbkSMZerYHdKKU7wPlLs6UenwLHjM";
+			// console.log(APIurl);
 
-				fetch(APIurl, {'mode': 'no-cors'})
-    			.then(data => {
-        			console.log(data);
-    			});
-			}
-		}
-		console.log(jams.distances);
+
+
+			// // var xhr = createCORSRequest('GET', APIurl);
+			// // xhr.send();
+			// fetch(APIurl, {'mode': 'no-cors'})
+			//   .then((resp) => resp.json())
+			//   .catch(function(error) {
+			//     console.log(error);
+			//   });
+			// console.log(xhr.statusText);
+			// console.log(xhr.responseText);
+			//jams.distances.set(jams[i].text.content,);
+			
 	}
 
 	function direction(car, aTime){
