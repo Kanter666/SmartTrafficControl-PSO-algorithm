@@ -404,16 +404,16 @@ body {
 		jams.distances= new Map();
 		var coordinates = [];
 		for (var i = 0; i < jams.length; i++) {
+			jams.distances.set(jams[i].text.content, new Map());
 			coordinates.push(jams[i].getCenter());
 		}
+		coordinates.shift();
+
+		var counter = 0;
 		for (var i = 0; i < (jams.length-1); i++) {
-			coordinates.shift();
-			//Find the distance
-			console.log(jams[i].getCenter());
-			console.log(coordinates);
-		     var distanceService = new google.maps.DistanceMatrixService();
-		     distanceService.getDistanceMatrix({
-		        origins: [jams[i].getCenter()],
+		    var distanceService = new google.maps.DistanceMatrixService();
+		    setTimeout(distanceService.getDistanceMatrix({
+		        origins: [jams[counter].getCenter()],
 		        destinations: coordinates,
 		        unitSystem: google.maps.UnitSystem.METRIC,
 		        travelMode: google.maps.TravelMode.DRIVING,
@@ -423,39 +423,22 @@ body {
 		        if (status !== google.maps.DistanceMatrixStatus.OK) {
 		            console.log('Error:', status);
 		        } else {
-		            console.log(response);
-		            $("#distance").text(response.rows[0].elements[0].distance.text).show();
-		            $("#duration").text(response.rows[0].elements[0].duration.text).show();
+		        	coordinates.shift();
+		        	console.log(jams[counter].text.content);
+		        	console.log(jams.distances.get(jams[counter].text.content));
+		        	console.log(coordinates);
+		        	console.log(response);
+		            for (var j=0; j<(jams.length-1-counter); j++){
+		            	console.log(response.rows[0].elements[j].duration.value);
+
+		            	//var number = j+i+1;
+		            	jams.distances.get(jams[counter].text.content).set(jams[(j+counter+1)].text.content, response.rows[0].elements[j].duration.value);
+		            }
+		            counter++;
+		            console.log(counter);
 		        }
-		    });
-			// distance.matrix(jams[i].getCenter(), coordinates, function (err, distances) {
-			//     if (!err){
-			//         console.log(distances);
-			//     }else{
-			//     	return console.log(err);
-			//     }
-			// });
+		    }), (700+(counter*100)));
       	}
-
-			// var startCoordinates = ((String(jams[i].getCenter()).replace('(','')).replace(' ','')).replace(')','');
-			// coordinates = coordinates.substring(coordinates.indexOf("|") + 1);
-			// console.log(coordinates);
-	  // 		var APIurl = "http://maps.googleapis.com/maps/api/distancematrix/json?origins=" + startCoordinates + "&destinations=" + coordinates + "&mode=car&key=AIzaSyDbyydbkSMZerYHdKKU7wPlLs6UenwLHjM";
-			// console.log(APIurl);
-
-
-
-			// // var xhr = createCORSRequest('GET', APIurl);
-			// // xhr.send();
-			// fetch(APIurl, {'mode': 'no-cors'})
-			//   .then((resp) => resp.json())
-			//   .catch(function(error) {
-			//     console.log(error);
-			//   });
-			// console.log(xhr.statusText);
-			// console.log(xhr.responseText);
-			//jams.distances.set(jams[i].text.content,);
-			
 	}
 
 	function direction(car, aTime){
@@ -523,10 +506,8 @@ body {
 
 		//get distances between jams
 		getAllDistances();
-		//printing values and distances
-		for (var i in jams.distances) {
-		    console.log('Key is: ' + i + '. Value is: ' + jams.distances[i]);
-		}
+		console.log(jams.distances);
+		
 
 		randomAssign(numOfCars);
 		for(var n = 0; n<numOfCars; n++){
