@@ -399,6 +399,40 @@ body {
 		}
 	}
 
+	function distanceMatrix(coordinates){
+		console.log("inside function");
+		console.log(jams.counter);
+		var distanceService = new google.maps.DistanceMatrixService();
+
+
+		distanceService.getDistanceMatrix({
+	        origins: [jams[jams.counter].getCenter()],
+	        destinations: coordinates,
+	        unitSystem: google.maps.UnitSystem.METRIC,
+	        travelMode: google.maps.TravelMode.DRIVING,
+	        durationInTraffic: true
+	    },
+	    function (response, status) {
+	        if (status !== google.maps.DistanceMatrixStatus.OK) {
+	            console.log('Error:', status);
+	        } else {
+	        	coordinates.shift();
+	        	console.log("inside matrix");
+	        	console.log(jams.distances.get(jams[jams.counter].text.content));
+	        	console.log(coordinates);
+	        	console.log(response);
+	            for (var j=0; j<(jams.length-1-jams.counter); j++){
+	            	console.log(response.rows[0].elements[j].duration.value);
+
+	            	//var number = j+i+1;
+	            	jams.distances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter+1)].text.content, response.rows[0].elements[j].duration.value);
+	            }
+	            jams.counter++;
+	            console.log(jams.counter);
+	        }
+	    });
+	}
+
 	function getAllDistances(){
 		//creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
 		jams.distances= new Map();
@@ -409,35 +443,15 @@ body {
 		}
 		coordinates.shift();
 
-		var counter = 0;
-		for (var i = 0; i < (jams.length-1); i++) {
-		    var distanceService = new google.maps.DistanceMatrixService();
-		    setTimeout(distanceService.getDistanceMatrix({
-		        origins: [jams[counter].getCenter()],
-		        destinations: coordinates,
-		        unitSystem: google.maps.UnitSystem.METRIC,
-		        travelMode: google.maps.TravelMode.DRIVING,
-		        durationInTraffic: true
-		    },
-		    function (response, status) {
-		        if (status !== google.maps.DistanceMatrixStatus.OK) {
-		            console.log('Error:', status);
-		        } else {
-		        	coordinates.shift();
-		        	console.log(jams[counter].text.content);
-		        	console.log(jams.distances.get(jams[counter].text.content));
-		        	console.log(coordinates);
-		        	console.log(response);
-		            for (var j=0; j<(jams.length-1-counter); j++){
-		            	console.log(response.rows[0].elements[j].duration.value);
+		jams.counter = 0;
 
-		            	//var number = j+i+1;
-		            	jams.distances.get(jams[counter].text.content).set(jams[(j+counter+1)].text.content, response.rows[0].elements[j].duration.value);
-		            }
-		            counter++;
-		            console.log(counter);
-		        }
-		    }), (700+(counter*100)));
+		for (var i = 0; i < (jams.length-1); i++) {
+
+			var delayMillis = (jams.length-i)*600;
+
+			setTimeout(function() {
+				distanceMatrix(coordinates, jams);
+			}, delayMillis);
       	}
 	}
 
