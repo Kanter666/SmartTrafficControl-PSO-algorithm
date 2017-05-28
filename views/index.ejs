@@ -446,6 +446,7 @@ body {
 
 		for (var i =0; i < cars.length; i++) {
 			cars.positions.push(cars[i].position);
+			cars.distances.push(new Map());
 		}
 		console.log(cars.positions);
 
@@ -464,9 +465,11 @@ body {
 	        } else {
 	        	coordinates.shift();
 	        	console.log("inside car matrix");
-	        	for (var j=0; j<jams.length; j++){
-	            	cars.distances.push(response.rows[0].elements[j].duration.value);
-	            }
+	        	for (var i =0; i < cars.length; i++) {
+	        		for (var j=0; j<jams.length; j++){
+		            	cars.distances[i].set(jams[j].text.content, response.rows[i].elements[j].duration.value);
+		            }
+	        	}
 	        	console.log(cars.distances);
 	        }
 	    });
@@ -521,15 +524,15 @@ body {
 	function calculateFitness(){
 		var longestDistance = 0;
 		for(var n = 0; n<cars.length; n++){
-			var car = cars[n];
-			var carDist = dist = Math.sqrt(Math.pow(car.position.lat()-car.jams[0].getCenter().lat(), 2)+Math.pow(car.position.lng()-car.jams[0].getCenter().lng(), 2));
+			// var car = cars[n];
+			// var carDist = 
 
-			for(var i = 1; i<car/jams.length; i++){
-				carDist += Math.sqrt(Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lat(), 2)+Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lng(), 2));
-			}
-			if(carDist>longestDistance){
-				longestDistance = carDist;
-			}
+			// for(var i = 1; i<car/jams.length; i++){
+			// 	carDist += Math.sqrt(Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lat(), 2)+Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lng(), 2));
+			// }
+			// if(carDist>longestDistance){
+			// 	longestDistance = carDist;
+			// }
 		}
 		console.log(longestDistance);
 
