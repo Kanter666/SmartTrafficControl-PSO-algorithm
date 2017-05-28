@@ -474,8 +474,6 @@ body {
 	        }
 	    });
 
-
-
 		jams.counter = 0;
 
 		//get first matrix with delay just for police
@@ -491,9 +489,6 @@ body {
 				distanceMatrix(coordinates, jams);
 			}, delayMillis);
       	}
-
-      	
-
 	}
 
 	function direction(car, aTime){
@@ -524,15 +519,16 @@ body {
 	function calculateFitness(){
 		var longestDistance = 0;
 		for(var n = 0; n<cars.length; n++){
-			// var car = cars[n];
-			// var carDist = 
+			var car = cars[n];
+			var carDist = cars.distances[n].get(car.jams[0].text.content);
 
-			// for(var i = 1; i<car/jams.length; i++){
-			// 	carDist += Math.sqrt(Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lat(), 2)+Math.pow(car.jams[i-1].getCenter().lng()-car.jams[i].getCenter().lng(), 2));
-			// }
-			// if(carDist>longestDistance){
-			// 	longestDistance = carDist;
-			// }
+			for(var i = 1; i<car.jams.length; i++){
+				carDist += jams.distances.get(car.jams[i-1].text.content).get(car.jams[i].text.content);
+				console.log("Distances between "+ car.jams[i-1].text.content + " and " + car.jams[i].text.content + " is: " + jams.distances.get(car.jams[i-1].text.content).get(car.jams[i].text.content));
+			}
+			if(carDist>longestDistance){
+				longestDistance = carDist;
+			}
 		}
 		console.log(longestDistance);
 
