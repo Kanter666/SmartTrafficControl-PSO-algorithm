@@ -99,6 +99,15 @@ body {
 				new google.maps.LatLng(50.9149906,-1.4145485),
 				new google.maps.LatLng(50.9338139,-1.4182561)],
 				[]];
+
+	//own comparing function for genetic algorithm
+	function compare(a,b) {
+		if (a.fitness < b.fitness)
+			return 1;
+		if (a.fitness > b.fitness)
+			return -1;
+		return 0;
+	}
 	
 	function initialize(){
 		map = new google.maps.Map(document.getElementById("map-canvas"),{
@@ -322,7 +331,7 @@ body {
 
 						setTimeout(function() {
 							startCountdown();
-						}, ((jams.length*1300)+2000));
+						}, ((jams.length*1500)+2000));
 					}
 				}
 			}
@@ -368,41 +377,6 @@ body {
 		car.jamsChecked++;
 		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + (parseInt(document.getElementById('checked').innerHTML.substring(14,16))+1) + '/' + jams.length;
 	}
-	
-	//Assigns a new traffic jam to car while waiting for aTime time
-	function assign(car, aTime){
-		car.assignTime = aTime;
-		var closest;
-		var closestDistance = Infinity;
-		for(var o = 0; o<jams.length; o++){
-			if(jams[o].checked === false && jams[o].assigned === allAssigned){
-				var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
-				if(dist < closestDistance){
-					closest = jams[o];
-					closestDistance = dist;
-				}
-			}
-		}
-		if(closest !== undefined){
-			if(car.target !== undefined){
-				car.target.assigned = false;			
-			}
-			car.target = closest;
-			directionsService.route({
-					origin:car.getPosition(),
-					destination:car.target.getCenter(),
-					travelMode: google.maps.TravelMode.DRIVING
-				}, function(result, status) {
-					if (status == google.maps.DirectionsStatus.OK) {
-						car.path = result.routes[0].overview_path;
-						car.pointOnPath = 0;
-						car.wait = 0;
-						car.target.assigned = true;
-					}
-				}
-			);
-		}
-	}
 
 	function distanceMatrix(coordinates){
 		console.log("inside function distanceMatrix");
@@ -422,11 +396,11 @@ body {
 	            console.log('Error:', status);
 	        } else {
 	        	coordinates.shift();
-	        	console.log(jams.distances.get(jams[jams.counter].text.content));
+	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
 	        	console.log(response);
 	            for (var j=0; j<(jams.length-1-jams.counter); j++){
-	            	jams.distances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter+1)].text.content, response.rows[0].elements[j].duration.value);
-	            	jams.distances.get(jams[(j+jams.counter+1)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
+	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter+1)].text.content, response.rows[0].elements[j].duration.value);
+	            	jamsDistances.get(jams[(j+jams.counter+1)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
 	            }
 	            jams.counter++;
 	        }
@@ -435,18 +409,18 @@ body {
 
 	function getAllDistances(){
 		//creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
-		jams.distances= new Map();
+		jamsDistances= new Map();
 		cars.positions = [];
-		cars.distances = [];
+		carsDistances = [];
 		var coordinates = [];
 		for (var i = 0; i < jams.length; i++) {
-			jams.distances.set(jams[i].text.content, new Map());
+			jamsDistances.set(jams[i].text.content, new Map());
 			coordinates.push(jams[i].getCenter());
 		}
 
 		for (var i =0; i < cars.length; i++) {
 			cars.positions.push(cars[i].position);
-			cars.distances.push(new Map());
+			carsDistances.push(new Map());
 		}
 		console.log(cars.positions);
 
@@ -467,10 +441,10 @@ body {
 	        	console.log("inside car matrix");
 	        	for (var i =0; i < cars.length; i++) {
 	        		for (var j=0; j<jams.length; j++){
-		            	cars.distances[i].set(jams[j].text.content, response.rows[i].elements[j].duration.value);
+		            	carsDistances[i].set(jams[j].text.content, response.rows[i].elements[j].duration.value);
 		            }
 	        	}
-	        	console.log(cars.distances);
+	        	console.log(carsDistances);
 	        }
 	    });
 
@@ -516,32 +490,43 @@ body {
 		}
 	}
 
-	function calculateFitness(){
+	function calculateFitness(cars){
 		var longestDistance = 0;
 		for(var n = 0; n<cars.length; n++){
 			var car = cars[n];
-			var carDist = cars.distances[n].get(car.jams[0].text.content);
+			var carDist = carsDistances[n].get(car.jams[0].text.content);
 
 			for(var i = 1; i<car.jams.length; i++){
-				carDist += jams.distances.get(car.jams[i-1].text.content).get(car.jams[i].text.content);
-				console.log("Distances between "+ car.jams[i-1].text.content + " and " + car.jams[i].text.content + " is: " + jams.distances.get(car.jams[i-1].text.content).get(car.jams[i].text.content));
+				carDist += jamsDistances.get(car.jams[i-1].text.content).get(car.jams[i].text.content);
+				console.log("Distances between "+ car.jams[i-1].text.content + " and " + car.jams[i].text.content + " is: " + jamsDistances.get(car.jams[i-1].text.content).get(car.jams[i].text.content));
 			}
 			if(carDist>longestDistance){
 				longestDistance = carDist;
 			}
 		}
 		console.log(longestDistance);
-
+		return longestDistance;
 	}
 
-	function randomAssign(numOfCars){
+	function randomAssign(){
+		var cars = [];
+		for(var c = 0; c<M; c++){
+			cars.push(obj = {jams : []});
+				
+		}
 		for(var j = 0; j<jams.length; j++){
-			var car = cars[Math.floor(Math.random() * numOfCars)];
+			var car = cars[Math.floor(Math.random() * M)];
 			var jamNum = Math.floor(Math.random() * car.jams.length);
 			car.jams.splice(jamNum, 0, jams[j]);
 		}
 
-		for(var n = 0; n<numOfCars; n++){
+		var individual = {
+			carAssign : [],
+			fitness : 0
+		};
+
+		for(var n = 0; n<M; n++){
+			individual.carAssign.push(cars[n].jams);
 			var message = "Random car "+(n+1)+" has these jams assigned randomly: ";
 			var numOfJams = cars[n].jams.length;
 			for(var i = 0; i< numOfJams; i++){
@@ -549,114 +534,30 @@ body {
 			}
 			console.log(message);
 		}
-		calculateFitness();
+		individual.fitness = calculateFitness(cars);
+		return individual;
 	}
 
-	//Split all jams at the beginning of the round between all cars
-	function splitAssign(numOfCars){
+	function geneticAlgorithm(populationSize, numberOfEvolutions, randomness){
 
-		
-		console.log(jams.distances);
-		
 
-		randomAssign(numOfCars);
-		for(var n = 0; n<numOfCars; n++){
-			cars[n].jams=[];
-		}		
-		randomAssign(numOfCars);
-		for(var n = 0; n<numOfCars; n++){
-			cars[n].jams=[];
+		population = [];
+
+		//get first population with randomAssign
+		for(var p = 0; p< populationSize; p++){
+			population.push(randomAssign());
 		}
-		randomAssign(numOfCars);
-		for(var n = 0; n<numOfCars; n++){
-			cars[n].jams=[];
+		population.sort(compare);
+		console.log(population);
+
+		var best = population.pop();
+		console.log(best);
+		for(var c = 0; c<M; c++){
+			cars[c].jams=best.carAssign.pop();
 		}
+		console.log(cars);
 
-		//assign all of the jams
-		for(var j = 0; j<jams.length; j++){
 
-			var closest;
-			var closestDistance = Infinity;
-			//get car with smallest route
-			var car = cars[0];
-			for(var n = 1; n<numOfCars; n++){
-				if (car.totalDistance > cars[n].totalDistance){
-					car = cars[n];
-				}
-			}
-			//get closest jam to the car
-			for(var o = 0; o<jams.length; o++){
-				if(jams[o].checked === false && jams[o].assigned === false){
-					if (car.jams.length>0){
-						var dist = Math.sqrt(Math.pow(car.jams[car.jams.length-1].getCenter().lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.jams[car.jams.length-1].getCenter().lng()-jams[o].getCenter().lng(), 2));
-					}else{
-						var dist = Math.sqrt(Math.pow(car.position.lat()-jams[o].getCenter().lat(), 2)+Math.pow(car.position.lng()-jams[o].getCenter().lng(), 2));
-					}
-					if(dist < closestDistance){
-						closest = jams[o];
-						closestDistance = dist;
-					}	
-				}
-			}
-
-			closest.assigned = true;
-			car.totalDistance += closestDistance;
-			car.jams.push(closest);
-			
-		}
-
-		for(var n = 0; n<numOfCars; n++){
-			var message = "Car "+(n+1)+" has these jams assigned: ";
-			var numOfJams = cars[n].jams.length;
-			for(var i = 0; i< numOfJams; i++){
-				message += cars[n].jams[i].text.content+", ";
-			}
-			console.log(message);
-		}
-		
-		
-		// for(var n = 0; n<numOfCars; n++){
-
-		// 	car = cars[n]
-
-		// 	car.target = car.jams.pop();
-		// 	for(var x = 0; x<car.jams.length; x++){
-		// 		car.waypoints.push({location: car.jams[x].getCenter()});
-		// 	}
-
-		// 	if(car.waypoints.length>0){
-		// 		directionsService.route({
-		// 				origin:car.getPosition(),
-		// 				destination:car.target.getCenter(),
-		// 				waypoints: car.waypoints, //an array of waypoints
-	 //            				optimizeWaypoints: true, //set to true if you want google to determine the shortest route or false to use the order specified.
-		// 				travelMode: google.maps.TravelMode.DRIVING
-		// 			}, function(result, status) {
-		// 				if (status == google.maps.DirectionsStatus.OK) {
-		// 					car.path = result.routes[0].overview_path;
-		// 					car.pointOnPath = 0;
-		// 					car.wait = 0;
-		// 					car.target.assigned = true;
-		// 				}
-		// 			}
-		// 		);
-		// 	}else{
-		// 	directionsService.route({
-		// 			origin:car.getPosition(),
-		// 			destination:car.target.getCenter(),
-		// 			travelMode: google.maps.TravelMode.DRIVING
-		// 		}, function(result, status) {
-		// 			if (status == google.maps.DirectionsStatus.OK) {
-		// 				car.path = result.routes[0].overview_path;
-		// 				car.pointOnPath = 0;
-		// 				car.wait = 0;
-		// 				car.target.assigned = true;
-		// 			}
-		// 		}
-		// 	);
-		// 	}
-			
-		// }
 	}
 	
 	//Returns if the state of the current game is a loss or not, this is determined by all fake jams being checked
@@ -713,7 +614,7 @@ body {
 		document.getElementById('goButton').style.color = '#CCCCCC';	
 		document.getElementById('goButton').style.backgroundColor = '#999999';
 		grey = true;
-		splitAssign(M);
+		geneticAlgorithm(20,10,1);
 		for(var p = 0; p<M; p++){
 			direction(cars[p], 0);
 		}
