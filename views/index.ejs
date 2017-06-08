@@ -550,6 +550,21 @@ body {
 		population.sort(compare);
 		console.log(population);
 
+		for(var g = 0; g < numberOfEvolutions; g++){
+			var newPop = [];
+			population.forEach(function(x){
+				if(Math.random() <= population.indexOf(x)/population.length){
+					newPop.push(randomAssign());
+				}else if(randomness*0.15*Math.random() >= 1){
+					newPop.push(crossower(parent1, parent2));
+				}else if(randomness*0.3*Math.random() >= 1){
+					newPop.push(mutate(g));
+				}else{
+					newPop.push(g);
+				}
+			});
+		}
+
 		var best = population.pop();
 		console.log(best);
 		for(var c = 0; c<M; c++){
