@@ -560,6 +560,7 @@ body {
 				
 		}
 		for(var j = 0; j<jams.length; j++){
+            
 			var car = cars[Math.floor(Math.random() * M)];
 			var jamNum = Math.floor(Math.random() * car.jams.length);
 			car.jams.splice(jamNum, 0, jams[j]);
@@ -581,6 +582,23 @@ body {
 		}
 		individual.fitness = calculateFitness(cars);
 		return individual;
+    }
+    
+    function getClosest(cars, jam){
+        var closest = 0;
+        var distance = 99999;
+        for(var i = 0; i< cars.length; i++){
+            if (cars[i].jams != []){
+                var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
+            }else{
+                var newDistance = carsDistances[i].get(jam.text.content);
+            }
+            
+            if (newDistance < distance){
+                distance = newDistance;
+                closest = i;
+            }
+        }
     }
 
 	function geneticAlgorithm(populationSize, numberOfEvolutions, randomness){
