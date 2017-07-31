@@ -59,6 +59,7 @@ body {
 	var score;
 	var round;
 	var allAssigned;
+    var averageDistance;
 	var splashPanel;
 	var jamJSON;
 	var carJSON;
@@ -330,6 +331,7 @@ body {
 						getAllDistances();
 
 						setTimeout(function() {
+                            getAverage();
 							startCountdown();
 						}, ((jams.length*1500)+2000));
 					}
@@ -338,6 +340,18 @@ body {
 		}
 	}
 	
+    function getAverage(){
+        total = 0;
+        for (var i = 0; i < (jams.length - 1); i++) {
+			for (var j =i+1; j < jams.length; j++){
+                total+= jamsDistances.get(jams[i].text.content).get(jams[j].text.content);
+            }
+		}
+        averageDistance = total / (jams.length*jams.length);
+        console.log("Average distance is "+averageDistance);
+    }
+    
+    
 	//Moves a car along its path at the correct speed
 	function advance(car){
 		if(car.assignTime < 10){
@@ -527,7 +541,7 @@ body {
 
 		for(var n = 0; n<M; n++){
 			individual.carAssign.push(cars[n].jams);
-			var message = "Random car "+(n+1)+" has these jams assigned randomly: ";
+			var message = "Car "+(n+1)+" has these jams assigned randomly: ";
 			var numOfJams = cars[n].jams.length;
 			for(var i = 0; i< numOfJams; i++){
 				message += cars[n].jams[i].text.content+", ";
@@ -537,6 +551,37 @@ body {
 		individual.fitness = calculateFitness(cars);
 		return individual;
 	}
+    
+    function crossower(parent1, parent2){
+        var assigned 
+        var cars = [];
+		for(var c = 0; c<M; c++){
+			cars.push(obj = {jams : []});
+				
+		}
+		for(var j = 0; j<jams.length; j++){
+			var car = cars[Math.floor(Math.random() * M)];
+			var jamNum = Math.floor(Math.random() * car.jams.length);
+			car.jams.splice(jamNum, 0, jams[j]);
+		}
+
+		var individual = {
+			carAssign : [],
+			fitness : 0
+		};
+
+		for(var n = 0; n<M; n++){
+			individual.carAssign.push(cars[n].jams);
+			var message = "Random car "+(n+1)+" has these jams assigned randomly: ";
+			var numOfJams = cars[n].jams.length;
+			for(var i = 0; i< numOfJams; i++){
+				message += cars[n].jams[i].text.content+", ";
+			}
+			console.log(message);
+		}
+		individual.fitness = calculateFitness(cars);
+		return individual;
+    }
 
 	function geneticAlgorithm(populationSize, numberOfEvolutions, randomness){
 
