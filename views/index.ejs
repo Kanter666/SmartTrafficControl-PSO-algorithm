@@ -600,6 +600,8 @@ body {
 		return longestDistance;
 	}
     
+    
+    
     //gets average distance between jams
     function getAverage(){
         total = 0;
@@ -854,6 +856,11 @@ body {
 		car.totalDistance = 0;
 		cars.push(car);
 	}
+    
+    function carAddJam(n, jam){
+        cars[n].jams.append(jam)
+        cars[n].totalDistance += carsDistances[n].get(jam.text.content); 
+    }
 	
 	//Relocates car to position
 	function moveCar(car, position){
