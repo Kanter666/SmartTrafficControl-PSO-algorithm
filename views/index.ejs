@@ -531,7 +531,8 @@ body {
         var assigned 
         var cars = [];
 		for(var c = 0; c<M; c++){
-			cars.push(obj = {jams : []});
+			cars.push(obj = {jams : [];
+                            distance : 0});
 				
 		}
 		for(var j = 0; j<jams.length; j++){
@@ -564,10 +565,58 @@ body {
 ***********************************/
     
     //gets closest "available" car to the jam
+    function getClosestCar(cars, jam){
+        
+        if (cars[i].jams != []){
+            var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
+        }else{
+            var newDistance = carsDistances[i].get(jam.text.content);
+        }
+        
+        return newDistance;
+    }
+        
+    //gets closest "available" car to the jam
     function getClosest(cars, jam){
-        var closest = 0;
-        var distance = 99999;
+        var averageCarDistance = 0;
+        var carDistances = []
+        
         for(var i = 0; i< cars.length; i++){
+            averageCarDistane += cars[i].distance;
+            
+            if (cars[i].jams != []){
+                var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
+            }else{
+                var newDistance = carsDistances[i].get(jam.text.content);
+            }
+            
+            if(carDistances.length == 0 || newDistance > carDistances[carDistances.length-1][1]){
+                carDistances.push([i, newDistance]);
+            }else{
+                for(var j; j<carDistances.length; j++){
+                    if(newDistance < carDistances[j][1]){
+                        carDistance.splice(j, 0, [i, newDistance]);
+                        break;
+                    }
+                }
+            }
+            
+        }
+        
+        for(var i = 0; i< cars.length; i++){
+            
+            for(var i = 0; i< cars.length; i++){
+                averageCarDistane += cars[i].distance;
+            }
+            
+            if averageDistance > (0.8 * bestPossibleTime){
+                if cars[i].distance < (1.1 * averageCarDistance){
+                    if 
+                }
+            }else{
+                
+            }
+            if cars[i].distance > (0.8 * bestPossibleTime)
             if (cars[i].jams != []){
                 var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
             }else{
