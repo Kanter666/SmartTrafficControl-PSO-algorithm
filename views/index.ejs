@@ -188,6 +188,13 @@ body {
 		MDefineText.innerHTML = 'Number of police cars and fake traffic jams:  ';
 		MComboBox = document.createElement('select');
 		MComboBox.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option>';
+        var checkboxText = document.createElement('div');
+        checkboxText.innerHTML = 'Use advanced algorithm (adds delay):';
+        checkboxText.style.fontFamily='Arial,sans-serif';
+		checkboxText.style.fontSize='18px';
+        var useAlgorithmCheckbox = document.createElement('input');
+        useAlgorithmCheckbox.type = 'checkbox';
+        useAlgorithmCheckbox.checked = true;
 		var playButton = document.createElement('button');
 		playButton.style.fontFamily='Arial,sans-serif';
 		playButton.style.cursor = 'pointer';
@@ -202,11 +209,15 @@ body {
 		score.appendChild(desciptionText);
 		MDefineText.appendChild(MComboBox);
 		score.appendChild(MDefineText);
+        checkboxText.appendChild(useAlgorithmCheckbox);
+        score.appendChild(checkboxText);
 		score.appendChild(playButton);
 		score.appendChild(leaderButton);
-
+        
 		//click listener for the play button
 		google.maps.event.addDomListener(playButton, 'click', function() {
+            console.log('checkbox val;ue:')
+            console.log(useAlgorithmCheckbox.checked)
 			M = MComboBox.options[MComboBox.selectedIndex].value;
 			resetVariables();
 			startRound(round);
