@@ -494,6 +494,80 @@ body {
 	}
     
 /**********************************
+*        Genetic Algorithm        *
+***********************************/
+    
+	function geneticAlgorithm(populationSize, numberOfEvolutions, randomness){
+
+
+		var population = [];
+        
+        var cars = [];
+		for(var c = 0; c<M; c++){
+			cars.push(obj = {jams : []});
+				
+		}
+		for(var j = 0; j<jams.length; j++){
+			var bestCar = getClosest(cars, jams[j]);
+            console.log("last");
+            console.log(bestCar);
+            console.log(cars);
+            console.log(jams);
+            cars[bestCar].jams.push(jams[j]);
+		}
+
+		var individual = {
+			carAssign : [],
+			fitness : 0
+		};
+
+		for(var n = 0; n<M; n++){
+			individual.carAssign.push(cars[n].jams);
+			var message = "Car "+(n+1)+" has these jams assigned best: ";
+			var numOfJams = cars[n].jams.length;
+			for(var i = 0; i< numOfJams; i++){
+				message += cars[n].jams[i].text.content+", ";
+			}
+			console.log(message);
+		}
+		individual.fitness = calculateFitness(cars);
+		population.push(individual);
+
+		//get first population with randomAssign
+		for(var p = 1; p< populationSize; p++){
+			population.push(randomAssign());
+		}
+		population.sort(compare);
+		console.log(population);
+
+        /*
+		for(var g = 0; g < numberOfEvolutions; g++){
+			var newPop = [];
+			population.forEach(function(x){
+				if(Math.random() <= population.indexOf(x)/population.length){
+					newPop.push(randomAssign());
+				}else if(randomness*0.15*Math.random() >= 1){
+					newPop.push(crossower(parent1, parent2));
+				}else if(randomness*0.3*Math.random() >= 1){
+					newPop.push(mutate(g));
+				}else{
+					newPop.push(g);
+				}
+			});
+		}
+        */
+
+		var best = population.pop();
+		console.log(best);
+		for(var c = 0; c<M; c++){
+			cars[c].jams=best.carAssign.pop();
+		}
+		console.log(cars);
+
+
+	}
+    
+/**********************************
 *    Main genetic functions       *
 ***********************************/
 
@@ -528,15 +602,15 @@ body {
 	}
     
     function crossower(parent1, parent2){
-        var assigned 
+        var assigned = [];
         var cars = [];
+        
 		for(var c = 0; c<M; c++){
-			cars.push(obj = {jams : [];
+			cars.push(obj = {jams : [],
                             distance : 0});
 				
 		}
 		for(var j = 0; j<jams.length; j++){
-            
 			var car = cars[Math.floor(Math.random() * M)];
 			var jamNum = Math.floor(Math.random() * car.jams.length);
 			car.jams.splice(jamNum, 0, jams[j]);
@@ -549,7 +623,7 @@ body {
 
 		for(var n = 0; n<M; n++){
 			individual.carAssign.push(cars[n].jams);
-			var message = "Random car "+(n+1)+" has these jams assigned randomly: ";
+			var message = "Crossover car "+(n+1)+" has these jams assigned with crossover: ";
 			var numOfJams = cars[n].jams.length;
 			for(var i = 0; i< numOfJams; i++){
 				message += cars[n].jams[i].text.content+", ";
@@ -563,28 +637,17 @@ body {
 /**********************************
 *        Helper functions         *
 ***********************************/
-    
-    //gets closest "available" car to the jam
-    function getClosestCar(cars, jam){
-        
-        if (cars[i].jams != []){
-            var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
-        }else{
-            var newDistance = carsDistances[i].get(jam.text.content);
-        }
-        
-        return newDistance;
-    }
         
     //gets closest "available" car to the jam
     function getClosest(cars, jam){
         var averageCarDistance = 0;
         var carDistances = []
         
+        //this for loop gets average distance of cars and also ordered tuple array of cars as key and their distances as values
         for(var i = 0; i< cars.length; i++){
-            averageCarDistane += cars[i].distance;
-            
-            if (cars[i].jams != []){
+            averageCarDistance += cars[i].distance;
+            if (cars[i].jams.length > 0){
+                console.log("WTF" + cars[i].jams.length);
                 var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
             }else{
                 var newDistance = carsDistances[i].get(jam.text.content);
@@ -600,34 +663,25 @@ body {
                     }
                 }
             }
-            
         }
         
-        for(var i = 0; i< cars.length; i++){
-            
-            for(var i = 0; i< cars.length; i++){
-                averageCarDistane += cars[i].distance;
-            }
-            
-            if averageDistance > (0.8 * bestPossibleTime){
-                if cars[i].distance < (1.1 * averageCarDistance){
-                    if 
+        console.log("lol");
+        console.log(carDistances);
+        
+        for(var i = 0; i< cars.length; i++){                
+            if (averageCarDistance > bestPossibleTime){
+                if (cars[carDistances[i][0]].distance < (1.1 * averageCarDistance)){
+                    console.log(carDistances[i][0], jam);
+                    return carDistances[i][0];
                 }
             }else{
-                
-            }
-            if cars[i].distance > (0.8 * bestPossibleTime)
-            if (cars[i].jams != []){
-                var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
-            }else{
-                var newDistance = carsDistances[i].get(jam.text.content);
-            }
-            
-            if (newDistance < distance){
-                distance = newDistance;
-                closest = i;
+                if (cars[carDistances[i][0]].distance < (1.1 * bestPossibleTime)){
+                    console.log(carDistances[i][0], jam);
+                    return carDistances[i][0];
+                }
             }
         }
+        return carDistances[0][0];
     }
     
     //calculate fitness of cars - longest time distance
@@ -663,48 +717,8 @@ body {
         bestPossibleTime = averageDistance * (jams.length+cars.length);
         console.log("Average distance is "+averageDistance);
     }
-
-    
-/**********************************
-*        Genetic Algorithm        *
-***********************************/
-    
-	function geneticAlgorithm(populationSize, numberOfEvolutions, randomness){
-
-
-		population = [];
-
-		//get first population with randomAssign
-		for(var p = 0; p< populationSize; p++){
-			population.push(randomAssign());
-		}
-		population.sort(compare);
-		console.log(population);
-
-		for(var g = 0; g < numberOfEvolutions; g++){
-			var newPop = [];
-			population.forEach(function(x){
-				if(Math.random() <= population.indexOf(x)/population.length){
-					newPop.push(randomAssign());
-				}else if(randomness*0.15*Math.random() >= 1){
-					newPop.push(crossower(parent1, parent2));
-				}else if(randomness*0.3*Math.random() >= 1){
-					newPop.push(mutate(g));
-				}else{
-					newPop.push(g);
-				}
-			});
-		}
-
-		var best = population.pop();
-		console.log(best);
-		for(var c = 0; c<M; c++){
-			cars[c].jams=best.carAssign.pop();
-		}
-		console.log(cars);
-
-
-	}
+        
+        
 	
 	//Returns if the state of the current game is a loss or not, this is determined by all fake jams being checked
 	function checkIfLost(){
