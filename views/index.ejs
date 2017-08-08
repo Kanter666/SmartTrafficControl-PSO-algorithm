@@ -341,12 +341,13 @@ body {
 					}else{
                         if (useAlgorithm == false){
                             console.log("not checked");
-                            startSimpleAlgorithm();
+                            simpleAlgorithm(jams.slice());
 
                         }
                         else{
                             //get distances between jams
                             getAllDistances();
+                            geneticAlgorithm(20,10,1);
 
                             setTimeout(function() {
                                 getAverage();
@@ -365,7 +366,7 @@ body {
 			car.assignTime++;
 		}else{
 			if(car.target.checked === true){
-				direction(car, 0);
+				assign(car, 0);
 			}else{
 				if(distanceToNearestRealJam(car.position) < 0.8){
 					if(car.wait === 0){
@@ -397,6 +398,31 @@ body {
 		}
 		car.jamsChecked++;
 		document.getElementById('checked').innerHTML = 'JAMS CHECKED: ' + (parseInt(document.getElementById('checked').innerHTML.substring(14,16))+1) + '/' + jams.length;
+	}
+    
+    //Assigns a new traffic jam to car while waiting for aTime time
+	function assign(car, aTime){
+		car.assignTime = aTime;
+		if(car.jams.length > 0){
+			if(car.target !== undefined){
+				car.targetassigned = false;			
+			}
+            car.target = car.jams[0];
+			directionsService.route({
+					origin:car.getPosition(),
+					destination:car.target.getCenter(),
+					travelMode: google.maps.TravelMode.DRIVING
+				}, function(result, status) {
+					if (status == google.maps.DirectionsStatus.OK) {
+						car.path = result.routes[0].overview_path;
+                        car.jams.shift();
+						car.pointOnPath = 0;
+						car.wait = 0;
+						car.targetassigned = true;
+					}
+				}
+			);
+		}
 	}
 
 	function distanceMatrix(coordinates){
@@ -485,31 +511,6 @@ body {
 			}, delayMillis);
       	}
 	}
-
-	function direction(car, aTime){
-		car.assignTime = aTime;
-		var closest = car.jams.shift();
-
-		if(closest !== undefined){
-			if(car.target !== undefined){
-				car.target.assigned = false;			
-			}
-			car.target = closest;
-			directionsService.route({
-					origin:car.getPosition(),
-					destination:car.target.getCenter(),
-					travelMode: google.maps.TravelMode.DRIVING
-				}, function(result, status) {
-					if (status == google.maps.DirectionsStatus.OK) {
-						car.path = result.routes[0].overview_path;
-						car.pointOnPath = 0;
-						car.wait = 0;
-						car.target.assigned = true;
-					}
-				}
-			);
-		}
-	}
     
     function fastestCar(){
         var currentDistance = cars[0].totalDistance;
@@ -524,11 +525,11 @@ body {
         return currentCar;
     }
     
-    function startSimpleAlgorithm(){
-        simpleDistances(jams.slice());
-    }
+/**********************************
+*         Simple Algorithm        *
+***********************************/
     
-    function simpleDistances(unassignedJams){
+    function simpleAlgorithm(unassignedJams){
         var nextCar = fastestCar();
 
         var coordinates = [];
@@ -576,7 +577,7 @@ body {
                 if(unassignedJams.length > 0){
                     var delayMillis = 30 * unassignedJams.length;
                     setTimeout(function() {
-                        simpleDistances(unassignedJams);
+                        simpleAlgorithm(unassignedJams);
                     }, delayMillis);
                 }else{
                     console.log("Finish: ");
@@ -587,8 +588,8 @@ body {
                             message += cars[n].jams[i].text.content+", ";
                         }
                         console.log(message);
-                        console.log(cars);
                     }
+                    startCountdown();
                 }
             }
         });
@@ -672,7 +673,7 @@ body {
 /**********************************
 *    Main genetic functions       *
 ***********************************/
-
+    
 	function randomAssign(){
 		var cars = [];
 		for(var c = 0; c<M; c++){
@@ -876,16 +877,15 @@ body {
 		document.getElementById('goButton').style.color = '#CCCCCC';	
 		document.getElementById('goButton').style.backgroundColor = '#999999';
 		grey = true;
-		geneticAlgorithm(20,10,1);
 		for(var p = 0; p<M; p++){
-			direction(cars[p], 0);
+			assign(cars[p], 0);
 		}
 
 		timer = setInterval(function(){
 			sof = spreadOfFakes();
 			calculateScore();	
 			document.getElementById('score').innerHTML = 'SCORE: ' + Math.round(score);
-			document.getElementById('timeleft').innerHTML = Math.round((3000 - timeGone)/10) + ' SECONDS LEFT';
+			document.getElementById('timeleft').innerHTML = Math.round((300 - timeGone)/10) + ' SECONDS LEFT';
 			if(checkIfLost() === true){
 				endRound();
 				score = Math.round(score);
@@ -895,7 +895,7 @@ body {
 				}
 				while(person === null || person === "");
 				sendAndReset(person);
-			}else if(3000 - timeGone <= 0){
+			}else if(300 - timeGone <= 0){
 				endRound();
 				//alert("Win!");
 				round++;
