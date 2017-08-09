@@ -346,6 +346,7 @@ body {
                         }
                         else{
                             //get distances between jams
+			    getCarDistances();
                             getAllDistances();
                             geneticAlgorithm(20,10,1);
 
@@ -454,7 +455,7 @@ body {
 	    });
 	}
     
-    function getAllDistances(){
+    function getCarDistances(){
 
         //creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
 		jamsDistances= new Map();
@@ -475,7 +476,7 @@ body {
         var distanceService = new google.maps.DistanceMatrixService();
 
         distanceService.getDistanceMatrix({
-            origins: [carPosition],
+            origins: cars.positions,
             destinations: coordinates,
             unitSystem: google.maps.UnitSystem.METRIC,
             travelMode: google.maps.TravelMode.DRIVING,
@@ -485,35 +486,41 @@ body {
             if (status !== google.maps.DistanceMatrixStatus.OK) {
                 console.log('Error:', status);
             } else {
-                var smallest = Infinity;
-                var smallestIndex = 666;
-                // loops through all unassigned jams distances
-                for (var k=0; k<unassignedJams.length; k++){
-                    // This if statement compares distance of each jam and save closest one
-                    if(response.rows[0].elements[k].duration.value < smallest){
-                        smallest = response.rows[0].elements[k].duration.value;
-                        smallestIndex =k;
-                    }
-                }
+                console.log("inside car matrix");
+	        	for (var i =0; i < cars.length; i++) {
+	        		for (var j=0; j<jams.length; j++){
+		            	carsDistances[i].set(jams[j].text.content, response.rows[i].elements[j].duration.value);
+		            }
+	        	}
+	        	console.log(carsDistances);
+
+
                 
-                cars[nextCar].totalDistance+=smallest;
-                cars[nextCar].jams.push(unassignedJams[smallestIndex]);
-                unassignedJams.splice(smallestIndex, 1);
-                if(unassignedJams.length > 0){
-                    var delayMillis = 30 * unassignedJams.length;
-                    setTimeout(function() {
-                        simpleAlgorithm(unassignedJams);
-                    }, delayMillis);
-                }else{
-                    console.log("Finish: ");
-                    for(var n = 0; n < M; n++){
-                        console.log("Car number "+n+" has this jams:")
-                        var message = "";
-                        for(var i = 0; i< cars[n].jams.length; i++){
-                            message += cars[n].jams[i].text.content+", ";
-                        }
-                        console.log(message);
-                    }
+                
+             
+               
+            
+           
+                
+                
+             
+    
+       
+       
+
+   
+              
+              
+       
+  
+
+       
+ 
+
+
+                       
+
+
                     startCountdown();
                 }
             }
