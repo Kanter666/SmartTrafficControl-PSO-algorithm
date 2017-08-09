@@ -453,6 +453,72 @@ body {
 	        }
 	    });
 	}
+    
+    function getAllDistances(){
+
+        //creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
+		jamsDistances= new Map();
+		cars.positions = [];
+		carsDistances = [];
+		var coordinates = [];
+		for (var i = 0; i < jams.length; i++) {
+			jamsDistances.set(jams[i].text.content, new Map());
+			coordinates.push(jams[i].getCenter());
+		}
+
+		for (var i =0; i < cars.length; i++) {
+			cars.positions.push(cars[i].position);
+			carsDistances.push(new Map());
+		}
+		console.log(cars.positions);
+        
+        var distanceService = new google.maps.DistanceMatrixService();
+
+        distanceService.getDistanceMatrix({
+            origins: [carPosition],
+            destinations: coordinates,
+            unitSystem: google.maps.UnitSystem.METRIC,
+            travelMode: google.maps.TravelMode.DRIVING,
+            durationInTraffic: true
+        },
+        function (response, status) {
+            if (status !== google.maps.DistanceMatrixStatus.OK) {
+                console.log('Error:', status);
+            } else {
+                var smallest = Infinity;
+                var smallestIndex = 666;
+                // loops through all unassigned jams distances
+                for (var k=0; k<unassignedJams.length; k++){
+                    // This if statement compares distance of each jam and save closest one
+                    if(response.rows[0].elements[k].duration.value < smallest){
+                        smallest = response.rows[0].elements[k].duration.value;
+                        smallestIndex =k;
+                    }
+                }
+                
+                cars[nextCar].totalDistance+=smallest;
+                cars[nextCar].jams.push(unassignedJams[smallestIndex]);
+                unassignedJams.splice(smallestIndex, 1);
+                if(unassignedJams.length > 0){
+                    var delayMillis = 30 * unassignedJams.length;
+                    setTimeout(function() {
+                        simpleAlgorithm(unassignedJams);
+                    }, delayMillis);
+                }else{
+                    console.log("Finish: ");
+                    for(var n = 0; n < M; n++){
+                        console.log("Car number "+n+" has this jams:")
+                        var message = "";
+                        for(var i = 0; i< cars[n].jams.length; i++){
+                            message += cars[n].jams[i].text.content+", ";
+                        }
+                        console.log(message);
+                    }
+                    startCountdown();
+                }
+            }
+        });
+    }
 
 	function getAllDistances(){
 		//creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
