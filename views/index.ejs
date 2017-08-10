@@ -346,14 +346,7 @@ body {
                         }
                         else{
                             //get distances between jams
-			    getCarDistances();
-                            getAllDistances();
-                            geneticAlgorithm(20,10,1);
-
-                            setTimeout(function() {
-                                getAverage();
-                                startCountdown();
-                            }, ((jams.length*1500)+2000));
+                            getCarDistances();
                         }
 					}
 				}
@@ -425,36 +418,8 @@ body {
 			);
 		}
 	}
-
-	function distanceMatrix(coordinates){
-		console.log("inside function distanceMatrix");
-		console.log(jams.counter);
-		var distanceService = new google.maps.DistanceMatrixService();
-
-
-		distanceService.getDistanceMatrix({
-	        origins: [jams[jams.counter].getCenter()],
-	        destinations: coordinates,
-	        unitSystem: google.maps.UnitSystem.METRIC,
-	        travelMode: google.maps.TravelMode.DRIVING,
-	        durationInTraffic: true
-	    },
-	    function (response, status) {
-	        if (status !== google.maps.DistanceMatrixStatus.OK) {
-	            console.log('Error:', status);
-	        } else {
-	        	coordinates.shift();
-	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
-	        	console.log(response);
-	            for (var j=0; j<(jams.length-1-jams.counter); j++){
-	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter+1)].text.content, response.rows[0].elements[j].duration.value);
-	            	jamsDistances.get(jams[(j+jams.counter+1)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
-	            }
-	            jams.counter++;
-	        }
-	    });
-	}
     
+    //this function starts preparation for genetic algorithm, it firstly creates map for storing distances and then get's and saves cars distances
     function getCarDistances(){
 
         //creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
@@ -462,6 +427,7 @@ body {
 		cars.positions = [];
 		carsDistances = [];
 		var coordinates = [];
+        jams.counter = 0;
 		for (var i = 0; i < jams.length; i++) {
 			jamsDistances.set(jams[i].text.content, new Map());
 			coordinates.push(jams[i].getCenter());
@@ -493,61 +459,21 @@ body {
 		            }
 	        	}
 	        	console.log(carsDistances);
-
-
-                
-                
-             
-               
-            
-           
-                
-                
-             
-    
-       
-       
-
-   
-              
-              
-       
-  
-
-       
- 
-
-
-                       
-
-
-                    startCountdown();
-                }
+                setTimeout(function() {
+                    getJamsDistances(coordinates);
+                }, 1700);                
             }
         });
     }
-
-	function getAllDistances(){
-		//creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
-		jamsDistances= new Map();
-		cars.positions = [];
-		carsDistances = [];
-		var coordinates = [];
-		for (var i = 0; i < jams.length; i++) {
-			jamsDistances.set(jams[i].text.content, new Map());
-			coordinates.push(jams[i].getCenter());
-		}
-
-		for (var i =0; i < cars.length; i++) {
-			cars.positions.push(cars[i].position);
-			carsDistances.push(new Map());
-		}
-		console.log(cars.positions);
-
+    
+    function getJamsDistances(coordinates){
+        console.log("inside getJamsDistances");
+		console.log(jams.counter);
 		var distanceService = new google.maps.DistanceMatrixService();
 
+
 		distanceService.getDistanceMatrix({
-	        origins: cars.positions,
+	        origins: [jams[jams.counter].getCenter()],
 	        destinations: coordinates,
 	        unitSystem: google.maps.UnitSystem.METRIC,
 	        travelMode: google.maps.TravelMode.DRIVING,
@@ -558,32 +484,24 @@ body {
 	            console.log('Error:', status);
 	        } else {
 	        	coordinates.shift();
-	        	console.log("inside car matrix");
-	        	for (var i =0; i < cars.length; i++) {
-	        		for (var j=0; j<jams.length; j++){
-		            	carsDistances[i].set(jams[j].text.content, response.rows[i].elements[j].duration.value);
-		            }
-	        	}
-	        	console.log(carsDistances);
+	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
+	        	console.log(response);
+	            for (var j=0; j<(jams.length-1-jams.counter); j++){
+	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter+1)].text.content, response.rows[0].elements[j].duration.value);
+	            	jamsDistances.get(jams[(j+jams.counter+1)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
+	            }
+	            jams.counter++;
+                if(coordinates.length>0){
+                    setTimeout(function() {
+                        getJamsDistances(coordinates);
+                    }, (coordinates.length*75));
+                }else{
+                    console.log("finish");
+                    console.log(jamsDistances);
+                }
 	        }
 	    });
-
-		jams.counter = 0;
-
-		//get first matrix with delay just for police
-		setTimeout(function() {
-			distanceMatrix(coordinates, jams);
-		}, 2000);
-
-		for (var i = 1; i < (jams.length-1); i++) {
-
-			var delayMillis = (jams.length-i)*1500+2000;
-
-			setTimeout(function() {
-				distanceMatrix(coordinates, jams);
-			}, delayMillis);
-      	}
-	}
+    }
     
     function fastestCar(){
         var currentDistance = cars[0].totalDistance;
