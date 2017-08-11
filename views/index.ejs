@@ -486,18 +486,19 @@ body {
 	        	coordinates.shift();
 	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
 	        	console.log(response);
-	            for (var j=0; j<(jams.length-1-jams.counter); j++){
-	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter+1)].text.content, response.rows[0].elements[j].duration.value);
-	            	jamsDistances.get(jams[(j+jams.counter+1)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
+	            for (var j=1; j<(jams.length-jams.counter); j++){
+	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter)].text.content, response.rows[0].elements[j].duration.value);
+	            	jamsDistances.get(jams[(j+jams.counter)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
 	            }
 	            jams.counter++;
                 if(coordinates.length>0){
                     setTimeout(function() {
                         getJamsDistances(coordinates);
-                    }, (coordinates.length*75));
+                    }, (coordinates.length*100));
                 }else{
                     console.log("finish");
                     console.log(jamsDistances);
+                    PSOalgorithm(30, 50);
                 }
 	        }
 	    });
@@ -512,7 +513,6 @@ body {
                 var currentCar = i;
             }
         }
-        
         return currentCar;
     }
     
@@ -586,13 +586,51 @@ body {
         });
     }
                                           
+/**********************************
+*    Paricle swarm optimization   *
+***********************************/
     
+	function PSOalgorithm(populationSize, numberOfIterations){
+
+		var particles = [];
+
+		//create group of random particles
+		for(var p = 1; p< populationSize; p++){
+            randParticle = randomAssign()
+			
+            var particle = {
+                carAssign : randParticle.carAssign,
+                fitness : randParticle.fitness,
+                pBest : randParticle.carAssign,
+                pBestFitness : randParticle.fitness,
+                velocity : []
+            };
+            particles.append(particle);
+            
+		}
+		console.log(particles);
+
+		for(var g = 0; g < numberOfEvolutions; g++){
+			var gBest = getBest(particles);
+			particles.forEach(function(x){
+				
+			});
+		}
+
+		var best = population.pop();
+		console.log(best);
+		for(var c = 0; c<M; c++){
+			cars[c].jams=best.carAssign.pop();
+		}
+		console.log(cars);
+
+
+	}    
 /**********************************
 *        Genetic Algorithm        *
 ***********************************/
     
 	function geneticAlgorithm(populationSize, numberOfEvolutions, randomness){
-
 
 		var population = [];
         
@@ -797,7 +835,20 @@ body {
 		return longestDistance;
 	}
     
-    
+    function getBest(particles){
+        var best = {
+			carAssign : particles[0].pBest,
+			fitness : particles[0].pBestFitness
+		};
+        for(var i=1;i<particles.length;i++){
+            if(best.fitness<particles[i].pBestFitness){
+                best = {
+                    carAssign : particles[i].pBest,
+                    fitness : particles[i].pBestFitness
+                };
+            }
+        }
+    }
     
     //gets average distance between jams
     function getAverage(){
