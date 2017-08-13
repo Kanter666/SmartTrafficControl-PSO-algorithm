@@ -605,15 +605,41 @@ body {
                 pBestFitness : randParticle.fitness,
                 velocity : []
             };
-            particles.append(particle);
+            particles.push(particle);
             
 		}
 		console.log(particles);
 
-		for(var g = 0; g < numberOfEvolutions; g++){
+		for(var g = 0; g < numberOfIterations; g++){
+            
 			var gBest = getBest(particles);
+            
 			particles.forEach(function(x){
-				
+				for(var m=0;m<M;m++){
+                    x.velocity = [];
+                    
+                    for(var j=0;j<x.pBest[m].jams.length;j++){
+                        if(x.carAssign[m].jams.length <= j){
+                            swap = [m, j, null, x.pBest[m].jams[j]];
+                            x.velocity.push(swap);
+                        }else if(x.carAssign[m].jams[j]!=x.pBest[m].jams[j]){
+                            swap = [m, j, x.carAssign[m].jams[j], x.pBest[m].jams[j]];
+                            x.velocity.push(swap);
+                        }
+                    }
+                    
+                    for(var j=0;j<gBest.carAssign[m].jams.length;j++){
+                        if(x.carAssign[m].jams.length <= j){
+                            swap = [m, j, null, gBest.carAssign[m].jams[j]];
+                            x.velocity.push(swap);
+                        }else if(x.carAssign[m].jams[j]!=gBest.carAssign[m].jams[j]){
+                            swap = [m, j, x.carAssign[m].jams[j], gBest.carAssign[m].jams[j]];
+                            x.velocity.push(swap);
+                        }
+                    }
+                }
+                console.log("Velocity of "+g+" evolution = ");
+                console.log(x.velocity);
 			});
 		}
 
@@ -654,7 +680,6 @@ body {
 		};
 
 		for(var n = 0; n<M; n++){
-			individual.carAssign.push(cars[n].jams);
 			var message = "Car "+(n+1)+" has these jams assigned best: ";
 			var numOfJams = cars[n].jams.length;
 			for(var i = 0; i< numOfJams; i++){
@@ -662,6 +687,7 @@ body {
 			}
 			console.log(message);
 		}
+        individual.carAssign = cars.slice();
 		individual.fitness = calculateFitness(cars);
 		population.push(individual);
 
@@ -721,7 +747,6 @@ body {
 		};
 
 		for(var n = 0; n<M; n++){
-			individual.carAssign.push(cars[n].jams);
 			var message = "Car "+(n+1)+" has these jams assigned randomly: ";
 			var numOfJams = cars[n].jams.length;
 			for(var i = 0; i< numOfJams; i++){
@@ -729,6 +754,7 @@ body {
 			}
 			console.log(message);
 		}
+        individual.carAssign = cars.slice();
 		individual.fitness = calculateFitness(cars);
 		return individual;
 	}
@@ -848,6 +874,7 @@ body {
                 };
             }
         }
+        return best;
     }
     
     //gets average distance between jams
