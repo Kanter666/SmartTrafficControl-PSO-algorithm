@@ -615,6 +615,8 @@ body {
 			var gBest = getBest(particles);
             
 			particles.forEach(function(x){
+                console.log("inside each");
+                console.log(x);
 				for(var m=0;m<M;m++){
                     x.velocity = [];
                     
@@ -638,17 +640,41 @@ body {
                         }
                     }
                 }
-                console.log("Velocity of "+g+" evolution = ");
-                console.log(x.velocity);
+                
+                for(var swap=0;swap<x.velocity.length;swap++){
+                    if(Math.random()>0.5){
+                        var index = [];
+                        for(var m=0;m<M;m++){
+                            var ind = x.carAssign[m].jams.indexOf(x.velocity[swap][3]);
+                            console.log(ind);
+                            if (ind > -1) {
+                                index = [m, ind];
+                                break;
+                            }
+                        }
+                        
+                        if(index.length<1){
+                            console.log("Jam was not found");
+                            console.log(x.velocity[swap]);
+                            console.log(x.carAssign);
+                            continue;
+                        }
+                        
+                        if(x.velocity[swap][2]==null){
+                            x.carAssign[index[0]].jams.splice(index[1], 1);
+                            x.carAssign[x.velocity[swap][0]].jams.splice(x.velocity[swap][1],0,x.velocity[swap][3]);
+                            console.log("added to car number "+index[0]);
+                        }else{
+                            x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]]=x.velocity[swap][3];
+                            x.carAssign[index[0]].jams[index[1]]=x.velocity[swap][2];
+                            console.log("Swapped two jams");                            
+                        }
+                    }
+                }
+                console.log("Fitness of "+g+" evolution = "+x.fitness);
+                console.log(x.carAssign);
 			});
 		}
-
-		var best = population.pop();
-		console.log(best);
-		for(var c = 0; c<M; c++){
-			cars[c].jams=best.carAssign.pop();
-		}
-		console.log(cars);
 
 
 	}    
