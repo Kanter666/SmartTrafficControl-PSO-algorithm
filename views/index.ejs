@@ -615,8 +615,6 @@ body {
 			var gBest = getBest(particles);
             
 			particles.forEach(function(x){
-                console.log("inside each");
-                console.log(x);
 				for(var m=0;m<M;m++){
                     x.velocity = [];
                     
@@ -671,9 +669,20 @@ body {
                         }
                     }
                 }
+                x.fitness = calculateFitness(x.carAssign);
+                if(x.fitness<x.pBestFitness){
+                    x.pBestFitness = x.fitness;
+                    x.pBest = x.carAssign.slice();
+                    if(x.pBestFitness<gBest.fitness){
+                        gBest.fitness = x.pBestFitness;
+                        gBest.carAssign = x.pBest;
+                    }
+                }
                 console.log("Fitness of "+g+" evolution = "+x.fitness);
-                console.log(x.carAssign);
 			});
+            console.log("---------------------------------------------------");
+            console.log("Best time of "+g+"th iteration: "+gBest.fitness);
+            console.log(gBest.carAssign);
 		}
 
 
