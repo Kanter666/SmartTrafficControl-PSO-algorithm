@@ -62,6 +62,7 @@ body {
 	var allAssigned;
     var averageDistance;
     var bestPossibleTime;
+    var totalDistance;
 	var splashPanel;
 	var jamJSON;
 	var carJSON;
@@ -340,9 +341,8 @@ body {
 						alert("Please wait for " + M + " police cars to be placed on the map and try again.");
 					}else{
                         if (useAlgorithm == false){
-                            console.log("not checked");
+                            totalDistance = 0;
                             simpleAlgorithm(jams.slice());
-
                         }
                         else{
                             //get distances between jams
@@ -498,7 +498,8 @@ body {
                 }else{
                     console.log("finish");
                     console.log(jamsDistances);
-                    PSOalgorithm(30, 50);
+                    //first is number of particles and second number of iterations
+                    PSOalgorithm(130, 70);
                 }
 	        }
 	    });
@@ -531,7 +532,7 @@ body {
         if(cars[nextCar].jams.length ==0){
             var carPosition = cars[nextCar].position;
         }else{
-            var carPosition = cars[nextCar].jams[(cars[nextCar].jams.length-1)].getCenter()
+            var carPosition = cars[nextCar].jams[(cars[nextCar].jams.length-1)].getCenter();
         }
 
         console.log("coordinates");
@@ -595,8 +596,8 @@ body {
 		var particles = [];
 
 		//create group of random particles
-		for(var p = 1; p< populationSize; p++){
-            randParticle = randomAssign()
+		for(var p = 0; p< populationSize; p++){
+            var randParticle = randomAssign();
 			
             var particle = {
                 carAssign : randParticle.carAssign,
@@ -605,10 +606,9 @@ body {
                 pBestFitness : randParticle.fitness,
                 velocity : []
             };
-            particles.push(particle);
-            
+            particles.push(particle);            
 		}
-		console.log(particles);
+		console.table(particles);
 
         var gBest = getBest(particles);
         
@@ -630,10 +630,10 @@ body {
                     
                     for(var j=0;j<gBest.carAssign[m].jams.length;j++){
                         if(x.carAssign[m].jams.length <= j){
-                            swap = [m, j, null, gBest.carAssign[m].jams[j]];
+                            swap = [m, j, false, gBest.carAssign[m].jams[j]];
                             x.velocity.push(swap);
                         }else if(x.carAssign[m].jams[j]!=gBest.carAssign[m].jams[j]){
-                            swap = [m, j, x.carAssign[m].jams[j], gBest.carAssign[m].jams[j]];
+                            swap = [m, j, true, gBest.carAssign[m].jams[j]];
                             x.velocity.push(swap);
                         }
                     }
@@ -644,28 +644,20 @@ body {
                         var index = [];
                         for(var m=0;m<M;m++){
                             var ind = x.carAssign[m].jams.indexOf(x.velocity[swap][3]);
-                            console.log(ind);
-                            if (ind > -1) {
+                            if(ind>=0){
                                 index = [m, ind];
-                                break;
                             }
                         }
                         
-                        if(index.length<1){
-                            console.log("Jam was not found");
-                            console.log(x.velocity[swap]);
-                            console.log(x.carAssign);
-                            continue;
-                        }
-                        
-                        if(x.velocity[swap][2]==null){
+                        if(x.velocity[swap][2]==false){
                             x.carAssign[index[0]].jams.splice(index[1], 1);
                             x.carAssign[x.velocity[swap][0]].jams.splice(x.velocity[swap][1],0,x.velocity[swap][3]);
-                            console.log("added to car number "+index[0]);
                         }else{
+                            console.log(x);
+                            console.log(swap);
+                            console.log(index);
+                            x.carAssign[index[0]].jams[index[1]] = x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]];
                             x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]]=x.velocity[swap][3];
-                            x.carAssign[index[0]].jams[index[1]]=x.velocity[swap][2];
-                            console.log("Swapped two jams");                            
                         }
                     }
                 }
@@ -685,9 +677,9 @@ body {
             console.log(gBest.carAssign);
             for(var n = 0; n<M; n++){
                 var message = "Best car "+(n+1)+" has these jams assigned randomly: ";
-                var numOfJams = cars[n].jams.length;
+                var numOfJams = gBest.carAssign[n].jams.length;
                 for(var i = 0; i< numOfJams; i++){
-                    message += cars[n].jams[i].text.content+", ";
+                    message += gBest.carAssign[n].jams[i].text.content+", ";
                 }
                 console.log(message);
             }
