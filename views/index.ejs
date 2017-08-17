@@ -640,12 +640,54 @@ body {
                 }
             }
         }
-        /*
         // Balance different cars
         if(M>1 && Math.random()>0.3){
+            var distances = calculateCarFitness(cars);
+            var carAverage = distances.reduce(function(a, b) { return a + b; }, 0)/(distances.length);
+            console.log("average distance is: "+carAverage);
+            var smaller = [];
+            var longest = 0;
+            var long = 0;
+            for (var i=0;i<distances.length;i++){
+                
+                if(distances(i)>carAverage){
+                    if(distances(i)>longest){
+                        longest = distances(i);
+                        long = i;
+                    }
+                }else{
+                    smaller.push(i);
+                }
+            }
+            
+            var small = smaller[Math.floor(Math.random() * smaller.length)];
+            
+            for(var y=0;y<particle.carAssign(long).jams;y++){
+                var bestFitness = particle.fitness;
+                for(var x=0;x<particle.carAssign(small).jams;x++){
+                    var car = particle.carAssign.slice();
+                    var jam = car[long].jams[y];
+                    car[long].jams.splice(y, 1);
+                    car[short].jams.splice(x, 0, jam);
+                    for(var n = 0; n<M; n++){
+                        var message = "Car "+(n+1)+" has these jams after splicing: ";
+                        for(var i = 0; i< car[n].jams.length; i++){
+                            message += car[n].jams[i].text.content+", ";
+                        }
+                        console.log(message);
+                    }
+                    var carFitness = calculateFitness(car);
+                    if(carFitness<bestFitness && Math.random()>0.2){
+                        var jam = particle.carAssign[long].jams[y];
+                        particle.carAssign[long].jams.splice(y, 1);
+                        particle.carAssign[short].jams.splice(x, 0, jam);
+                        particle.fitness = carFitness;
+                        bestFitness = carFitness;
+                    }
+                }
+            }
             
         }
-        */
         
     }
     
@@ -727,21 +769,30 @@ body {
     
     //calculate fitness of cars - longest time distance
     function calculateFitness(cars){
+        var distances = calculateCarFitness(cars);
 		var longestDistance = 0;
 		for(var n = 0; n<cars.length; n++){
-			var car = cars[n];
-			var carDist = carsDistances[n].get(car.jams[0].text.content);
-
-			for(var i = 1; i<car.jams.length; i++){
-				carDist += jamsDistances.get(car.jams[i-1].text.content).get(car.jams[i].text.content);
-			}
-			if(carDist>longestDistance){
+			if(distances[n]>longestDistance){
 				longestDistance = carDist;
 			}
 		}
 		return longestDistance;
 	}
     
+    function calculateCarFitness(cars){
+        var distances = [];
+        for(var n = 0; n<cars.length; n++){
+			var car = cars[n];
+			var carDist = carsDistances[n].get(car.jams[0].text.content);
+
+			for(var i = 1; i<car.jams.length; i++){
+				carDist += jamsDistances.get(car.jams[i-1].text.content).get(car.jams[i].text.content);
+			}
+            distances.push(carDist);
+		}
+        
+        return distances;
+    }
     function getBest(particles){
         var best = {
 			carAssign : particles[0].pBest,
