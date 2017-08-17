@@ -508,6 +508,8 @@ body {
 ***********************************/
     
 	function PSOalgorithm(populationSize, numberOfIterations){
+        
+        getAverage();
 
 		var particles = [];
 
@@ -569,15 +571,19 @@ body {
                             x.carAssign[index[0]].jams.splice(index[1], 1);
                             x.carAssign[x.velocity[swap][0]].jams.splice(x.velocity[swap][1],0,x.velocity[swap][3]);
                         }else{
-                            console.log(x);
-                            console.log(swap);
-                            console.log(index);
                             x.carAssign[index[0]].jams[index[1]] = x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]];
                             x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]]=x.velocity[swap][3];
                         }
                     }
                 }
                 x.fitness = calculateFitness(x.carAssign);
+                
+                if(x.fitness==gBest.fitness){
+                    console.log("Old fitness: "+x.fitness);
+                    exploreSolutions(x);
+                    x.fitness = calculateFitness(x.carAssign);
+                    console.log("New fitness: "+x.fitness);
+                }
                 if(x.fitness<x.pBestFitness){
                     x.pBestFitness = x.fitness;
                     x.pBest = x.carAssign.slice();
@@ -600,7 +606,8 @@ body {
                 console.log(message);
             }
 		}
-
+        
+        console.log("Best possible time = "+bestPossibleTime);
 
 	}    
     
@@ -608,6 +615,46 @@ body {
 *        Helper functions         *
 ***********************************/
         
+    //this would be used by leaders of swarm to find new solutions
+    function exploreSolutions(particle){
+        
+        //try to optimize one of the cars assigment
+        if(Math.random()>0.6){
+            var carN = Math.floor(Math.random() * M);
+            
+            //This solution is calculating fitness of all assign, I was thinking about calculating just the change but it got too complicated and messy
+            for(var z=1;z<particle.carAssign[carN].jams.length;z++){
+                var car = particle.carAssign.slice();
+                var jam = car[carN].jams[0];
+                car[carN].jams[0] = car[carN].jams[z];
+                car[carN].jams[z] = jam;
+                var carFitness = calculateFitness(car);
+                if(carFitness<particle.fitness){
+                    console.log("Jams are being swapped with old: "+particle.fitness+" and new: "+carFitness)
+                    var jam = particle.carAssign[carN].jams[0];
+                    particle.carAssign[carN].jams[0] = particle.carAssign[carN].jams[z];
+                    particle.carAssign[carN].jams[z] = jam;
+                    particle.fitness = calculateFitness(carAssign);
+                }
+            }
+            /*
+            for(var y=1;y<car.jams.length;y++){
+                for(var z=y+1;z<car.jams.length;z++){
+                    
+                }
+            }
+            */
+            
+        }
+        /*
+        // Balance different cars
+        if(M>1 && Math.random()>0.3){
+            
+        }
+        */
+        
+    }
+    
     function randomAssign(){
 		var cars = [];
 		for(var c = 0; c<M; c++){
