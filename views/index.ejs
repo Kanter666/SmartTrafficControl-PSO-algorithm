@@ -642,17 +642,22 @@ body {
         }
         // Balance different cars
         if(M>1 && Math.random()>0.3){
-            var distances = calculateCarFitness(cars);
-            var carAverage = distances.reduce(function(a, b) { return a + b; }, 0)/(distances.length);
+            console.log("Balancing cars");
+            var distances = calculateCarFitness(particle.carAssign);
+            console.log(distances);
+            var carAverage = 0;
+            for(var i=0;i<distances.length;i++){
+                carAverage+=distances[i];
+            }
+            carAverage = carAverage/distances.length;
             console.log("average distance is: "+carAverage);
             var smaller = [];
             var longest = 0;
             var long = 0;
             for (var i=0;i<distances.length;i++){
-                
-                if(distances(i)>carAverage){
-                    if(distances(i)>longest){
-                        longest = distances(i);
+                if(distances[i]>carAverage){
+                    if(distances[i]>longest){
+                        longest = distances[i];
                         long = i;
                     }
                 }else{
@@ -662,25 +667,35 @@ body {
             
             var small = smaller[Math.floor(Math.random() * smaller.length)];
             
-            for(var y=0;y<particle.carAssign(long).jams;y++){
-                var bestFitness = particle.fitness;
-                for(var x=0;x<particle.carAssign(small).jams;x++){
-                    var car = particle.carAssign.slice();
-                    var jam = car[long].jams[y];
-                    car[long].jams.splice(y, 1);
-                    car[short].jams.splice(x, 0, jam);
+            var bestFitness = particle.fitness;
+            for(var y=0;y<particle.carAssign[long].jams.length;y++){
+                for(var x=0;x<particle.carAssign[small].jams.length;x++){
+                    console.log(long+" long and short "+ small);
+                    var carBalance = [];
+                    for(var jc=0;jc<particle.carAssign.length;jc++){
+                        var car = {jams:particle.carAssign[jc].jams.slice()};
+                        carBalance.push(car);
+                    }
+                    var jam = carBalance[long].jams[y];
+                    console.log(jam.text.content);
+                    carBalance[long].jams.splice(y, 1);
+                    carBalance[small].jams.splice(x, 0, jam);
+                    console.table(carBalance);
+                    console.table(particle.carAssign);
                     for(var n = 0; n<M; n++){
                         var message = "Car "+(n+1)+" has these jams after splicing: ";
-                        for(var i = 0; i< car[n].jams.length; i++){
-                            message += car[n].jams[i].text.content+", ";
+                        for(var i = 0; i< carBalance[n].jams.length; i++){
+                            message += carBalance[n].jams[i].text.content+", ";
                         }
                         console.log(message);
                     }
-                    var carFitness = calculateFitness(car);
+                    var carFitness = calculateFitness(carBalance);
+                    console.log(carFitness+" blah "+bestFitness);
                     if(carFitness<bestFitness && Math.random()>0.2){
+                        console.log("Fitness before balancing: "+particle.fitness+" and after: "+ carFitness);
                         var jam = particle.carAssign[long].jams[y];
                         particle.carAssign[long].jams.splice(y, 1);
-                        particle.carAssign[short].jams.splice(x, 0, jam);
+                        particle.carAssign[small].jams.splice(x, 0, jam);
                         particle.fitness = carFitness;
                         bestFitness = carFitness;
                     }
@@ -730,7 +745,6 @@ body {
         for(var i = 0; i< cars.length; i++){
             averageCarDistance += cars[i].distance;
             if (cars[i].jams.length > 0){
-                console.log("WTF" + cars[i].jams.length);
                 var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
             }else{
                 var newDistance = carsDistances[i].get(jam.text.content);
@@ -747,10 +761,7 @@ body {
                 }
             }
         }
-        
-        console.log("lol");
-        console.log(carDistances);
-        
+                
         for(var i = 0; i< cars.length; i++){                
             if (averageCarDistance > bestPossibleTime){
                 if (cars[carDistances[i][0]].distance < (1.1 * averageCarDistance)){
@@ -773,7 +784,7 @@ body {
 		var longestDistance = 0;
 		for(var n = 0; n<cars.length; n++){
 			if(distances[n]>longestDistance){
-				longestDistance = carDist;
+				longestDistance = distances[n];
 			}
 		}
 		return longestDistance;
@@ -783,6 +794,9 @@ body {
         var distances = [];
         for(var n = 0; n<cars.length; n++){
 			var car = cars[n];
+            if(car.jams.length<1){
+                continue;
+            }
 			var carDist = carsDistances[n].get(car.jams[0].text.content);
 
 			for(var i = 1; i<car.jams.length; i++){
