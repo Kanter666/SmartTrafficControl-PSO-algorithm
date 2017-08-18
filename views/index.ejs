@@ -606,7 +606,7 @@ body {
             }
 		}
         
-        console.log("Best possible time = "+bestPossibleTime);
+        console.log("Calculated time with average distance = "+bestPossibleTime);
 
 	}    
     
@@ -667,6 +667,7 @@ body {
             
             var small = smaller[Math.floor(Math.random() * smaller.length)];
             
+            var best = [0,0,particle.fitness];
             var bestFitness = particle.fitness;
             for(var y=0;y<particle.carAssign[long].jams.length;y++){
                 for(var x=0;x<particle.carAssign[small].jams.length;x++){
@@ -676,31 +677,44 @@ body {
                         var car = {jams:particle.carAssign[jc].jams.slice()};
                         carBalance.push(car);
                     }
-                    var jam = carBalance[long].jams[y];
-                    console.log(jam.text.content);
-                    carBalance[long].jams.splice(y, 1);
-                    carBalance[small].jams.splice(x, 0, jam);
-                    console.table(carBalance);
-                    console.table(particle.carAssign);
                     for(var n = 0; n<M; n++){
-                        var message = "Car "+(n+1)+" has these jams after splicing: ";
+                        var message = "Car "+(n+1)+" has these jams before splicing: ";
                         for(var i = 0; i< carBalance[n].jams.length; i++){
                             message += carBalance[n].jams[i].text.content+", ";
                         }
                         console.log(message);
                     }
+                    var jam = carBalance[long].jams[y];
+                    console.log(jam.text.content);
+                    carBalance[long].jams.splice(y, 1);
+                    carBalance[small].jams.splice(x, 0, jam);
+                    console.table(carBalance);
                     var carFitness = calculateFitness(carBalance);
                     console.log(carFitness+" blah "+bestFitness);
-                    if(carFitness<bestFitness && Math.random()>0.2){
+                    if(carFitness<bestFitness && Math.random()>0.95){
                         console.log("Fitness before balancing: "+particle.fitness+" and after: "+ carFitness);
                         var jam = particle.carAssign[long].jams[y];
                         particle.carAssign[long].jams.splice(y, 1);
                         particle.carAssign[small].jams.splice(x, 0, jam);
                         particle.fitness = carFitness;
                         bestFitness = carFitness;
+                        return;
+                    }else if(carFitness<best[2]){
+                        best=[x, y, carFitness];
+                        bestFitness = carFitness;
                     }
                 }
             }
+            if(best != []){
+                console.log("woaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                console.log("Fitness before balancing: "+particle.fitness+" and after: "+ best[2]);
+                var jam = particle.carAssign[long].jams[best[1]];
+                particle.carAssign[long].jams.splice(best[1], 1);
+                particle.carAssign[small].jams.splice(best[0], 0, jam);
+                particle.fitness = best[2];
+            }
+            
+            
             
         }
         
