@@ -535,52 +535,67 @@ body {
 		for(var g = 0; g < numberOfIterations; g++){
             
 			particles.forEach(function(x){
-				for(var m=0;m<M;m++){
-                    x.velocity = [];
-                    
-                    for(var j=0;j<x.pBest[m].jams.length;j++){
-                        if(x.carAssign[m].jams.length <= j){
-                            swap = [m, j, null, x.pBest[m].jams[j]];
-                            x.velocity.push(swap);
-                        }else if(x.carAssign[m].jams[j]!=x.pBest[m].jams[j]){
-                            swap = [m, j, x.carAssign[m].jams[j], x.pBest[m].jams[j]];
-                            x.velocity.push(swap);
-                        }
-                    }
-                    
-                    for(var j=0;j<gBest.carAssign[m].jams.length;j++){
-                        if(x.carAssign[m].jams.length <= j){
-                            swap = [m, j, false, gBest.carAssign[m].jams[j]];
-                            x.velocity.push(swap);
-                        }else if(x.carAssign[m].jams[j]!=gBest.carAssign[m].jams[j]){
-                            swap = [m, j, true, gBest.carAssign[m].jams[j]];
-                            x.velocity.push(swap);
-                        }
-                    }
-                }
                 
-                for(var swap=0;swap<x.velocity.length;swap++){
-                    if(Math.random()>0.5){
-                        var index = [];
-                        for(var m=0;m<M;m++){
-                            var ind = x.carAssign[m].jams.indexOf(x.velocity[swap][3]);
-                            if(ind>=0){
-                                index = [m, ind];
+                if(Math.random()>0.35){
+                    for(var m=0;m<M;m++){
+                        x.velocity = [];
+
+                        for(var j=0;j<x.pBest[m].jams.length;j++){
+                            if(x.carAssign[m].jams.length <= j){
+                                swap = [m, j, null, x.pBest[m].jams[j]];
+                                x.velocity.push(swap);
+                            }else if(x.carAssign[m].jams[j]!=x.pBest[m].jams[j]){
+                                swap = [m, j, x.carAssign[m].jams[j], x.pBest[m].jams[j]];
+                                x.velocity.push(swap);
                             }
                         }
-                        
-                        if(x.velocity[swap][2]==false){
-                            x.carAssign[index[0]].jams.splice(index[1], 1);
-                            x.carAssign[x.velocity[swap][0]].jams.splice(x.velocity[swap][1],0,x.velocity[swap][3]);
-                        }else{
-                            x.carAssign[index[0]].jams[index[1]] = x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]];
-                            x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]]=x.velocity[swap][3];
+
+                        for(var j=0;j<gBest.carAssign[m].jams.length;j++){
+                            if(x.carAssign[m].jams.length <= j){
+                                swap = [m, j, false, gBest.carAssign[m].jams[j]];
+                                x.velocity.push(swap);
+                            }else if(x.carAssign[m].jams[j]!=gBest.carAssign[m].jams[j]){
+                                swap = [m, j, true, gBest.carAssign[m].jams[j]];
+                                x.velocity.push(swap);
+                            }
                         }
                     }
-                }
+
+                    for(var swap=0;swap<x.velocity.length;swap++){
+                        if(Math.random()>0.5){
+                            var index = [];
+                            for(var m=0;m<M;m++){
+                                var ind = x.carAssign[m].jams.indexOf(x.velocity[swap][3]);
+                                if(ind>=0){
+                                    index = [m, ind];
+                                }
+                            }
+
+                            if(x.velocity[swap][2]==false){
+                                x.carAssign[index[0]].jams.splice(index[1], 1);
+                                x.carAssign[x.velocity[swap][0]].jams.splice(x.velocity[swap][1],0,x.velocity[swap][3]);
+                            }else{
+                                x.carAssign[index[0]].jams[index[1]] = x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]];
+                                x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]]=x.velocity[swap][3];
+                            }
+                        }
+                    }
                 x.fitness = calculateFitness(x.carAssign);
+                }else if(Math.random()>0.40){
+                    console.log("Old fitness before random exploring: "+x.fitness);
+                    exploreSolutions(x);
+                    console.log("New fitness random after: "+x.fitness);
+                    console.log(x.carAssign);
+                }else{
+                    console.log("Creating new random particle");
+                    var randParticle = randomAssign();
+                    
+                    x.carAssign = randParticle.carAssign;
+                    x.fitness = randParticle.fitness;
+                    console.log(x.carAssign);
+                }
                 
-                if(x.fitness==gBest.fitness || Math.random()>0.85){
+                if(x.fitness==gBest.fitness){
                     console.log("Old fitness before exploring: "+x.fitness);
                     exploreSolutions(x);
                     console.log("New fitness after: "+x.fitness);
@@ -593,8 +608,19 @@ body {
                         gBest.carAssign = x.pBest;
                     }
                 }
-                console.log("Fitness of "+g+" evolution = "+x.fitness);
+                console.log("Fitness of "+g+"th evolution "+particles.indexOf(x)+"th particle = "+x.fitness);
+                for(var n = 0; n<M; n++){
+                    var message = "Car "+(n+1)+" has these jams assigned: ";
+                    var numOfJams = gBest.carAssign[n].jams.length;
+                    for(var i = 0; i< numOfJams; i++){
+                        message += gBest.carAssign[n].jams[i].text.content+", ";
+                    }
+                    console.log(message);
+                }
+                console.log("-");
 			});
+            console.log("---------------------------------------------------");
+            console.log("---------------------------------------------------");
             console.log("---------------------------------------------------");
             console.log("Best time of "+g+"th iteration: "+gBest.fitness);
             console.log(gBest.carAssign);
@@ -673,26 +699,15 @@ body {
             var bestFitness = particle.fitness;
             for(var y=0;y<particle.carAssign[long].jams.length;y++){
                 for(var x=0;x<particle.carAssign[small].jams.length;x++){
-                    console.log(long+" long and short "+ small);
                     var carBalance = [];
                     for(var jc=0;jc<particle.carAssign.length;jc++){
                         var car = {jams:particle.carAssign[jc].jams.slice()};
                         carBalance.push(car);
                     }
-                    for(var n = 0; n<M; n++){
-                        var message = "Car "+(n+1)+" has these jams before splicing: ";
-                        for(var i = 0; i< carBalance[n].jams.length; i++){
-                            message += carBalance[n].jams[i].text.content+", ";
-                        }
-                        console.log(message);
-                    }
                     var jam = carBalance[long].jams[y];
-                    console.log(jam.text.content);
                     carBalance[long].jams.splice(y, 1);
                     carBalance[small].jams.splice(x, 0, jam);
-                    console.table(carBalance);
                     var carFitness = calculateFitness(carBalance);
-                    console.log(carFitness+" blah "+bestFitness);
                     if(carFitness<bestFitness && Math.random()>0.95){
                         console.log("Fitness before balancing: "+particle.fitness+" and after: "+ carFitness);
                         var jam = particle.carAssign[long].jams[y];
@@ -737,14 +752,6 @@ body {
 			fitness : 0
 		};
 
-		for(var n = 0; n<M; n++){
-			var message = "Car "+(n+1)+" has these jams assigned randomly: ";
-			var numOfJams = cars[n].jams.length;
-			for(var i = 0; i< numOfJams; i++){
-				message += cars[n].jams[i].text.content+", ";
-			}
-			console.log(message);
-		}
         individual.carAssign = cars.slice();
 		individual.fitness = calculateFitness(cars);
 		return individual;
