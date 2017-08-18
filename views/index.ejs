@@ -510,6 +510,8 @@ body {
 	function PSOalgorithm(populationSize, numberOfIterations){
         
         getAverage();
+        console.log(carsDistances);
+        console.log(jamsDistances);
 
 		var particles = [];
 
@@ -618,30 +620,30 @@ body {
     function exploreSolutions(particle){
         
         //try to optimize one of the cars assigment
-        if(Math.random()>0.6){
+        while(Math.random()>0.5){
             var carN = Math.floor(Math.random() * M);
             
             //This solution is calculating fitness of all assign, I was thinking about calculating just the change but it got too complicated and messy
             for(var y=0;y<(particle.carAssign[carN].jams.length-1);y++){
-                var bestFitness = particle.fitness;
+                var bestFitness = calculateCarFitness(particle.carAssign)[carN];
                 for(var z=(y+1);z<particle.carAssign[carN].jams.length;z++){
                     var car = particle.carAssign.slice();
                     var jam = car[carN].jams[y];
                     car[carN].jams[y] = car[carN].jams[z];
                     car[carN].jams[z] = jam;
-                    var carFitness = calculateFitness(car);
+                    var carFitness = calculateCarFitness(car)[carN];
                     if(carFitness<bestFitness && Math.random()>0.3){
                         var jam = particle.carAssign[carN].jams[y];
                         particle.carAssign[carN].jams[y] = particle.carAssign[carN].jams[z];
                         particle.carAssign[carN].jams[z] = jam;
-                        particle.fitness = carFitness;
+                        particle.fitness = calculateFitness(particle.carAssign);
                         bestFitness = carFitness;
                     }
                 }
             }
         }
         // Balance different cars
-        if(M>1 && Math.random()>0.3){
+        while(M>1 && Math.random()>0.5){
             console.log("Balancing cars");
             var distances = calculateCarFitness(particle.carAssign);
             console.log(distances);
@@ -664,9 +666,9 @@ body {
                     smaller.push(i);
                 }
             }
-            
+
             var small = smaller[Math.floor(Math.random() * smaller.length)];
-            
+
             var best = [0,0,particle.fitness];
             var bestFitness = particle.fitness;
             for(var y=0;y<particle.carAssign[long].jams.length;y++){
@@ -712,12 +714,10 @@ body {
                 particle.carAssign[long].jams.splice(best[1], 1);
                 particle.carAssign[small].jams.splice(best[0], 0, jam);
                 particle.fitness = best[2];
+            }else{
+                return;
             }
-            
-            
-            
-        }
-        
+        }        
     }
     
     function randomAssign(){
