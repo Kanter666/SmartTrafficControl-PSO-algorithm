@@ -536,7 +536,10 @@ body {
             
 			particles.forEach(function(x){
                 
-                if(Math.random()>0.35){
+                console.log(x.carAssign);
+                console.log
+                
+                if(Math.random()>0.40){
                     for(var m=0;m<M;m++){
                         x.velocity = [];
 
@@ -581,22 +584,22 @@ body {
                         }
                     }
                 x.fitness = calculateFitness(x.carAssign);
-                }else if(Math.random()>0.40){
+                }else if(Math.random()>0.25){
                     console.log("Old fitness before random exploring: "+x.fitness);
                     exploreSolutions(x);
                     console.log("New fitness random after: "+x.fitness);
                     console.log(x.carAssign);
                 }else{
                     console.log("Creating new random particle");
-                    var randParticle = randomAssign();
+                    var randomParticle = randomAssign();
                     
-                    x.carAssign = randParticle.carAssign;
-                    x.fitness = randParticle.fitness;
+                    x.carAssign = randomParticle.carAssign;
+                    x.fitness = randomParticle.fitness;
                     console.log(x.carAssign);
                 }
                 
                 if(x.fitness==gBest.fitness){
-                    console.log("Old fitness before exploring: "+x.fitness);
+                    console.log("Best fitness before exploring: "+x.fitness);
                     exploreSolutions(x);
                     console.log("New fitness after: "+x.fitness);
                 }
@@ -626,8 +629,7 @@ body {
             console.log(gBest.carAssign);
             for(var n = 0; n<M; n++){
                 var message = "Best car "+(n+1)+" has these jams assigned: ";
-                var numOfJams = gBest.carAssign[n].jams.length;
-                for(var i = 0; i< numOfJams; i++){
+                for(var i = 0; i< gBest.carAssign[n].jams.length; i++){
                     message += gBest.carAssign[n].jams[i].text.content+", ";
                 }
                 console.log(message);
@@ -646,26 +648,50 @@ body {
     function exploreSolutions(particle){
         
         //try to optimize one of the cars assigment
-        while(Math.random()>0.5){
+        while(Math.random()>0.4){
+            console.log("optimizing car assigment");
             var carN = Math.floor(Math.random() * M);
-            
+            for(var n = 0; n<M; n++){
+                var message = "Car "+(n+1)+" before optimization: ";
+                for(var i = 0; i< particle.carAssign[n].jams.length; i++){
+                    message += particle.carAssign[n].jams[i].text.content+", ";
+                }
+                message += "currently chaning "+(carN+1)+" car with score of"+bestFitness;
+                console.log(message);
+            }
             //This solution is calculating fitness of all assign, I was thinking about calculating just the change but it got too complicated and messy
             for(var y=0;y<(particle.carAssign[carN].jams.length-1);y++){
                 var bestFitness = calculateCarFitness(particle.carAssign)[carN];
+                var bestZ= null;
                 for(var z=(y+1);z<particle.carAssign[carN].jams.length;z++){
-                    var car = particle.carAssign.slice();
+                    var car = [];
+                    for(var jc=0;jc<particle.carAssign.length;jc++){
+                        var newCar = {jams:particle.carAssign[jc].jams.slice()};
+                        car.push(newCar);
+                    }
                     var jam = car[carN].jams[y];
                     car[carN].jams[y] = car[carN].jams[z];
                     car[carN].jams[z] = jam;
                     var carFitness = calculateCarFitness(car)[carN];
-                    if(carFitness<bestFitness && Math.random()>0.3){
-                        var jam = particle.carAssign[carN].jams[y];
-                        particle.carAssign[carN].jams[y] = particle.carAssign[carN].jams[z];
-                        particle.carAssign[carN].jams[z] = jam;
-                        particle.fitness = calculateFitness(particle.carAssign);
+                    if(carFitness<bestFitness){
+                        bestZ=z;
+                        console.log("this is better than previous solutions"+particle.carAssign[carN].jams[z].text.content);
                         bestFitness = carFitness;
                     }
                 }
+                if(bestZ!=null){
+                    var particleJam = particle.carAssign[carN].jams[y];
+                    particle.carAssign[carN].jams[y] = particle.carAssign[carN].jams[bestZ];
+                    particle.carAssign[carN].jams[bestZ] = particleJam;
+                    particle.fitness = calculateFitness(particle.carAssign); 
+                }
+            }
+            for(var n = 0; n<M; n++){
+                var message = "Car "+(n+1)+" afterss optimization: ";
+                for(var i = 0; i< particle.carAssign[n].jams.length; i++){
+                    message += particle.carAssign[n].jams[i].text.content+", ";
+                }
+                console.log(message);
             }
         }
         // Balance different cars
@@ -723,7 +749,6 @@ body {
                 }
             }
             if(best != []){
-                console.log("woaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
                 console.log("Fitness before balancing: "+particle.fitness+" and after: "+ best[2]);
                 var jam = particle.carAssign[long].jams[best[1]];
                 particle.carAssign[long].jams.splice(best[1], 1);
@@ -941,7 +966,7 @@ body {
                     console.log("finish");
                     console.log(jamsDistances);
                     //first is number of particles and second number of iterations
-                    PSOalgorithm(50, 40);
+                    PSOalgorithm(60, 60);
                 }
 	        }
 	    });
