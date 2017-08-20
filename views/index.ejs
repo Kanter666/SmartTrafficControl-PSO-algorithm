@@ -170,7 +170,6 @@ body {
     
     window.onerror = function(msg, url, linenumber) {
         alert('Something went wrong, please refresh your screen. \n Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
-        return true;
     }
 	
 	function createSplashPanel() {
@@ -321,7 +320,7 @@ body {
 	
 	//Represents the actions taken place after clicking the go button
 	function button(){
-		if(grey === false){
+		if(grey == false){
 			if(fakeJamCount<M){
 				alert("Please select " + M + " place(s) for a traffic jam to occur. (" + fakeJamCount + " already selected)");
 			}else{
@@ -460,7 +459,7 @@ body {
         },
         function (response, status) {
             if (status !== google.maps.DistanceMatrixStatus.OK) {
-                console.log('Error:', status);
+                alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
             } else {
                 var smallest = Infinity;
                 var smallestIndex = 666;
@@ -711,7 +710,6 @@ body {
         while(M>1 && Math.random()>0.5){
             console.log("Balancing cars");
             var distances = calculateCarFitness(particle.carAssign);
-            console.log(distances);
             var carAverage = 0;
             for(var i=0;i<distances.length;i++){
                 carAverage+=distances[i];
@@ -734,7 +732,7 @@ body {
 
             var small = smaller[Math.floor(Math.random() * smaller.length)];
 
-            var best = [0,0,particle.fitness];
+            var best = [];
             var bestFitness = particle.fitness;
             for(var y=0;y<particle.carAssign[long].jams.length;y++){
                 for(var x=0;x<particle.carAssign[small].jams.length;x++){
@@ -743,12 +741,13 @@ body {
                         var car = {jams:particle.carAssign[jc].jams.slice()};
                         carBalance.push(car);
                     }
-                    var jam = carBalance[long].jams[y];
+                    var jam = carBalance[long].jams.slice()[y];
                     carBalance[long].jams.splice(y, 1);
                     carBalance[small].jams.splice(x, 0, jam);
                     var carFitness = calculateFitness(carBalance);
                     if(carFitness<bestFitness && Math.random()>0.95){
-                        console.log("Fitness before balancing: "+particle.fitness+" and after: "+ carFitness);
+                        console.log(carBalance);
+                        console.log("Fitness before balancing: "+particle.fitness+" and after : "+ carFitness);
                         var jam = particle.carAssign[long].jams[y];
                         particle.carAssign[long].jams.splice(y, 1);
                         particle.carAssign[small].jams.splice(x, 0, jam);
@@ -762,6 +761,7 @@ body {
                 }
             }
             if(best != []){
+                console.log(carBalance);
                 console.log("Fitness before balancing: "+particle.fitness+" and after: "+ best[2]);
                 var jam = particle.carAssign[long].jams[best[1]];
                 particle.carAssign[long].jams.splice(best[1], 1);
@@ -856,6 +856,8 @@ body {
             if(singleCar.jams.length<1){
                 continue;
             }
+            console.log("cal fitness");
+            console.log(singleCar);
 			var carDist = carsDistances[n].get(singleCar.jams[0].text.content);
 			for(var i = 1; i<singleCar.jams.length; i++){
 				carDist += jamsDistances.get(singleCar.jams[i-1].text.content).get(singleCar.jams[i].text.content);
@@ -884,13 +886,16 @@ body {
     //gets average distance between jams
     function getAverage(){
         total = 0;
-        for (var i = 0; i < (jams.length - 1); i++) {
-			for (var j =i+1; j < jams.length; j++){
+        for (var i = 0; i < jams.length; i++) {
+			for (var j =0; j < jams.length; j++){
+                if(j==i){
+                    continue;
+                }
                 total+= jamsDistances.get(jams[i].text.content).get(jams[j].text.content);
             }
 		}
         averageDistance = total / (jams.length*jams.length);
-        bestPossibleTime = averageDistance * (jams.length+cars.length);
+        bestPossibleTime = averageDistance * jams.length;
         console.log("Average distance is "+averageDistance);
     }
 
@@ -929,7 +934,8 @@ body {
         },
         function (response, status) {
             if (status !== google.maps.DistanceMatrixStatus.OK) {
-                console.log('Error:', status);
+                alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
+                window.location = "./index.ejs";
             } else {
                 console.log("inside car matrix");
 	        	for (var i =0; i < cars.length; i++) {
@@ -960,7 +966,7 @@ body {
 	    },
 	    function (response, status) {
 	        if (status !== google.maps.DistanceMatrixStatus.OK) {
-	            console.log('Error:', status);
+	            alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
 	        } else {
 	        	coordinates.shift();
 	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
