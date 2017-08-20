@@ -167,6 +167,11 @@ body {
 		//add splash panel
 		map.controls[google.maps.ControlPosition.CENTER].push(splashPanel);
 	}
+    
+    window.onerror = function(msg, url, linenumber) {
+        alert('Something went wrong, please refresh your screen. \n Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+        return true;
+    }
 	
 	function createSplashPanel() {
 		splashPanel = document.createElement('div');
@@ -333,6 +338,9 @@ body {
 						placeRealJam(reals[round][i]);
 					}
 				}else{
+                    document.getElementById('goButton').style.color = '#CCCCCC';
+                    document.getElementById('goButton').style.backgroundColor = '#999999';
+                    grey = true;
 					if(cars.length<M){
 						var temp = M;
 						M = M - cars.length;
@@ -552,8 +560,6 @@ body {
                             }
                         }
                         
-                        console.log(gBest);
-
                         for(var j=0;j<gBest.carAssign[m].jams.length;j++){
                             if(x.carAssign[m].jams.length <= j){
                                 swap = [m, j, false, gBest.carAssign[m].jams[j]];
@@ -569,7 +575,7 @@ body {
                         
                         if(Math.random()>0.5){
                             var index = [];
-                            for(var m=0;m<M;m++){
+                            for(var m=0;m<x.carAssign.length;m++){
                                 var ind = x.carAssign[m].jams.indexOf(x.velocity[swap][3]);
                                 if(ind>=0){
                                     index = [m, ind];
@@ -591,7 +597,6 @@ body {
                     console.log("Old fitness before random exploring: "+x.fitness);
                     exploreSolutions(x);
                     console.log("New fitness random after: "+x.fitness);
-                    console.log(x.carAssign);
                 // create new random particle
                 }else{
                     console.log("Creating new random particle");
@@ -599,7 +604,6 @@ body {
                     
                     x.carAssign = randomParticle.carAssign;
                     x.fitness = randomParticle.fitness;
-                    console.log(x.carAssign);
                 }
                 
                 if(x.fitness==gBest.fitness){
@@ -621,7 +625,7 @@ body {
                     }
                 }
                 console.log("Fitness of "+g+"th evolution "+particles.indexOf(x)+"th particle = "+x.fitness);
-                for(var n = 0; n<M; n++){
+                for(var n = 0; n<x.carAssign.length; n++){
                     var message = "Car "+(n+1)+" has these jams assigned: ";
                     var numOfJams = x.carAssign[n].jams.length;
                     for(var i = 0; i< numOfJams; i++){
