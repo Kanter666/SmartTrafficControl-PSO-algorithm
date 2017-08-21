@@ -668,7 +668,6 @@ body {
                 for(var i = 0; i< particle.carAssign[n].jams.length; i++){
                     message += particle.carAssign[n].jams[i].text.content+", ";
                 }
-                message += "currently chaning "+(carN+1)+" car with score of"+bestFitness;
                 console.log(message);
             }
             //This solution is calculating fitness of all assign, I was thinking about calculating just the change but it got too complicated and messy
@@ -732,7 +731,7 @@ body {
 
             var small = smaller[Math.floor(Math.random() * smaller.length)];
 
-            var best = [];
+            var best = [0, 0, particle.fitness];
             var bestFitness = particle.fitness;
             for(var y=0;y<particle.carAssign[long].jams.length;y++){
                 for(var x=0;x<particle.carAssign[small].jams.length;x++){
@@ -741,7 +740,7 @@ body {
                         var car = {jams:particle.carAssign[jc].jams.slice()};
                         carBalance.push(car);
                     }
-                    var jam = carBalance[long].jams.slice()[y];
+                    var jam = carBalance[long].jams[y];
                     carBalance[long].jams.splice(y, 1);
                     carBalance[small].jams.splice(x, 0, jam);
                     var carFitness = calculateFitness(carBalance);
@@ -760,8 +759,7 @@ body {
                     }
                 }
             }
-            if(best != []){
-                console.log(carBalance);
+            if(best[2]<particle.fitness){
                 console.log("Fitness before balancing: "+particle.fitness+" and after: "+ best[2]);
                 var jam = particle.carAssign[long].jams[best[1]];
                 particle.carAssign[long].jams.splice(best[1], 1);
@@ -856,12 +854,11 @@ body {
             if(singleCar.jams.length<1){
                 continue;
             }
-            console.log("cal fitness");
-            console.log(singleCar);
-			var carDist = carsDistances[n].get(singleCar.jams[0].text.content);
+
+            var carDist = carsDistances[n].get(singleCar.jams[0].text.content);
 			for(var i = 1; i<singleCar.jams.length; i++){
 				carDist += jamsDistances.get(singleCar.jams[i-1].text.content).get(singleCar.jams[i].text.content);
-			}
+            }
             distances.push(carDist);
 		}
         
@@ -935,7 +932,6 @@ body {
         function (response, status) {
             if (status !== google.maps.DistanceMatrixStatus.OK) {
                 alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
-                window.location = "./index.ejs";
             } else {
                 console.log("inside car matrix");
 	        	for (var i =0; i < cars.length; i++) {
