@@ -40,9 +40,34 @@ body {
 	font-weight: bold;
 	margin-top: 50px;
 }
+.spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 -->
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="http://spin.js.org/spin.min.js"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApfdSTgQNLa_gl-9PkD9L06Ze9PmZrLBo"></script>
 <script src="https://cdn.rawgit.com/googlemaps/v3-utility-library/infobox/1.1.13/src/infobox.js
 "></script>
@@ -103,6 +128,31 @@ body {
 				new google.maps.LatLng(50.9149906,-1.4145485),
 				new google.maps.LatLng(50.9338139,-1.4182561)],
 				[]];
+    // Loading spinner
+    var opts = {
+        lines: 15 // The number of lines to draw
+        , length: 9 // The length of each line
+        , width: 11 // The line thickness
+        , radius: 37 // The radius of the inner circle
+        , scale: 1 // Scales overall size of the spinner
+        , corners: 1 // Corner roundness (0..1)
+        , color: '#000' // #rgb or #rrggbb or array of colors
+        , opacity: 0.25 // Opacity of the lines
+        , rotate: 42 // The rotation offset
+        , direction: 1 // 1: clockwise, -1: counterclockwise
+        , speed: 0.8 // Rounds per second
+        , trail: 60 // Afterglow percentage
+        , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
+        , zIndex: 2e9 // The z-index (defaults to 2000000000)
+        , className: 'spinner' // The CSS class to assign to the spinner
+        , top: '50%' // Top position relative to parent
+        , left: '50%' // Left position relative to parent
+        , shadow: false // Whether to render a shadow
+        , hwaccel: false // Whether to use hardware acceleration
+        , position: 'absolute' // Element positioning
+        }
+    var spinner = null;
+    var spinner_div = 0;
 
 	//own comparing function for genetic algorithm
 	function compare(a,b) {
@@ -114,6 +164,7 @@ body {
 	}
 	
 	function initialize(){
+        document.getElementById('spinner').style.visibility = "hidden";
 		map = new google.maps.Map(document.getElementById("map-canvas"),{
 			center: southampton,
 			zoom:13,
@@ -337,9 +388,6 @@ body {
 						placeRealJam(reals[round][i]);
 					}
 				}else{
-                    document.getElementById('goButton').style.color = '#CCCCCC';
-                    document.getElementById('goButton').style.backgroundColor = '#999999';
-                    grey = true;
 					if(cars.length<M){
 						var temp = M;
 						M = M - cars.length;
@@ -347,6 +395,10 @@ body {
 						M = temp;
 						alert("Please wait for " + M + " police cars to be placed on the map and try again.");
 					}else{
+                        document.getElementById('goButton').style.color = '#CCCCCC';
+                        document.getElementById('goButton').style.backgroundColor = '#999999';
+                        grey = true;
+                        document.getElementById('spinner').style.visibility = "visible";
                         if (useAlgorithm == false){
                             totalDistance = 0;
                             simpleAlgorithm(jams.slice());
@@ -496,6 +548,8 @@ body {
                 }
             }
         });
+        
+        spinner.stop(spinner_div);
     }
     
     function fastestCar(){
@@ -649,6 +703,7 @@ body {
 		}
         
         console.log("Calculated time with average distance = "+bestPossibleTime);
+        document.getElementById('spinner').style.visibility = "hidden";
 
 	}    
     
@@ -1371,5 +1426,6 @@ body {
         		<h1>Go</h1>
         </button>
 	</div>
+    <div id='spinner' class='spinner'></div>
 </body>
 </html>
