@@ -704,6 +704,12 @@ body {
         
         console.log("Calculated time with average distance = "+bestPossibleTime);
         document.getElementById('spinner').style.visibility = "hidden";
+        
+        for(var m=0;m<M;m++){
+            cars[m].jams = gBest.carAssign[m].jams;
+        }
+        
+        startCountdown();
 
 	}    
     
@@ -827,13 +833,13 @@ body {
     }
     
     function randomAssign(){
-		var cars = [];
+		var randCars = [];
 		for(var c = 0; c<M; c++){
-			cars.push(obj = {jams : []});
+			randCars.push(obj = {jams : []});
 				
 		}
 		for(var j = 0; j<jams.length; j++){
-			var car = cars[Math.floor(Math.random() * M)];
+			var car = randCars[Math.floor(Math.random() * M)];
 			var jamNum = Math.floor(Math.random() * car.jams.length);
 			car.jams.splice(jamNum, 0, jams[j]);
 		}
@@ -843,21 +849,21 @@ body {
 			fitness : 0
 		};
 
-        individual.carAssign = cars.slice();
-		individual.fitness = calculateFitness(cars);
+        individual.carAssign = randCars.slice();
+		individual.fitness = calculateFitness(randCars);
 		return individual;
 	}
     
     //gets closest "available" car to the jam
-    function getClosest(cars, jam){
+    function getClosest(allCars, jam){
         var averageCarDistance = 0;
         var carDistances = []
         
         //this for loop gets average distance of cars and also ordered tuple array of cars as key and their distances as values
-        for(var i = 0; i< cars.length; i++){
-            averageCarDistance += cars[i].distance;
-            if (cars[i].jams.length > 0){
-                var newDistance = jamsDistances.get(cars[i].jams[cars[i].jams.length-1].text.content).get(jam.text.content);
+        for(var i = 0; i< allCars.length; i++){
+            averageCarDistance += allCars[i].distance;
+            if (allCars[i].jams.length > 0){
+                var newDistance = jamsDistances.get(allCars[i].jams[allCars[i].jams.length-1].text.content).get(jam.text.content);
             }else{
                 var newDistance = carsDistances[i].get(jam.text.content);
             }
@@ -874,14 +880,14 @@ body {
             }
         }
                 
-        for(var i = 0; i< cars.length; i++){                
+        for(var i = 0; i< allCars.length; i++){                
             if (averageCarDistance > bestPossibleTime){
-                if (cars[carDistances[i][0]].distance < (1.1 * averageCarDistance)){
+                if (allCars[carDistances[i][0]].distance < (1.1 * averageCarDistance)){
                     console.log(carDistances[i][0], jam);
                     return carDistances[i][0];
                 }
             }else{
-                if (cars[carDistances[i][0]].distance < (1.1 * bestPossibleTime)){
+                if (allCars[carDistances[i][0]].distance < (1.1 * bestPossibleTime)){
                     console.log(carDistances[i][0], jam);
                     return carDistances[i][0];
                 }
@@ -891,10 +897,10 @@ body {
     }
     
     //calculate fitness of cars - longest time distance
-    function calculateFitness(cars){
-        var distances = calculateCarFitness(cars);
+    function calculateFitness(allCars){
+        var distances = calculateCarFitness(allCars);
 		var longestDistance = 0;
-		for(var n = 0; n<cars.length; n++){
+		for(var n = 0; n<allCars.length; n++){
 			if(distances[n]>longestDistance){
 				longestDistance = distances[n];
 			}
