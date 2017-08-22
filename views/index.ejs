@@ -75,7 +75,7 @@ body {
     var southampton = new google.maps.LatLng(50.924354,-1.405391);
 	var map;
 	var M;
-    var useAlgorithm;
+    var useDistances;
 	var jams = [];
 	var cars = [];
 	var radius = [];
@@ -246,12 +246,12 @@ body {
 		MComboBox = document.createElement('select');
 		MComboBox.innerHTML = '<option value=1>1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option>';
         var checkboxText = document.createElement('div');
-        checkboxText.innerHTML = 'Use advanced algorithm (adds delay):';
+        checkboxText.innerHTML = 'Use car time travel as distances (adds delay):';
         checkboxText.style.fontFamily='Arial,sans-serif';
 		checkboxText.style.fontSize='18px';
-        var useAlgorithmCheckbox = document.createElement('input');
-        useAlgorithmCheckbox.type = 'checkbox';
-        useAlgorithmCheckbox.checked = true;
+        var useDistancesCheckbox = document.createElement('input');
+        useDistancesCheckbox.type = 'checkbox';
+        useDistancesCheckbox.checked = true;
 		var playButton = document.createElement('button');
 		playButton.style.fontFamily='Arial,sans-serif';
 		playButton.style.cursor = 'pointer';
@@ -266,14 +266,14 @@ body {
 		score.appendChild(desciptionText);
 		MDefineText.appendChild(MComboBox);
 		score.appendChild(MDefineText);
-        checkboxText.appendChild(useAlgorithmCheckbox);
+        checkboxText.appendChild(useDistancesCheckbox);
         score.appendChild(checkboxText);
 		score.appendChild(playButton);
 		score.appendChild(leaderButton);
         
 		//click listener for the play button
 		google.maps.event.addDomListener(playButton, 'click', function() {
-            useAlgorithm = useAlgorithmCheckbox.checked;
+            useDistances = useDistancesCheckbox.checked;
 			M = MComboBox.options[MComboBox.selectedIndex].value;
 			resetVariables();
 			startRound(round);
@@ -399,9 +399,8 @@ body {
                         document.getElementById('goButton').style.backgroundColor = '#999999';
                         grey = true;
                         document.getElementById('spinner').style.visibility = "visible";
-                        if (useAlgorithm == false){
-                            totalDistance = 0;
-                            simpleAlgorithm(jams.slice());
+                        if (useDistances == false){
+                            getSimpleDistances();
                         }
                         else{
                             //get distances between jams
@@ -479,31 +478,73 @@ body {
 	}
     
 /**********************************
-*         Simple Algorithm        *
+*         Simple Distances        *
 ***********************************/
     
-    function simpleAlgorithm(unassignedJams){
-        var nextCar = fastestCar();
+    function getSimpleDistances(){
+        //creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
+        console.log("Getting simple distances calculated from geographic position.");
+		jamsDistances= new Map();
+		carsDistances = [];
+        jams.counter = 0;
+		for (var i = 0; i < jams.length; i++) {
+			jamsDistances.set(jams[i].text.content, new Map());
+		}
 
-        var coordinates = [];
-        for (var j = 0; j < unassignedJams.length; j++) {
-            coordinates.push(unassignedJams[j].getCenter());
+		for (var i =0; i < cars.length; i++) {
+			carsDistances.push(new Map());
+		}
+        
+        for (var i =0; i < cars.length; i++) {
+            for (var j=0; j<jams.length; j++){
+                carsDistances[i].set(jams[j].text.content, Math.sqrt(Math.pow(cars[i].position.lat()-jams[j].getCenter().lat(), 2)+Math.pow(cars[i].position.lng()-jams[j].getCenter().lng(), 2)));
+            }
         }
         
-        if(cars[nextCar].jams.length ==0){
-            var carPosition = cars[nextCar].position;
-        }else{
-            var carPosition = cars[nextCar].jams[(cars[nextCar].jams.length-1)].getCenter();
+        for (var i =0; i < (jams.length-1); i++) {
+            for (var j=(i+1); j<jams.length; j++){
+                jamsDistances.get(jams[i].text.content).set(jams[j].text.content, Math.sqrt(Math.pow(jams[i].getCenter().lat()-jams[j].getCenter().lat(), 2)+Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lng(), 2)));
+              jamsDistances.get(jams[j].text.content).set(jams[i].text.content, Math.sqrt(Math.pow(jams[i].getCenter().lat()-jams[j].getCenter().lat(), 2)+Math.pow(jams[i].getCenter().lng()-jams[j].getCenter().lng(), 2)));
+            }
         }
+        
+        console.log("Car distances");
+        console.log(carsDistances);
+        console.log("Jams distances");
+        console.log(jamsDistances);
+        
+        PSOalgorithm(60, 60);
+        
+    }
+    
+/**********************************
+*        Proper distances         *
+***********************************/
+    
+    //this function starts preparation for genetic algorithm, it firstly creates map for storing distances and then get's and saves cars distances
+    function getCarDistances(){
 
-        console.log("coordinates");
-        console.log(coordinates);
-        console.log("unassignedJams");
-        console.log(unassignedJams);
+        //creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
+		jamsDistances= new Map();
+		cars.positions = [];
+		carsDistances = [];
+		var coordinates = [];
+        jams.counter = 0;
+		for (var i = 0; i < jams.length; i++) {
+			jamsDistances.set(jams[i].text.content, new Map());
+			coordinates.push(jams[i].getCenter());
+		}
+
+		for (var i =0; i < cars.length; i++) {
+			cars.positions.push(cars[i].position);
+			carsDistances.push(new Map());
+		}
+		console.log(cars.positions);
+        
         var distanceService = new google.maps.DistanceMatrixService();
 
         distanceService.getDistanceMatrix({
-            origins: [carPosition],
+            origins: cars.positions,
             destinations: coordinates,
             unitSystem: google.maps.UnitSystem.METRIC,
             travelMode: google.maps.TravelMode.DRIVING,
@@ -513,55 +554,57 @@ body {
             if (status !== google.maps.DistanceMatrixStatus.OK) {
                 alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
             } else {
-                var smallest = Infinity;
-                var smallestIndex = 666;
-                // loops through all unassigned jams distances
-                for (var k=0; k<unassignedJams.length; k++){
-                    // This if statement compares distance of each jam and save closest one
-                    if(response.rows[0].elements[k].duration.value < smallest){
-                        smallest = response.rows[0].elements[k].duration.value;
-                        smallestIndex =k;
-                    }
-                }
-                
-                cars[nextCar].totalDistance+=smallest;
-                totalDistance +=smallest;
-                cars[nextCar].jams.push(unassignedJams[smallestIndex]);
-                unassignedJams.splice(smallestIndex, 1);
-                if(unassignedJams.length > 0){
-                    var delayMillis = 30 * unassignedJams.length;
-                    setTimeout(function() {
-                        simpleAlgorithm(unassignedJams);
-                    }, delayMillis);
-                }else{
-                    console.log("Finish: ");
-                    for(var n = 0; n < M; n++){
-                        console.log("Car number "+n+" has this jams:")
-                        var message = "";
-                        for(var i = 0; i< cars[n].jams.length; i++){
-                            message += cars[n].jams[i].text.content+", ";
-                        }
-                        console.log(message);
-                    }
-                    console.log(totalDistance);
-                    startCountdown();
-                }
+                console.log("inside car matrix");
+	        	for (var i =0; i < cars.length; i++) {
+	        		for (var j=0; j<jams.length; j++){
+		            	carsDistances[i].set(jams[j].text.content, response.rows[i].elements[j].duration.value);
+		            }
+	        	}
+	        	console.log(carsDistances);
+                setTimeout(function() {
+                    getJamsDistances(coordinates);
+                }, 1700);                
             }
         });
-        
-        spinner.stop(spinner_div);
     }
     
-    function fastestCar(){
-        var currentDistance = cars[0].totalDistance;
-        var currentCar = 0;
-        for(var i=1;i<cars.length;i++){
-            if(cars[i].totalDistance<currentDistance){
-                var currentDistance = cars[0].totalDistance;
-                var currentCar = i;
-            }
-        }
-        return currentCar;
+    function getJamsDistances(coordinates){
+        console.log("inside getJamsDistances");
+		console.log(jams.counter);
+		var distanceService = new google.maps.DistanceMatrixService();
+
+
+		distanceService.getDistanceMatrix({
+	        origins: [jams[jams.counter].getCenter()],
+	        destinations: coordinates,
+	        unitSystem: google.maps.UnitSystem.METRIC,
+	        travelMode: google.maps.TravelMode.DRIVING,
+	        durationInTraffic: true
+	    },
+	    function (response, status) {
+	        if (status !== google.maps.DistanceMatrixStatus.OK) {
+	            alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
+	        } else {
+	        	coordinates.shift();
+	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
+	        	console.log(response);
+	            for (var j=1; j<(jams.length-jams.counter); j++){
+	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter)].text.content, response.rows[0].elements[j].duration.value);
+	            	jamsDistances.get(jams[(j+jams.counter)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
+	            }
+	            jams.counter++;
+                if(coordinates.length>0){
+                    setTimeout(function() {
+                        getJamsDistances(coordinates);
+                    }, (coordinates.length*100));
+                }else{
+                    console.log("finish");
+                    console.log(jamsDistances);
+                    //first is number of particles and second number of iterations
+                    PSOalgorithm(60, 60);
+                }
+	        }
+	    });
     }
                                           
 /**********************************
@@ -955,96 +998,6 @@ body {
         averageDistance = total / (jams.length*jams.length);
         bestPossibleTime = averageDistance * jams.length;
         console.log("Average distance is "+averageDistance);
-    }
-
-/**********************************
-*        Distance getters         *
-***********************************/
-    
-    //this function starts preparation for genetic algorithm, it firstly creates map for storing distances and then get's and saves cars distances
-    function getCarDistances(){
-
-        //creating nested map for saving directions, first key is starting point, second is endpoint and value of second is time in seconds that is expected to take car to get there
-		jamsDistances= new Map();
-		cars.positions = [];
-		carsDistances = [];
-		var coordinates = [];
-        jams.counter = 0;
-		for (var i = 0; i < jams.length; i++) {
-			jamsDistances.set(jams[i].text.content, new Map());
-			coordinates.push(jams[i].getCenter());
-		}
-
-		for (var i =0; i < cars.length; i++) {
-			cars.positions.push(cars[i].position);
-			carsDistances.push(new Map());
-		}
-		console.log(cars.positions);
-        
-        var distanceService = new google.maps.DistanceMatrixService();
-
-        distanceService.getDistanceMatrix({
-            origins: cars.positions,
-            destinations: coordinates,
-            unitSystem: google.maps.UnitSystem.METRIC,
-            travelMode: google.maps.TravelMode.DRIVING,
-            durationInTraffic: true
-        },
-        function (response, status) {
-            if (status !== google.maps.DistanceMatrixStatus.OK) {
-                alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
-            } else {
-                console.log("inside car matrix");
-	        	for (var i =0; i < cars.length; i++) {
-	        		for (var j=0; j<jams.length; j++){
-		            	carsDistances[i].set(jams[j].text.content, response.rows[i].elements[j].duration.value);
-		            }
-	        	}
-	        	console.log(carsDistances);
-                setTimeout(function() {
-                    getJamsDistances(coordinates);
-                }, 1700);                
-            }
-        });
-    }
-    
-    function getJamsDistances(coordinates){
-        console.log("inside getJamsDistances");
-		console.log(jams.counter);
-		var distanceService = new google.maps.DistanceMatrixService();
-
-
-		distanceService.getDistanceMatrix({
-	        origins: [jams[jams.counter].getCenter()],
-	        destinations: coordinates,
-	        unitSystem: google.maps.UnitSystem.METRIC,
-	        travelMode: google.maps.TravelMode.DRIVING,
-	        durationInTraffic: true
-	    },
-	    function (response, status) {
-	        if (status !== google.maps.DistanceMatrixStatus.OK) {
-	            alert('Error: OVER_QUERY_LIMIT - you used your limit for google maps distances. Try it later.');
-	        } else {
-	        	coordinates.shift();
-	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
-	        	console.log(response);
-	            for (var j=1; j<(jams.length-jams.counter); j++){
-	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter)].text.content, response.rows[0].elements[j].duration.value);
-	            	jamsDistances.get(jams[(j+jams.counter)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
-	            }
-	            jams.counter++;
-                if(coordinates.length>0){
-                    setTimeout(function() {
-                        getJamsDistances(coordinates);
-                    }, (coordinates.length*100));
-                }else{
-                    console.log("finish");
-                    console.log(jamsDistances);
-                    //first is number of particles and second number of iterations
-                    PSOalgorithm(60, 60);
-                }
-	        }
-	    });
     }
     
 /**********************************
