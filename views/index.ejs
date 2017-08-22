@@ -1106,32 +1106,33 @@ body {
 
 	//Places a fake jam at location
 	function placeFakeJam(location) {
-		//checks if there is any trafic jam
-		if(jams.length<1){
-			var name = "a";						//if not sets a as its name
-		}else{
-			var name = String.fromCharCode(jams[jams.length-1].text.content.charCodeAt()+1)		//if yes sets next character as its name
-		}
-		var myOptions = {
-		    content: name,
-		    boxStyle: {
-		      border: "none",
-		      textAlign: "center",
-		      fontSize: "10pt",
-		      width: "50px"
-		    },
-		    disableAutoPan: true,
-		    pixelOffset: new google.maps.Size(-25, -5),
-		    position: location,
-		    closeBoxURL: "",
-		    isHidden: false,
-		    pane: "floatPane",
-		    enableEventPropagation: true
-		};
+        if(fakeJamCount < M){
+            //checks if there is any trafic jam
+            if(jams.length<1){
+                var name = "a";						//if not sets a as its name
+            }else{
+                var name = String.fromCharCode(jams[jams.length-1].text.content.charCodeAt()+1)		//if yes sets next character as its name
+            }
+            var myOptions = {
+                content: name,
+                boxStyle: {
+                  border: "none",
+                  textAlign: "center",
+                  fontSize: "10pt",
+                  width: "50px"
+                },
+                disableAutoPan: true,
+                pixelOffset: new google.maps.Size(-25, -5),
+                position: location,
+                closeBoxURL: "",
+                isHidden: false,
+                pane: "floatPane",
+                enableEventPropagation: true
+            };
 
-		var ibLabel = new InfoBox(myOptions);
-		ibLabel.open(map);
-		if(fakeJamCount < M){
+            var ibLabel = new InfoBox(myOptions);
+            ibLabel.open(map);
+            
 			var circle = new google.maps.Circle({
 				center:location,
 				draggable:true,
@@ -1149,6 +1150,7 @@ body {
 			circle.assigned = false;
 			circle.influence = 0;
 			circle.text = myOptions;
+            circle.label  = ibLabel;
 			jams.push(circle);
 		}
 		document.getElementById('toplace').innerHTML = 'LEFT TO PLACE: ' + (M - fakeJamCount);
@@ -1167,7 +1169,8 @@ body {
 	//Clears all jams from the map
 	function clearJams(){
 		for (var i = 0; i < jams.length; i++) {
-          jams[i].setMap(null);
+            jams[i].setMap(null);
+            jams[i].label.close();
         }
 	}
 	
@@ -1270,6 +1273,7 @@ body {
 		circle.checked = false;
 		circle.assigned = false;
 		circle.text = myOptions;
+        circle.label  = ibLabel;
 
 		google.maps.event.addListener(circle, 'mouseover', function() {placeRadius(circle.center, 5);});
 		jams.push(circle);
