@@ -518,7 +518,7 @@ body {
     }
     
 /**********************************
-*        Proper distances         *
+*      Time travel distances      *
 ***********************************/
     
     //this function starts preparation for genetic algorithm, it firstly creates map for storing distances and then get's and saves cars distances
@@ -638,6 +638,8 @@ body {
         
 		for(var g = 0; g < numberOfIterations; g++){
             
+            var gBestCounter = 0;
+            
 			particles.forEach(function(x){
                 
                 console.log(x.carAssign);
@@ -663,6 +665,7 @@ body {
                 
                 //leaders needs to look for new solutions
                 if(x.fitness==gBest.fitness){
+                    gBestCounter++;
                     console.log("Best fitness before exploring: "+x.fitness);
                     exploreSolutions(x);
                     console.log("New fitness after: "+x.fitness);
@@ -703,6 +706,19 @@ body {
                     message += gBest.carAssign[n].jams[i].text.content+", ";
                 }
                 console.log(message);
+            }
+            
+            if(gBestCounter<2 && particles.length>10){
+                console.log("aww");
+                particles[0].carAssign = [];
+                particles[1].carAssign = [];
+                for(var n=0;n<gBest.carAssign.length;n++){
+                    var car = {jams:gBest.carAssign[n].jams.slice()}
+                    particles[0].carAssign.push(car);
+                    particles[1].carAssign.push(car);
+                }
+                particles[0].fitness = gBest.fitness;
+                particles[1].fitness = gBest.fitness;
             }
 		}
         
