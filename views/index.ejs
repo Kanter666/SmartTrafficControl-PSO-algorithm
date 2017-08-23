@@ -563,7 +563,7 @@ body {
 	        	console.log(carsDistances);
                 setTimeout(function() {
                     getJamsDistances(coordinates);
-                }, 1700);                
+                }, 1750);                
             }
         });
     }
@@ -634,67 +634,26 @@ body {
 		}
 		console.table(particles);
 
-        var gBest = getBest(particles);
+        gBest = getBest(particles);
         
 		for(var g = 0; g < numberOfIterations; g++){
             
 			particles.forEach(function(x){
                 
                 console.log(x.carAssign);
-                console.log
                 
+                //follow the leader
                 if(Math.random()>0.40){
-                    for(var m=0;m<M;m++){
-                        x.velocity = [];
-                        for(var j=0;j<x.pBest[m].jams.length;j++){
-                            if(x.carAssign[m].jams.length <= j){
-                                swap = [m, j, false, x.pBest[m].jams[j]];
-                                x.velocity.push(swap);
-                            }else if(x.carAssign[m].jams[j]!=x.pBest[m].jams[j]){
-                                swap = [m, j, true, x.carAssign[m].jams[j], x.pBest[m].jams[j]];
-                                x.velocity.push(swap);
-                            }
-                        }
-                        
-                        for(var j=0;j<gBest.carAssign[m].jams.length;j++){
-                            if(x.carAssign[m].jams.length <= j){
-                                swap = [m, j, false, gBest.carAssign[m].jams[j]];
-                                x.velocity.push(swap);
-                            }else if(x.carAssign[m].jams[j]!=gBest.carAssign[m].jams[j]){
-                                swap = [m, j, true, gBest.carAssign[m].jams[j]];
-                                x.velocity.push(swap);
-                            }
-                        }
-                    }
-
-                    for(var swap=0;swap<x.velocity.length;swap++){
-                        
-                        if(Math.random()>0.5){
-                            var index = [];
-                            for(var m=0;m<x.carAssign.length;m++){
-                                var ind = x.carAssign[m].jams.indexOf(x.velocity[swap][3]);
-                                if(ind>=0){
-                                    index = [m, ind];
-                                }
-                            }
-
-                            if(x.velocity[swap][2]==false){
-                                x.carAssign[index[0]].jams.splice(index[1], 1);
-                                x.carAssign[x.velocity[swap][0]].jams.splice(x.velocity[swap][1],0,x.velocity[swap][3]);
-                            }else{
-                                x.carAssign[index[0]].jams[index[1]] = x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]];
-                                x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]]=x.velocity[swap][3];
-                            }
-                        }
-                    }
-                x.fitness = calculateFitness(x.carAssign);
-                // explore new solutions
-                }else if(Math.random()>0.25){
+                    followTheLeader(x);
+                }
+                // explore near solutions
+                else if(Math.random()>0.25){
                     console.log("Old fitness before random exploring: "+x.fitness);
                     exploreSolutions(x);
                     console.log("New fitness random after: "+x.fitness);
+                }
                 // create new random particle
-                }else{
+                else{
                     console.log("Creating new random particle");
                     var randomParticle = randomAssign();
                     
@@ -702,12 +661,14 @@ body {
                     x.fitness = randomParticle.fitness;
                 }
                 
+                //leaders needs to look for new solutions
                 if(x.fitness==gBest.fitness){
                     console.log("Best fitness before exploring: "+x.fitness);
                     exploreSolutions(x);
                     console.log("New fitness after: "+x.fitness);
                 }
-                // controling if new personal or global best
+                
+                // checking if new personal or global best
                 if(x.fitness<x.pBestFitness){
                     x.pBestFitness = x.fitness;
                     x.pBest = [];
@@ -719,12 +680,12 @@ body {
                         gBest.fitness = x.pBestFitness;
                         gBest.carAssign = x.pBest;
                     }
+                    
                 }
                 console.log("Fitness of "+g+"th evolution "+particles.indexOf(x)+"th particle = "+x.fitness);
                 for(var n = 0; n<x.carAssign.length; n++){
                     var message = "Car "+(n+1)+" has these jams assigned: ";
-                    var numOfJams = x.carAssign[n].jams.length;
-                    for(var i = 0; i< numOfJams; i++){
+                    for(var i = 0; i< x.carAssign[n].jams.length; i++){
                         message += x.carAssign[n].jams[i].text.content+", ";
                     }
                     console.log(message);
@@ -754,12 +715,59 @@ body {
         
         startCountdown();
 
-	}    
+	}
     
 /**********************************
-*        Helper functions         *
+*          Main functions         *
 ***********************************/
-        
+    
+    function followTheLeader(x){
+        //get velocity and force
+        for(var m=0;m<M;m++){
+            x.velocity = [];
+            for(var j=0;j<x.pBest[m].jams.length;j++){
+                if(x.carAssign[m].jams.length <= j){
+                    swap = [m, j, false, x.pBest[m].jams[j]];
+                    x.velocity.push(swap);
+                }else if(x.carAssign[m].jams[j]!=x.pBest[m].jams[j]){
+                    swap = [m, j, true, x.carAssign[m].jams[j], x.pBest[m].jams[j]];
+                    x.velocity.push(swap);
+                }
+            }
+            for(var j=0;j<gBest.carAssign[m].jams.length;j++){
+                if(x.carAssign[m].jams.length <= j){
+                    swap = [m, j, false, gBest.carAssign[m].jams[j]];
+                    x.velocity.push(swap);
+                }else if(x.carAssign[m].jams[j]!=gBest.carAssign[m].jams[j]){
+                    swap = [m, j, true, gBest.carAssign[m].jams[j]];
+                    x.velocity.push(swap);
+                }
+            }
+        }
+        //move towards personal and global best
+        for(var swap=0;swap<x.velocity.length;swap++){
+
+            if(Math.random()>0.5){
+                var index = [];
+                for(var m=0;m<x.carAssign.length;m++){
+                    var ind = x.carAssign[m].jams.indexOf(x.velocity[swap][3]);
+                    if(ind>=0){
+                        index = [m, ind];
+                    }
+                }
+
+                if(x.velocity[swap][2]==false){
+                    x.carAssign[index[0]].jams.splice(index[1], 1);
+                    x.carAssign[x.velocity[swap][0]].jams.splice(x.velocity[swap][1],0,x.velocity[swap][3]);
+                }else{
+                    x.carAssign[index[0]].jams[index[1]] = x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]];
+                    x.carAssign[x.velocity[swap][0]].jams[x.velocity[swap][1]]=x.velocity[swap][3];
+                }
+            }
+        }
+    x.fitness = calculateFitness(x.carAssign);
+    }
+    
     //this would be used by leaders of swarm to find new solutions
     function exploreSolutions(particle){
         
@@ -896,48 +904,9 @@ body {
 		individual.fitness = calculateFitness(randCars);
 		return individual;
 	}
-    
-    //gets closest "available" car to the jam
-    function getClosest(allCars, jam){
-        var averageCarDistance = 0;
-        var carDistances = []
-        
-        //this for loop gets average distance of cars and also ordered tuple array of cars as key and their distances as values
-        for(var i = 0; i< allCars.length; i++){
-            averageCarDistance += allCars[i].distance;
-            if (allCars[i].jams.length > 0){
-                var newDistance = jamsDistances.get(allCars[i].jams[allCars[i].jams.length-1].text.content).get(jam.text.content);
-            }else{
-                var newDistance = carsDistances[i].get(jam.text.content);
-            }
-            
-            if(carDistances.length == 0 || newDistance > carDistances[carDistances.length-1][1]){
-                carDistances.push([i, newDistance]);
-            }else{
-                for(var j; j<carDistances.length; j++){
-                    if(newDistance < carDistances[j][1]){
-                        carDistance.splice(j, 0, [i, newDistance]);
-                        break;
-                    }
-                }
-            }
-        }
-                
-        for(var i = 0; i< allCars.length; i++){                
-            if (averageCarDistance > bestPossibleTime){
-                if (allCars[carDistances[i][0]].distance < (1.1 * averageCarDistance)){
-                    console.log(carDistances[i][0], jam);
-                    return carDistances[i][0];
-                }
-            }else{
-                if (allCars[carDistances[i][0]].distance < (1.1 * bestPossibleTime)){
-                    console.log(carDistances[i][0], jam);
-                    return carDistances[i][0];
-                }
-            }
-        }
-        return carDistances[0][0];
-    }
+/**********************************
+*        Helper functions         *
+***********************************/
     
     //calculate fitness of cars - longest time distance
     function calculateFitness(allCars){
@@ -968,6 +937,7 @@ body {
         
         return distances;
     }
+    
     function getBest(particles){
         var best = {
 			carAssign : particles[0].pBest,
@@ -1001,7 +971,7 @@ body {
     }
     
 /**********************************
-*    End of routing functions     *
+*    End of helping functions     *
 ***********************************/    
 
 	
