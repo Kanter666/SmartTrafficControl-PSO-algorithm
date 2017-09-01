@@ -66,7 +66,8 @@ body {
 }
 -->
 </style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>sudo apt-get install simplescreenrecorder
+
 <script src="http://spin.js.org/spin.min.js"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApfdSTgQNLa_gl-9PkD9L06Ze9PmZrLBo"></script>
 <script src="https://cdn.rawgit.com/googlemaps/v3-utility-library/infobox/1.1.13/src/infobox.js
@@ -513,7 +514,7 @@ body {
         console.log("Jams distances");
         console.log(jamsDistances);
         
-        PSOalgorithm(60, 60);
+        PSOalgorithm(40, 50);
         
     }
     
@@ -539,7 +540,6 @@ body {
 			cars.positions.push(cars[i].position);
 			carsDistances.push(new Map());
 		}
-		console.log(cars.positions);
         
         var distanceService = new google.maps.DistanceMatrixService();
 
@@ -569,7 +569,6 @@ body {
     }
     
     function getJamsDistances(coordinates){
-        console.log("inside getJamsDistances");
 		console.log(jams.counter);
 		var distanceService = new google.maps.DistanceMatrixService();
 
@@ -587,7 +586,6 @@ body {
 	        } else {
 	        	coordinates.shift();
 	        	console.log(jamsDistances.get(jams[jams.counter].text.content));
-	        	console.log(response);
 	            for (var j=1; j<(jams.length-jams.counter); j++){
 	            	jamsDistances.get(jams[jams.counter].text.content).set(jams[(j+jams.counter)].text.content, response.rows[0].elements[j].duration.value);
 	            	jamsDistances.get(jams[(j+jams.counter)].text.content).set(jams[jams.counter].text.content, response.rows[0].elements[j].duration.value);
@@ -601,7 +599,7 @@ body {
                     console.log("finish");
                     console.log(jamsDistances);
                     //first is number of particles and second number of iterations
-                    PSOalgorithm(60, 60);
+                    PSOalgorithm(40, 50);
                 }
 	        }
 	    });
@@ -641,9 +639,7 @@ body {
             var gBestCounter = 0;
             
 			particles.forEach(function(x){
-                
-                console.log(x.carAssign);
-                
+                                
                 //follow the leader
                 if(Math.random()>0.40){
                     followTheLeader(x);
@@ -709,7 +705,6 @@ body {
             }
             
             if(gBestCounter<2 && particles.length>10){
-                console.log("aww");
                 particles[0].carAssign = [];
                 particles[1].carAssign = [];
                 for(var n=0;n<gBest.carAssign.length;n++){
@@ -788,16 +783,9 @@ body {
     function exploreSolutions(particle){
         
         //try to optimize one of the cars assigment
-        while(Math.random()>0.4){
+        while(Math.random()>(0.45-(M*0.03))){
             console.log("optimizing car assigment");
             var carN = Math.floor(Math.random() * M);
-            for(var n = 0; n<M; n++){
-                var message = "Car "+(n+1)+" before optimization: ";
-                for(var i = 0; i< particle.carAssign[n].jams.length; i++){
-                    message += particle.carAssign[n].jams[i].text.content+", ";
-                }
-                console.log(message);
-            }
             //This solution is calculating fitness of all assign, I was thinking about calculating just the change but it got too complicated and messy
             for(var y=0;y<(particle.carAssign[carN].jams.length-1);y++){
                 var bestFitness = calculateCarFitness(particle.carAssign)[carN];
@@ -825,16 +813,9 @@ body {
                     particle.fitness = calculateFitness(particle.carAssign); 
                 }
             }
-            for(var n = 0; n<M; n++){
-                var message = "Car "+(n+1)+" afterss optimization: ";
-                for(var i = 0; i< particle.carAssign[n].jams.length; i++){
-                    message += particle.carAssign[n].jams[i].text.content+", ";
-                }
-                console.log(message);
-            }
         }
         // Balance different cars
-        while(M>1 && Math.random()>0.5){
+        while(M>1 && Math.random()>(0.55-(M*0.03))){
             console.log("Balancing cars");
             var distances = calculateCarFitness(particle.carAssign);
             var carAverage = 0;
